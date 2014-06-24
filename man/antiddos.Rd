@@ -1,0 +1,48 @@
+\name{antiddos}
+\alias{antiddos}
+\title{Anti DDoS}
+\usage{
+antiddos(market, antispam_interval = 10,
+  verbose = getOption("Rbitcoin.verbose"))
+}
+\arguments{
+  \item{market}{character, a unique name of source system,
+  could be any name
+  \code{c('kraken','bitstamp','blockchain','alt_bitstamp')}}
+
+  \item{antispam_interval}{numeric time in seconds between
+  API calls on the particular source system, defeault
+  \code{10s}.}
+
+  \item{verbose}{integer. Rbitcoin processing messages,
+  print to console if \code{verbose > 0}, each subfunction
+  reduce \code{verbose} by 1. If missing then
+  \code{getOption("Rbitcoin.verbose")} is used, by default
+  \code{0}.}
+}
+\value{
+numeric time of wait in seconds.
+}
+\description{
+Wait if you should before next API call to market (or any
+other source system) to do not get banned.
+}
+\section{Side effect}{
+  Environment of name \code{Rbitcoin.last_api_call} in
+  \code{.GlobalEnv} which holds the timestamps of last api
+  call per \code{market} during the R session.
+}
+\examples{
+\dontrun{
+# run below code in a batch
+wait <- antiddos(market = 'kraken', antispam_interval = 5, verbose = 1)
+market.api.process('kraken',c('BTC','EUR'),'ticker')
+wait2 <- antiddos(market = 'kraken', antispam_interval = 5, verbose = 1)
+market.api.process('kraken',c('BTC','EUR'),'ticker')
+}
+}
+\seealso{
+\code{\link{market.api.process}},
+\code{\link{wallet_manager}}
+}
+

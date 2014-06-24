@@ -1,0 +1,43 @@
+\name{blockchain.api.process}
+\alias{blockchain.api.process}
+\title{Process blockchain.info API}
+\usage{
+blockchain.api.process(..., method, verbose = getOption("Rbitcoin.verbose"))
+}
+\arguments{
+  \item{\dots}{params passed to blockchain.info API,
+  specific for particular method, example
+  \code{'bitcoin_address'} or \code{'tx_index'}, for more
+  read \code{\link{blockchain.api.query}}.}
+
+  \item{method}{character. For details see
+  \code{blockchain.api.query}, currently supported
+  \code{'Single Address'} and \code{'Single Transaction'}.
+  If \code{method} missing the function will try to guess
+  it based on first param in \dots.}
+
+  \item{verbose}{integer. Rbitcoin processing messages,
+  print to console if \code{verbose > 0}, each subfunction
+  reduce \code{verbose} by 1. If missing then
+  \code{getOption("Rbitcoin.verbose")} is used, by default
+  \code{0}.}
+}
+\value{
+data.table object, blockchain api data transformed to
+table.
+}
+\description{
+Query and process results from blockchain.info.
+}
+\examples{
+\dontrun{
+# Rbitcoin donation address wallet
+Rbitcoin_donation_wallet <- blockchain.api.process('15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi')
+# some transaction
+tx <- blockchain.api.process('e5c4de1c70cb6d60db53410e871e9cab6a0ba75404360bf4cda1b993e58d45f8')
+}
+}
+\seealso{
+\code{\link{blockchain.api.query}}
+}
+

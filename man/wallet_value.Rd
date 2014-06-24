@@ -1,0 +1,24 @@
+\name{wallet_value}
+\alias{wallet_value}
+\title{Wallet value}
+\usage{
+wallet_value(wallet_dt, ct.dict = getOption("Rbitcoin.ct.dict"),
+  value_currency, value_currency_type = NULL, rate_priority,
+  transfer_currency_pair, antispam_interval, api.dict = NULL,
+  verbose = getOption("Rbitcoin.verbose"))
+}
+\description{
+Defines the currency pairs required to cover needed
+exchange rates and chose the source according to rate
+priority, also utilize the transfer_currency_pair when no
+direct currency pair available.
+}
+\note{
+Setting option "Rbitcoin.archive_exchange_rate" to numeric
+0, 1 o 2 will lead to archive exchange rates used during
+the processing. Value 0 for rds file, 1 for csv (dec='.',
+sep=','), 2 for csv (dec=',', sep=';'). Read
+\code{\link{wallet_manager}} manual.
+}
+\keyword{internal}
+

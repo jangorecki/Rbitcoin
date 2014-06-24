@@ -1,0 +1,112 @@
+\name{market.api.query}
+\alias{market.api.query}
+\title{Send request to market API}
+\usage{
+market.api.query(market, ..., verbose = getOption("Rbitcoin.verbose"),
+  on.error = expression(stop(e[["message"]], call. = FALSE)))
+}
+\arguments{
+  \item{market}{character which identifies market on which
+  we want to send request: bitstamp, btce, kraken,
+  bitmarket.}
+
+  \item{\dots}{objects to be passed to API: \code{url},
+  \code{key}, \code{secret}, \code{req}, \code{client_id}
+  (used on bitstamp).}
+
+  \item{verbose}{integer. Rbitcoin processing messages,
+  print to console if \code{verbose > 0}, each subfunction
+  reduce \code{verbose} by 1. If missing then
+  \code{getOption("Rbitcoin.verbose")} is used, by default
+  \code{0}.}
+
+  \item{on.error}{expression to be evaluated on R level
+  error of market specific function. It does not catch
+  internal market's error returned as valid object.}
+}
+\value{
+R object created by fromJSON decoded result from market's
+API call.
+}
+\description{
+Route a request to particular market function.
+}
+\details{
+To do not spam market's API, use \code{Sys.sleep(10)}
+between API calls.
+}
+\note{
+It is advised to use this function instead of calling
+market's function directly. If calling directly one should
+ensure to send any numeric values in non-exponential
+notation: \code{options(scipen=100)}.
+}
+\examples{
+\dontrun{
+# ticker
+market.api.query(market = 'bitstamp',
+                 url = 'https://www.bitstamp.net/api/ticker/')
+market.api.query(market = 'btce',
+                 url = 'https://btc-e.com/api/2/btc_usd/ticker')
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR')
+market.api.query(market = 'bitmarket',
+                 url = 'https://www.bitmarket.pl/json/LTCPLN/ticker.json')
+# wallet
+market.api.query(market = 'bitstamp',
+                 url = 'https://www.bitstamp.net/api/balance/',
+                 client_id = '', # bitstamp specific
+                 key = '', secret = '')
+market.api.query(market = 'btce',
+                 url = 'https://btc-e.com/tapi',
+                 req = list(method = 'getInfo'),
+                 key = '', secret = '')
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/private/Balance',
+                 key = '', secret = '')
+market.api.query(market = 'bitmarket',
+                 url = 'https://www.bitmarket.pl/api2/',
+                 req = list(method = 'info'),
+                 key = '', secret = '')
+# order book
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/public/Depth?pair=XXBTZEUR')
+# open orders
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/private/OpenOrders',
+                 key = '', secret = '')
+# place order
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/private/AddOrder',
+                 key = '', secret = '',
+                 req = list(pair = 'XXBTZEUR',
+                            type = 'sell',
+                            ordertype = 'limit',
+                            price = 1200, # 1200 eur
+                            volume = 0.1)) # 0.1 btc
+# cancel order
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/private/CancelOrder',
+                 key = '', secret = '',
+                 req = list(txid = 'id_from_open_orders'))
+# trades
+market.api.query(market = 'kraken',
+                 url = 'https://api.kraken.com/0/public/Trades?pair=XXBTZEUR')
+}
+}
+\references{
+API documentation:
+\url{https://bitbucket.org/nitrous/mtgox-api},
+\url{https://www.bitstamp.net/api/},
+\url{https://btc-e.com/api/documentation},
+\url{https://www.kraken.com/help/api}
+}
+\seealso{
+\code{\link{market.api.process}},
+\code{\link{market.api.query.bitstamp}},
+\code{\link{market.api.query.btce}},
+\code{\link{market.api.query.kraken}},
+\code{\link{market.api.query.bitmarket}},
+\code{\link{market.api.query.mtgox}}
+}
+

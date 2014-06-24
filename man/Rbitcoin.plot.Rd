@@ -1,0 +1,130 @@
+\name{Rbitcoin.plot}
+\alias{Rbitcoin.plot}
+\title{Plot Rbitcoin objects}
+\usage{
+Rbitcoin.plot(x, mask = FALSE, ..., export = FALSE,
+  export.args = list(format = "svg", filename = NULL),
+  verbose = getOption("Rbitcoin.verbose"))
+}
+\arguments{
+  \item{x}{object to be plotted, result of Rbitcoin
+  function, currently supported: \code{market.api.process}
+  with \code{action} in \code{c("trades","order_book")},
+  \code{wallet_manager} with \code{archive_read = TRUE}.}
+
+  \item{mask}{logical, \code{TRUE} will mask values on
+  wallet manager plot with the ratio of value to the
+  initial value. Use this when you want to share the plot.}
+
+  \item{export}{logical default \code{FALSE}, if
+  \code{TRUE} the plot will be exported to file instead of
+  plot to ploting device.}
+
+  \item{export.args}{list of arguments to be passed to
+  target graphic device function, ex. \code{svg()} or
+  \code{png()}, list gives the control over width and
+  height which by default for png are quite small. Element
+  \code{export.args[['format']]} will be mapped to the
+  function name, by default \code{svg()}, any others as its
+  \code{args}.}
+
+  \item{\dots}{additional params to be passed to plot
+  function.}
+
+  \item{verbose}{integer. Rbitcoin processing messages,
+  print to console if \code{verbose > 0}, each subfunction
+  reduce \code{verbose} by 1. If missing then
+  \code{getOption("Rbitcoin.verbose")} is used, by default
+  \code{0}.}
+}
+\value{
+TRUE
+}
+\description{
+Generic function to plot different objects returned by some
+Rbitcoin functions. The plot produce basic visualization of
+the data. The plots will likely be subject to change in
+future versions.
+}
+\section{Export}{
+  Element \code{format} in the \code{export.args} list
+  defines the export format, default \code{"svg"}, tested
+  and supported formats are \code{"svg"} and \code{"png"},
+  other might work also. To use custom export filename just
+  pass the filename arg to export.args list. By default
+  \code{NULL} results timestamped by last \code{wallet_id}
+  filename. Use custom \code{export.args[['filename']]}
+  with no file extension while declaring. You may notice
+  the legend is different on exported files. The same
+  legend was not scalling well between export to file and
+  plot to interactive device.
+}
+
+\section{input trades, order_book}{
+  The plot function for \code{trades}, \code{order_book} do
+  not process the data, it plot the data as is, so it may
+  result poor visibility due to the data itself (ex.
+  \code{order_book} containing asks with enormously high
+  price). See examples how this can be handled.
+}
+
+\section{input wallet manager}{
+  To be able to track wallet assets value over time user
+  needs to use \code{archive_write=TRUE} at least twice in
+  wallet manager processing (with non-NA measures). Using
+  the cryptocurrency which do not have any exchange path to
+  \code{transfer_currency_pair} and/or
+  \code{value_currency} will result \code{NA} as
+  \code{value}. Error on data downloading from external
+  sources (wallets or exchange rates) will also result
+  \code{NA}. Any wallet processing batch which will contain
+  at least one \code{NA} measure will be omitted from plot.
+  If you have some crypto not currenctly supported you may
+  extend dictionary for more currencies or provide its
+  value as manual source to \code{wallet_manager} already
+  calculated in common value currency, remember to comment
+  out the previous source which returns the \code{NA}
+  measure.\cr To plot wallet manager data load wallet
+  archive data, see examples.\cr Plotting function will
+  produce dashboard panel to track different measures of
+  your assets and its value. Use \code{mask} if you want to
+  share the results to somebody, it will overwrite value
+  with value ratio. Target value currency is taken from the
+  last execution of \code{wallet_manager}.
+}
+\examples{
+\dontrun{
+# plot trades data from kraken's api
+trades <- market.api.process('kraken',c('BTC','EUR'),'trades')
+Rbitcoin.plot(trades)
+Rbitcoin.plot(trades,export=TRUE,col='blue') #export to file, plot trades line in blue
+
+# plot order book data from kraken's api
+order_book <- market.api.process('kraken',c('BTC','EUR'),'order_book')
+Rbitcoin.plot(order_book)
+
+# plot order book with filtering margins based on order price
+order_book <- market.api.process('bitmarket',c('BTC','PLN'),'order_book')
+pct <- 0.75
+mid <- ((order_book[["asks"]][1,price] + order_book[["bids"]][1,price]) / 2)
+order_book[["asks"]] <- order_book[["asks"]][price <= mid * (1+pct)]
+order_book[["bids"]] <- order_book[["bids"]][price >= mid * (1-pct)]
+Rbitcoin.plot(order_book)
+
+# plot wallet manager data (from local archive) - for details read ?waller_manager
+wallet_dt <- wallet_manager(archive_write=F, archive_read=T) #readRDS("wallet_archive.rds")
+Rbitcoin.plot(wallet_dt) # plot in R
+Rbitcoin.plot(wallet_dt, export=T) # export to svg
+# mask value with ratio value and save to png
+Rbitcoin.plot(wallet_dt,mask=T,export=T,export.args=list(format="png",
+                                                         width = 2*480,
+                                                         height = 2*480,
+                                                         units = "px",
+                                                         pointsize = 18))
+}
+}
+\seealso{
+\code{\link{market.api.process}},
+\code{\link{wallet_manager}}
+}
+

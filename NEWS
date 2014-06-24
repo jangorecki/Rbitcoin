@@ -1,0 +1,56 @@
+Rbitcoin 0.9
+==============
+* blockchain.api.process - blockchain.api.query with postprocessing of results
+* market.api.* support for new market: bitmarket
+* api.dict: minor fixes, some new currency pairs.
+* new utility functions:
+  * Rbitcoin.plot - plot of Rbitcoin results
+  * wallet manager - track assets on multiple wallet sources over time
+  * available wallet - wallet amounts subtract open orders amounts
+
+Rbitcoin 0.8.5
+==============
+* some technical params (curl.verbose, ssl.verify, debug) removed from FUNs args. They are available as 'options'.
+* documentation update
+* workaround for data.table setkeyv issue (v1.8.11 - v1.9.2) added
+* timezone of POSIX objects used by package changed from GMT to UTC
+* api.dict update/fixes:
+  * added kraken BTCLTC and btce NMCBTC to api.dict
+  * some business exceptions handled
+  * kraken ticker ask-bid swap fixed
+  * incorrect base-quote headers swap fixed on some entries
+
+  
+Rbitcoin 0.8
+==============
+* market.api.process: added currency_pair param (non backwards compatible!)
+* market specific market.api.query functions optimization
+* market.api.process: added optional (user customized) api.dict param
+* error handling rewritten
+* market.api.process: api.dict: actions extended (note the market.api.query already handle all actions/methods): ticker, wallet, open_orders, order_book, place_limit_order, cancel_order, trades
+* market.api.process: api.dict: market currency pairs extended (note the market.api.query already handle all currency pairs), currently supported:
+  * mtgox: BTCUSD
+  * bitstamp: BTCUSD
+  * btce: LTCUSD, LTCBTC
+  * kraken: BTCEUR, LTCEUR
+* btce param 'method' moved to 'req' list object (non backwards compatible!)
+* blockchain.api.query rewritten to use extended API in JSON, fixed missing @export
+
+
+Rbitcoin 0.6
+==============
+* Added api dictionary for pre & post processing, market error handling
+* Added market.api.process: ticker, wallet, order_book actions available
+* Documentation updates, better examples
+
+
+Rbitcoin 0.5.1
+==============
+* Documentation extended
+
+
+Rbitcoin 0.5
+============
+* First version to publish
+* API public/private calls on mtgox, bitstamp, btce, kraken
+* blockchain account balance
