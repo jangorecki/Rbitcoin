@@ -1,3 +1,9 @@
+Rbitcoin 0.9.1
+==============
+* minor fixes to wallet_manager and its Rbitcoin.plot
+* minor doc fixes
+
+
 Rbitcoin 0.9
 ==============
 * blockchain.api.process - blockchain.api.query with postprocessing of results
@@ -7,6 +13,7 @@ Rbitcoin 0.9
   * Rbitcoin.plot - plot of Rbitcoin results
   * wallet manager - track assets on multiple wallet sources over time
   * available wallet - wallet amounts subtract open orders amounts
+
 
 Rbitcoin 0.8.5
 ==============

@@ -75,13 +75,13 @@ NULL
 #' @usage data(api.dict)
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @docType data
-#' @author Jan Gorecki, 2014-04-17
+#' @author Jan Gorecki, 2014-04-18
 #' @keywords datasets
 NULL
 
 #' @title Process market API
 #'
-#' @description Processing of API call according to API dictionary \code{\link{api.dict}}. Limited to markets and currency processing defined in \code{api.dict}, use \code{\link{market.api.query}} for all currency pairs on all currently supported markets. This function perform pre processing of request and post processing of API call results to unified structure across markets. It will result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you should use \code{\link{market.api.query}}.
+#' @description Unified processing of API call according to API dictionary \code{\link{api.dict}}. Limited to markets and currency processing defined in \code{api.dict}, in case of currency pairs and methods not availble in dictionary use \code{\link{market.api.query}} directly. This function perform pre processing of request and post processing of API call results to unified structure across markets. It will result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you should use \code{\link{market.api.query}}.
 #' 
 #' @param market character, example: \code{'kraken'}.
 #' @param currency_pair character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}. Order does matter.
@@ -91,11 +91,11 @@ NULL
 #' \itemize{
 #' \item auth params: \code{key}, \code{secret}, \code{client_id} (last one used on bitstamp),
 #' }
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @param on.market.error expression to be evaluated on market level error. Rules specified in \code{\link{api.dict}}.
 #' @param on.error expression to be evaluated on R level error related to \code{market.api.query}. For details read \code{\link{market.api.query}}.
 #' @param api.dict data.table user custom API dictionary definition, if not provided function will use default Rbitcoin \code{\link{api.dict}}.
-#' @param raw.query.res logical skip post-processing are return results only after fromJSON processing. Useful in case of change results structure from market API. It can always be manually post-processed as a workaround till the Rbitcoin update.
+#' @param raw.query.res logical skip post-processing are return results only after \code{fromJSON} processing. Useful in case of change results structure from market API. It can always be manually post-processed as a workaround till the Rbitcoin update.
 #' @details To do not spam market's API, use \code{Sys.sleep(10)} between API calls.
 #' @return Returned value depends on the \code{action} param. All actions will return market, currency pair (except \code{wallet} and \code{open_orders} which returns all currencies), R timestamp, market timestamp and below data (in case if market not provide particular data, it will result \code{NA} value):
 #' \itemize{
@@ -163,7 +163,7 @@ NULL
 #' # get trades
 #' market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'trades')
 #' }
-market.api.process <- function(market, currency_pair, action, req = list(), ..., verbose = getOption("Rbitcoin.verbose"), on.market.error = expression(stop(e[['message']], call. = FALSE)), on.error = expression(stop(e[['message']], call. = FALSE)), api.dict = NULL, raw.query.res = FALSE){
+market.api.process <- function(market, currency_pair, action, req = list(), ..., verbose = getOption("Rbitcoin.verbose",0), on.market.error = expression(stop(e[['message']], call. = FALSE)), on.error = expression(stop(e[['message']], call. = FALSE)), api.dict = NULL, raw.query.res = FALSE){
   fun_name <- 'market.api.process'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': processing started for ',market,' ',action,sep='')
   #R package check warning NOTE prevention:
@@ -217,9 +217,9 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
 #'
 #' @param market character which identifies market on which we want to send request: bitstamp, btce, kraken, bitmarket.
 #' @param \dots objects to be passed to API: \code{url}, \code{key}, \code{secret}, \code{req}, \code{client_id} (used on bitstamp).
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @param on.error expression to be evaluated on R level error of market specific function. It does not catch internal market's error returned as valid object.
-#' @return R object created by fromJSON decoded result from market's API call.
+#' @return R object created by \code{fromJSON} decoded result from market's API call.
 #' @details To do not spam market's API, use \code{Sys.sleep(10)} between API calls.
 #' @note It is advised to use this function instead of calling market's function directly. If calling directly one should ensure to send any numeric values in non-exponential notation: \code{options(scipen=100)}. 
 #' @seealso \code{\link{market.api.process}}, \code{\link{market.api.query.bitstamp}}, \code{\link{market.api.query.btce}}, \code{\link{market.api.query.kraken}}, \code{\link{market.api.query.bitmarket}}, \code{\link{market.api.query.mtgox}}
@@ -277,7 +277,7 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
 #' market.api.query(market = 'kraken', 
 #'                  url = 'https://api.kraken.com/0/public/Trades?pair=XXBTZEUR')
 #' }
-market.api.query <- function(market, ..., verbose = getOption("Rbitcoin.verbose"), on.error = expression(stop(e[['message']], call. = FALSE))){
+market.api.query <- function(market, ..., verbose = getOption("Rbitcoin.verbose",0), on.error = expression(stop(e[['message']], call. = FALSE))){
   fun_name <- 'market.api.query'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': switch query for particular market: ',market,sep='')
   old.scipen <- options(scipen=100) #it happend that R send a exponential sci notation which is not supported by markets, setting this localy, will revert after function call to previous value
@@ -309,8 +309,8 @@ market.api.query <- function(market, ..., verbose = getOption("Rbitcoin.verbose"
 #' @param key character API key used in private API calls.
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
-#' @return R object created by fromJSON decoded result from market's API call.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
+#' @return R object created by \code{fromJSON} decoded result from market's API call.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://bitbucket.org/nitrous/mtgox-api}
 #' @export
@@ -322,7 +322,7 @@ market.api.query <- function(market, ..., verbose = getOption("Rbitcoin.verbose"
 #' market.api.query.mtgox(url = 'https://data.mtgox.com/api/2/BTCUSD/money/info', 
 #'                        key = '', secret = '')
 #' }
-market.api.query.mtgox <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose")){ 
+market.api.query.mtgox <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose",0)){ 
   fun_name <- 'market.api.query.mtgox'
   if(length(req) > 0 | (!missing(key) & !missing(secret))){
     if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': request param or auth keys provided',sep='')
@@ -339,7 +339,7 @@ market.api.query.mtgox <- function(url, key, secret, req = list(), verbose = get
     }
   }
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': launching api call on url=\'',url,'\'',sep='')
-  curl <- getCurlHandle(useragent = paste(paste("R",packageVersion("base")),paste("Rbitcoin",packageVersion("Rbitcoin")), sep="::"))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
   if(missing(key) | missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
   else if(length(post_data) > 0 & !missing(key) & !missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE,
                                                                                                                  postfields = post_data, httpheader = httpheader))
@@ -359,8 +359,8 @@ market.api.query.mtgox <- function(url, key, secret, req = list(), verbose = get
 #' @param key character API key used in private API calls.
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc..
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
-#' @return R object created by fromJSON decoded result from market's API call. Cancel order is an exception handled by hardcode, as bitstamp will not return json format for that method.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
+#' @return R object created by \code{fromJSON} decoded result from market's API call. Cancel order is an exception handled by hardcode, as bitstamp will not return json format for that method.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://www.bitstamp.net/api/}
 #' @export
@@ -373,7 +373,7 @@ market.api.query.mtgox <- function(url, key, secret, req = list(), verbose = get
 #'                           client_id = '',
 #'                           key = '', secret = '')
 #' }
-market.api.query.bitstamp <- function(url, client_id, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose")){
+market.api.query.bitstamp <- function(url, client_id, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'market.api.query.bitstamp'
   if(length(req) > 0 | (!missing(key) & !missing(secret) & !missing(client_id))){
     if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': request param or auth keys provided',sep='')
@@ -388,7 +388,7 @@ market.api.query.bitstamp <- function(url, client_id, key, secret, req = list(),
     if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': post data prepared',sep='')
   }
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': launching api call on url=\'',url,'\'',sep='')
-  curl <- getCurlHandle(useragent = paste(paste("R",packageVersion("base")),paste("Rbitcoin",packageVersion("Rbitcoin")), sep="::"))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
   if(missing(key) | missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
   else if(length(post_data) > 0 & !missing(key) & !missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE,
                                                                                                                  postfields = post_data))
@@ -407,8 +407,8 @@ market.api.query.bitstamp <- function(url, client_id, key, secret, req = list(),
 #' @param key character API key used in private API calls.
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc. See note.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
-#' @return fromJSON decoded result from market's API call.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
+#' @return R object created by \code{fromJSON} decoded result from market's API call.
 #' @note Market specific btce \code{method} param should be provided in \code{req} object.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://btc-e.com/api/documentation}
@@ -422,7 +422,7 @@ market.api.query.bitstamp <- function(url, client_id, key, secret, req = list(),
 #'                       req = list(method = 'getInfo'), 
 #'                       key = '', secret = '')
 #' }
-market.api.query.btce <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose")){
+market.api.query.btce <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'market.api.query.btce'
   if(length(req) > 0 | (!missing(key) & !missing(secret))){
     if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': request param or auth keys provided',sep='')
@@ -438,7 +438,7 @@ market.api.query.btce <- function(url, key, secret, req = list(), verbose = getO
     }
   }
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': launching api call on url=\'',url,'\'',sep='')
-  curl <- getCurlHandle(useragent = paste(paste("R",packageVersion("base")),paste("Rbitcoin",packageVersion("Rbitcoin")), sep="::"))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
   if(missing(key) | missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
   else if(length(post_data) > 0 | !missing(key) & !missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE,
                                                                                                                  postfields = post_data, httpheader = httpheader))
@@ -457,8 +457,8 @@ market.api.query.btce <- function(url, key, secret, req = list(), verbose = getO
 #' @param key character API key used in private API calls.
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
-#' @return R object created by fromJSON decoded result from market's API call.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
+#' @return R object created by \code{fromJSON} decoded result from market's API call.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://www.kraken.com/help/api}
 #' @export
@@ -470,7 +470,7 @@ market.api.query.btce <- function(url, key, secret, req = list(), verbose = getO
 #' market.api.query.kraken(url = 'https://api.kraken.com/0/private/Balance', 
 #'                         key = '', secret = '')
 #' }
-market.api.query.kraken <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose")){
+market.api.query.kraken <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'market.api.query.kraken'
   if(length(req) > 0 | (!missing(key) & !missing(secret))){
     if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': request param or auth keys provided',sep='')
@@ -496,7 +496,7 @@ market.api.query.kraken <- function(url, key, secret, req = list(), verbose = ge
     }
   }
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': launching api call on url=\'',url,'\'',sep='')
-  curl <- getCurlHandle(useragent = paste(paste("R",packageVersion("base")),paste("Rbitcoin",packageVersion("Rbitcoin")), sep="::"))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
   if(missing(key) | missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
   else if(length(post_data) > 0 | !missing(key) & !missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE,
                                                                                                                  postfields = post_data, httpheader = httpheader))
@@ -515,8 +515,8 @@ market.api.query.kraken <- function(url, key, secret, req = list(), verbose = ge
 #' @param key character API key used in private API calls.
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
-#' @return R object created by fromJSON decoded result from market's API call.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
+#' @return R object created by \code{fromJSON} decoded result from market's API call.
 #' @note Market specific bitmarket \code{method} param should be provided in \code{req} object.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://www.bitmarket.pl/docs.php?file=api_private.html}
@@ -530,7 +530,7 @@ market.api.query.kraken <- function(url, key, secret, req = list(), verbose = ge
 #'                            req = list(method = 'info'),
 #'                            key = '', secret = '')
 #' }
-market.api.query.bitmarket <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose")){ 
+market.api.query.bitmarket <- function(url, key, secret, req = list(), verbose = getOption("Rbitcoin.verbose",0)){ 
   fun_name <- 'market.api.query.bitmarket'
   if(length(req) > 0 | (!missing(key) & !missing(secret))){
     if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': request param or auth keys provided',sep='')
@@ -546,7 +546,7 @@ market.api.query.bitmarket <- function(url, key, secret, req = list(), verbose =
     }
   }
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': launching api call on url=\'',url,'\'',sep='')
-  curl <- getCurlHandle(useragent = paste(paste("R",packageVersion("base")),paste("Rbitcoin",packageVersion("Rbitcoin")), sep="::"))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
   if(missing(key) | missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
   else if(length(post_data) > 0 & !missing(key) & !missing(secret)) query_result_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE,
                                                                                                                  postfields = post_data, httpheader = httpheader))
@@ -565,7 +565,7 @@ market.api.query.bitmarket <- function(url, key, secret, req = list(), verbose =
 #'
 #' @param \dots params passed to blockchain.info API, specific for particular method, example \code{'bitcoin_address'} or \code{'tx_index'}, for more read \code{\link{blockchain.api.query}}.
 #' @param method character. For details see \code{blockchain.api.query}, currently supported \code{'Single Address'} and \code{'Single Transaction'}. If \code{method} missing the function will try to guess it based on first param in \dots.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @return data.table object, blockchain api data transformed to table.
 #' @seealso \code{\link{blockchain.api.query}}
 #' @export
@@ -576,7 +576,7 @@ market.api.query.bitmarket <- function(url, key, secret, req = list(), verbose =
 #' # some transaction
 #' tx <- blockchain.api.process('e5c4de1c70cb6d60db53410e871e9cab6a0ba75404360bf4cda1b993e58d45f8')
 #' }
-blockchain.api.process <- function(... , method, verbose = getOption("Rbitcoin.verbose")){
+blockchain.api.process <- function(... , method, verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'blockchain.api.process'
   input_list <- list(...)
   if(missing(method)){ # MAINTAIN second version in .process fun
@@ -623,7 +623,7 @@ blockchain.api.process <- function(... , method, verbose = getOption("Rbitcoin.v
 #'
 #' @param \dots params passed to blockchain.info API, specific for particular method, example \code{'bitcoin_address'} or \code{'tx_index'}, for more see references or examples.
 #' @param method character. For details see references, currently supported \code{'Single Address'} and \code{'Single Transaction'}. If \code{method} missing the function will try to guess it based on first param in \dots.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @return result returned by \code{fromJSON} function applied on the blockchain result, most probably the list.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://blockchain.info/api/blockchain_api}
@@ -644,7 +644,7 @@ blockchain.api.process <- function(... , method, verbose = getOption("Rbitcoin.v
 #' # Some recent transaction of some first wallet
 #' blockchain.api.query('e5c4de1c70cb6d60db53410e871e9cab6a0ba75404360bf4cda1b993e58d45f8')
 #' }
-blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.verbose")){
+blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'blockchain.api.query'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': processing started',sep='')
   input_list <- list(...)
@@ -682,7 +682,7 @@ blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.ver
                 },
                 stop(paste0(fun_name,': unsupported method: ',method)))
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': url prepared: ',url,sep='')
-  curl <- getCurlHandle(useragent = paste(paste("R",packageVersion("base")),paste("Rbitcoin",packageVersion("Rbitcoin")), sep="::"))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
   res_json <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': API call executed',sep='')
   res <- fromJSON(res_json)
@@ -698,7 +698,7 @@ blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.ver
 #'
 #' @param wallet data.table object returned by \code{market.api.process} with \code{action="wallet"} param.
 #' @param open_orders data.table object returned by \code{market.api.process} with \code{action="open_orders"} param.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @return data.table object, the same as wallet but with the appropriate amounts after subtracting the open orders amounts.
 #' @seealso \code{\link{market.api.process}}
 #' @export
@@ -710,7 +710,7 @@ blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.ver
 #' aw <- available_wallet(wallet, open_orders, verbose = 1)
 #' print(aw)
 #' }
-available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.verbose")){
+available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'available_wallet'
   # input validation
   if(nrow(wallet)==0){
@@ -746,7 +746,7 @@ available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.
 #' @param min_amount numeric used to filter out near zero amounts of source currency, default \code{0.0001}.
 #' @param antispam_interval numeric time in seconds between API calls on one source system, defeault \code{10s}.
 #' @param api.dict data.table required when using custom API dictionary, read \code{\link{market.api.process}} for details.
-#' @param verbose integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @param value_calc logical calculate value, by default \code{TRUE}, can be turned off by setting to \code{FALSE}. Process will be slightly faster due to no API calls for exchange rates.
 #' @param value_currency character default \code{"USD"}, target currency in which measure the current value.
 #' @param value_currency_type character, optional for most currencies, if \code{value_currency} is an exotic currency you need to define its currency type ('crypto' or 'fiat') in this param or update \code{getOption("Rbitcoin.ct.dict")} param.
@@ -756,7 +756,8 @@ available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.
 #' @param archive_read logical, default \code{FALSE}, recommended \code{FALSE}. If \code{TRUE} it return full archive of wallets data over time grouped by \code{wallet_id}. To be used when passing results to \code{\link{Rbitcoin.plot}} function or performing other analysis over time, read notes below.
 #' @return data.table object with wallet information in denormilized structure. Number of columns depends on \code{value_calc} param, when \code{FALSE} then columns related to the value will not be returned. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format.
 #' @section Wallet archive:
-#' To be able to track wallet assets value over time user needs to use \code{archive_write=TRUE}. It will archive wallet manager result data.table to \code{wallet_archive.rds} file in not encrypted format (not a plain text also), senstive data like amount and value will be available from R by \code{readRDS("wallet_archive.rds")}. This can be used to correct/manipulate archived data or union the results of the wallet manager performed on different machines by \code{readRDS(); rbindlist(); saveRDS()}. Setting \code{archive_write=FALSE} and \code{archive_read=TRUE} will skip processing and just load the archive, same as \code{readRDS()}.
+#' To be able to track wallet assets value over time user needs to use \code{archive_write=TRUE}. It will archive wallet manager result \code{data.table} to \code{wallet_archive.rds} file in not encrypted format (not a plain text also), sensitive data like amount and value will be available from R by \code{readRDS("wallet_archive.rds")}. This can be used to correct/manipulate archived data or union the results of the wallet manager performed on different machines by \code{readRDS(); rbindlist(); saveRDS()}. Setting \code{archive_write=FALSE} and \code{archive_read=TRUE} will skip processing and just load the archive, same as \code{readRDS()}.
+#' You should be aware the archive file will be growing over time, unless you have tons of sources defined or you scheduled \code{wallet_manager} every hour or less you should not experience any issues because of that. In case of the big size of archived rds file you can move data to database, wrap function into database archiver function and query full archive from database only for for plotting.
 #' @section Exchange rates:
 #' Exchange rates will be downloaded from different sources. Fiat-fiat rates will be sourced from yahoo finance, if yahoo would not be available then also fiat-fiat rate cannot be calculated. Rates for cryptocurrencies will be downloaded from market's tickers according to \code{rate_priority} and currency pairs available in \code{api.dict}. Currency type (crypto or fiat) is already defined in \code{getOption("Rbitcoin.ct.dict")}, can be edited for support other/new currency.\cr
 #' Markets used for crypto rates are defined by \code{rate_priority} as vector of market names in order of its priority from highest to lowest. User need to chose own trusted exchange rates providers and keep in mind to update \code{rate_priority} parameter when necessary. As we recently seen the mtgox after death was still spreading the public API data and any system which sources data from them would be affected, so the control over the source for exchange rates needs to be maintained by user.
@@ -769,8 +770,8 @@ available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.
 #' @section Schedule wallet tracking:
 #' User may consider to schedule execution of the function with \code{archive_write=TRUE} for better wallet assets tracking over time. Schedule can be setup on OS by run prepared R script with \code{wallet_manager} function execution. In case of scheduling also plot of wallet manager use \code{archive_read=TRUE} and add \code{Rbitcoin.plot} function execution.
 #' @section Troubleshooting:
-#' In case of the issues with this function verify if all the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report.
-#' Additionally you can always use function's \code{verbose} param to print processing informations.
+#' In case of the issues with this function verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report.
+#' Additionally you can always use \code{verbose} argument to print processing informations.
 #' @seealso \code{\link{Rbitcoin.plot}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos}}
 #' @references \url{https://code.google.com/p/yahoo-finance-managed/wiki/csvQuotesDownload}
 #' @export
@@ -798,7 +799,7 @@ available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.
 #'   list(location = 'while transferring',
 #'        currency = c('BTC','LTC'),
 #'        amount = c(0.08, 0)),
-#'   # workaround for bitstamp api captcha bug (unavailability)
+#'   # manually provided value as workaround for bitstamp api unavailability captcha bug
 #'   list(location = 'bitstamp',
 #'        location_type = 'market' 
 #'        currency = c('USD','BTC'),
@@ -818,7 +819,7 @@ available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.
 #'   blockchain.sources = blockchain.sources, 
 #'   manual.sources = manual.sources, 
 #'   value_currency = 'GBP', 
-#'   rate_priority = c('bitstamp','kraken','bitmarket,'btce')
+#'   rate_priority = c('bitstamp','kraken','bitmarket','btce')
 #'   archive_write = TRUE
 #' )
 #' print(wallet_dt)
@@ -852,7 +853,7 @@ available_wallet <- function(wallet, open_orders, verbose = getOption("Rbitcoin.
 #' wallet_dt <- wallet_manager(market.sources,
 #'                             blockchain.sources,
 #'                             manual.sources = manual.sources,
-#'                             rate_priority = c('bitstamp','kraken','bitmarket,'btce')
+#'                             rate_priority = c('bitstamp','kraken','bitmarket','btce')
 #'                             archive_write = TRUE)
 #' # all exchange rate data as dt
 #' dt <- readRDS("exchange_rate_archive.rds")
@@ -869,7 +870,7 @@ wallet_manager <- function(market.sources = NULL,
                            min_amount = 0.0001, 
                            antispam_interval = 10, 
                            api.dict = NULL, 
-                           verbose = getOption("Rbitcoin.verbose"),
+                           verbose = getOption("Rbitcoin.verbose",0),
                            value_calc = TRUE, 
                            value_currency = 'USD', 
                            value_currency_type = NULL,
@@ -1041,11 +1042,11 @@ wallet_manager <- function(market.sources = NULL,
 #' @description Generic function to plot different objects returned by some Rbitcoin functions. The plot produce basic visualization of the data. The plots will likely be subject to change in future versions.
 #'
 #' @param x object to be plotted, result of Rbitcoin function, currently supported: \code{market.api.process} with \code{action} in \code{c("trades","order_book")}, \code{wallet_manager} with \code{archive_read = TRUE}.
-#' @param mask logical, \code{TRUE} will mask values on wallet manager plot with the ratio of value to the initial value. Use this when you want to share the plot.
+#' @param mask logical, default \code{FALSE}, setting \code{TRUE} will mask values on wallet manager plot with the ratio of value to the initial value. Use this when you want to share the plot. See examples to mask the bitcoin address.
 #' @param export logical default \code{FALSE}, if \code{TRUE} the plot will be exported to file instead of plot to ploting device.
 #' @param export.args list of arguments to be passed to target graphic device function, ex. \code{svg()} or \code{png()}, list gives the control over width and height which by default for png are quite small. Element \code{export.args[['format']]} will be mapped to the function name, by default \code{svg()}, any others as its \code{args}.
 #' @param \dots additional params to be passed to plot function.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @return TRUE
 #' @section Export:
 #' Element \code{format} in the \code{export.args} list defines the export format, default \code{"svg"}, tested and supported formats are \code{"svg"} and \code{"png"}, other might work also.
@@ -1080,17 +1081,22 @@ wallet_manager <- function(market.sources = NULL,
 #' # plot wallet manager data (from local archive) - for details read ?waller_manager
 #' wallet_dt <- wallet_manager(archive_write=F, archive_read=T) #readRDS("wallet_archive.rds")
 #' Rbitcoin.plot(wallet_dt) # plot in R
+#' Rbitcoin.plot(wallet_dt[value>=100 | is.na(value)]) # filter out low value from plot
 #' Rbitcoin.plot(wallet_dt, export=T) # export to svg
 #' # mask value with ratio value and save to png
-#' Rbitcoin.plot(wallet_dt,mask=T,export=T,export.args=list(format="png", 
-#'                                                          width = 2*480, 
-#'                                                          height = 2*480, 
-#'                                                          units = "px", 
-#'                                                          pointsize = 18))
+#' Rbitcoin.plot(wallet_dt,mask=T,export=T,
+#'               export.args=list(format="png",
+#'                                width = 2*480,
+#'                                height = 2*480, 
+#'                                units = "px", 
+#'                                pointsize = 18))
+#' # mask value with ratio and mask bitcoin addresses
+#' Rbitcoin.plot(wallet_dt[,.SD][location_type=="blockchain",location := "*address*"],
+#'               mask=T, export=T)
 #' }
 Rbitcoin.plot <- function(x, mask = FALSE, ..., 
                           export = FALSE, export.args = list(format = 'svg', filename = NULL), 
-                          verbose = getOption("Rbitcoin.verbose")){
+                          verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'Rbitcoin.plot'
   # recognize input
   if(is.list(x) & !is.data.table(x)){
@@ -1143,10 +1149,10 @@ Rbitcoin.plot <- function(x, mask = FALSE, ...,
     on.exit(NULL)
   }
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': plotting finished',sep='')
-  TRUE
+  invisible(TRUE)
 }
 
-Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbitcoin.verbose")){
+Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'Rbitcoin.plot.wallet'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': preparing metadata to plot',sep='')
   x[,`:=`(
@@ -1159,7 +1165,7 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
   by=c('wallet_id')] #NA WILL BE OMITED
   
   # choose last
-  v.value_currency <- x[nrow(x),value_currency]
+  v.value_currency <- x[which.max(wallet_id),value_currency]
   
   setkeyv(x,c('na_group','value_currency'))
   
@@ -1168,7 +1174,7 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
   
   # verify time dimension length > 1
   if(x[J(FALSE,v.value_currency), nrow(unique(.SD)), .SDcols=c('wallet_id')]$V1 <= 1){
-    stop(paste0("Cannot plot time on x axis: provided combined wallet data consists only one, non-NA measure, observation for (recent used) value currency: ",v.value_currency,", be sure to load wallet archive using wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE) or readRDS(), by default wallet_manager function return only recent wallet data. See examples"), call.=FALSE)
+    stop(paste0("Cannot plot time on x axis: provided combined wallet data consists only one (non-NA measure) observation for (recent used) value currency: ",v.value_currency,", be sure to load wallet archive using wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE) or readRDS(), by default wallet_manager function return only recent wallet data. See examples"), call.=FALSE)
   }
   
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': plotting',sep='')
@@ -1178,7 +1184,7 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
   op <- par(mfrow=c(3,2),mar=c(4.6,4.1,3.6,2.1))
   on.exit(par(op), add = TRUE)
   # legend settings
-  case.legend <- function(legend_, col_, verbose=getOption("Rbitcoin.verbose")){
+  case.legend <- function(legend_, col_, verbose=getOption("Rbitcoin.verbose",0)){
     fun_name <- 'case.legend'
     if(!dev.interactive()){ 
       legend(x = 'topleft', legend = legend_, col = col_, lty = 1, 
@@ -1324,8 +1330,10 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
               lines(x = as.POSIXct(.SD[location==v.location,wallet_id], origin='1970-01-01', tz='UTC'),
                     y = .SD[location==v.location,if(mask) value_mask else value],
                     col = cl)
+              .SD[location==v.location,wallet_id]
               #add to legend
-              lg <- rbindlist(list(lg, data.table(legend_ = v.location, col_ = cl)))
+              lg <- rbindlist(list(lg, data.table(legend_ = if(nchar(v.location) > 10) paste0(substr(v.location,1,10),"...") else v.location, 
+                                                  col_ = cl)))
             }
             lg[,{
               case.legend(legend_, col_, verbose=verbose-1) # different legend for interarctive graphics device and for export due to scaling issue
@@ -1377,7 +1385,7 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
   invisible(TRUE)
 }
 
-Rbitcoin.plot.trades <- function(x, ..., verbose = getOption("Rbitcoin.verbose")){
+Rbitcoin.plot.trades <- function(x, ..., verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'Rbitcoin.plot.trades'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': performing plot',sep='')
   plot(x = x[['trades']][['date']], y = x[['trades']][['price']],
@@ -1390,7 +1398,7 @@ Rbitcoin.plot.trades <- function(x, ..., verbose = getOption("Rbitcoin.verbose")
   invisible()
 }
 
-Rbitcoin.plot.order_book <- function(x, ..., verbose = getOption("Rbitcoin.verbose")){
+Rbitcoin.plot.order_book <- function(x, ..., verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'Rbitcoin.plot.order_book'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': performing plot',sep='')
   v_price <- c(x[['asks']][['price']],x[['bids']][['price']])
@@ -1415,11 +1423,12 @@ Rbitcoin.plot.order_book <- function(x, ..., verbose = getOption("Rbitcoin.verbo
 #'
 #' @param market character, a unique name of source system, could be any name \code{c('kraken','bitstamp','blockchain','alt_bitstamp')} 
 #' @param antispam_interval numeric time in seconds between API calls on the particular source system, defeault \code{10s}.
-#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose")} is used, by default \code{0}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used, by default \code{0}.
 #' @return numeric time of wait in seconds.
 #' @section Side effect:
 #' Environment of name \code{Rbitcoin.last_api_call} in \code{.GlobalEnv} which holds the timestamps of last api call per \code{market} during the R session.
 #' @seealso \code{\link{market.api.process}}, \code{\link{wallet_manager}}
+#' @export
 #' @examples
 #' \dontrun{
 #' # run below code in a batch
@@ -1428,7 +1437,7 @@ Rbitcoin.plot.order_book <- function(x, ..., verbose = getOption("Rbitcoin.verbo
 #' wait2 <- antiddos(market = 'kraken', antispam_interval = 5, verbose = 1)
 #' market.api.process('kraken',c('BTC','EUR'),'ticker')
 #' }
-antiddos <- function(market, antispam_interval = 10, verbose = getOption("Rbitcoin.verbose")){
+antiddos <- function(market, antispam_interval = 10, verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'antiddos'
   wait <- 0
   if(!is.null(Rbitcoin.last_api_call[[market]])){
@@ -1451,7 +1460,7 @@ Rbitcoin.last_api_call <- new.env()
 #' @title Get rate
 #' @description Download ask-bid data for provided market and currency pair, supports bitcoin markets and yahoo.
 #' @keywords internal
-get_rate <- function(v_market, v_base, v_quote, antispam_interval, api.dict, verbose = getOption("Rbitcoin.verbose")){
+get_rate <- function(v_market, v_base, v_quote, antispam_interval, api.dict, verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'get_rate'
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': downloading exchange rate ',v_base,v_quote,' from ',v_market,sep='')
   if(v_market == 'yahoo'){
@@ -1497,7 +1506,7 @@ wallet_value <- function(wallet_dt,
                          transfer_currency_pair,
                          antispam_interval,
                          api.dict = NULL, 
-                         verbose = getOption("Rbitcoin.verbose")){
+                         verbose = getOption("Rbitcoin.verbose",0)){
   fun_name <- 'wallet_value'
   
   # currency type dict

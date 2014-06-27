@@ -1,5 +1,5 @@
 Basic package information available in DESCRIPTION file.
 Install in R by:
-> install.packages('Rbitcoin')
+> install.packages("Rbitcoin")
 Package level documentation:
 > ?btc
