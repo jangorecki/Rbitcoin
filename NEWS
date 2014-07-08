@@ -1,6 +1,6 @@
-Rbitcoin 0.9.1
+Rbitcoin 0.9.1 (dev)
 ==============
-* minor fixes to wallet_manager and its Rbitcoin.plot
+* minor fixes to wallet_manager and its Rbitcoin.plot (may require data.table 1.9.3)
 * minor doc fixes
 
 

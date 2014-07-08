@@ -1173,7 +1173,7 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
   #v.value_currency <- x[J(FALSE),.N, by="value_currency"][order(-N)][1,value_currency]
   
   # verify time dimension length > 1
-  if(x[J(FALSE,v.value_currency), nrow(unique(.SD)), .SDcols=c('wallet_id')]$V1 <= 1){
+  if(x[J(FALSE,v.value_currency), nrow(unique(.SD)), .SDcols=c('wallet_id')] <= 1){ # 1.9.3 change?
     stop(paste0("Cannot plot time on x axis: provided combined wallet data consists only one (non-NA measure) observation for (recent used) value currency: ",v.value_currency,", be sure to load wallet archive using wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE) or readRDS(), by default wallet_manager function return only recent wallet data. See examples"), call.=FALSE)
   }
   
@@ -1534,7 +1534,7 @@ wallet_value <- function(wallet_dt,
   direct_pair <- 
     priority.ticker.api.dict[currency_to_rate[,list(currency_pair = paste(sort(c(currency,value_currency)),collapse='')), by=c('currency','currency_type')
                                               ][,list(currency, currency_type),keyby='currency_pair'
-                                                ],list(currency, currency_type, market, base, quote)
+                                                ],list(currency_pair, currency, currency_type, market, base, quote) # data.table 1.9.3 change?
                              ][value_currency_type=='fiat' & currency_type=='fiat',`:=`(market = 'yahoo', base = currency, quote = value_currency)
                                ]
   to_transfer_pair <- {
