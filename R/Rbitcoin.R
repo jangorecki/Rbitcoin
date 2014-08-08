@@ -75,7 +75,7 @@ NULL
 #' @usage data(api.dict)
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @docType data
-#' @author Jan Gorecki, 2014-04-18
+#' @author Jan Gorecki, 2014-08-08
 #' @keywords datasets
 NULL
 
@@ -688,6 +688,54 @@ blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.ver
   res <- fromJSON(res_json)
   if(verbose > 0) cat('\n',as.character(Sys.time()),': ',fun_name,': call result processed using fromJSON',sep='')
   return(res)
+}
+
+#' @title Fast convert to/from BTC
+#'
+#' @description Fast convert to/from BTC based on blockchain.info exchange rates API.
+#'
+#' @param currency character.
+#' @param value numeric.
+#' @return converted value.
+#' @seealso \code{\link{blockchain.api.query}}
+#' @references \url{https://blockchain.info/api/exchange_rates_api}
+#' @export
+#' @examples
+#' \dontrun{
+#' # 1000 USD to BTC
+#' toBTC("USD", 1000)
+#' # 1 BTC to USD
+#' fromBTC("USD", 1)
+#' }
+toBTC <- function(currency = "USD", value = 1){
+  url <- paste0('https://blockchain.info/tobtc?currency=',currency,'&value=',format(value, scientific = FALSE))
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
+  charNum <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
+  as.numeric(gsub(",","",charNum))
+}
+
+#' @title Fast convert to/from BTC
+#'
+#' @description Fast convert to/from BTC based on blockchain.info exchange rates API.
+#'
+#' @param currency character.
+#' @param value numeric.
+#' @return converted value.
+#' @seealso \code{\link{blockchain.api.query}}
+#' @references \url{https://blockchain.info/api/exchange_rates_api}
+#' @export
+#' @examples
+#' \dontrun{
+#' # 1000 USD to BTC
+#' toBTC("USD", 1000)
+#' # 1 BTC to USD
+#' fromBTC("USD", 1)
+#' }
+fromBTC <- function(currency = "USD", value = 1){
+  url <- paste0('https://blockchain.info/tobtc?currency=',currency,'&value=1')
+  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
+  charNum <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
+  value/as.numeric(gsub(",","",charNum))
 }
 
 # available wallet --------------------------------------------------------

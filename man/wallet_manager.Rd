@@ -4,7 +4,7 @@
 \title{Wallet Manager}
 \usage{
 wallet_manager(market.sources = NULL, blockchain.sources = NULL,
-  manual.sources = NULL, min_amount = 0.0001, antispam_interval = 10,
+  manual.sources = NULL, min_amount = 1e-04, antispam_interval = 10,
   api.dict = NULL, verbose = getOption("Rbitcoin.verbose", 0),
   value_calc = TRUE, value_currency = "USD", value_currency_type = NULL,
   rate_priority, transfer_currency_pair = c(crypto = "BTC", fiat = "USD"),
