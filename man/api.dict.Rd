@@ -20,7 +20,7 @@ This data set contains dictionary (\code{\link{data.table}} object) for \code{\l
 Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 }
 \author{
-Jan Gorecki, 2014-08-08
+Jan Gorecki, 2014-08-13
 }
 \keyword{datasets}
 

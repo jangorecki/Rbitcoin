@@ -75,7 +75,7 @@ NULL
 #' @usage data(api.dict)
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @docType data
-#' @author Jan Gorecki, 2014-08-08
+#' @author Jan Gorecki, 2014-08-13
 #' @keywords datasets
 NULL
 
