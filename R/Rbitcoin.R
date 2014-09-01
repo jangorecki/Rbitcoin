@@ -690,54 +690,6 @@ blockchain.api.query <- function(... , method, verbose = getOption("Rbitcoin.ver
   return(res)
 }
 
-#' @title Fast convert to/from BTC
-#'
-#' @description Fast convert to/from BTC based on blockchain.info exchange rates API.
-#'
-#' @param currency character.
-#' @param value numeric.
-#' @return converted value.
-#' @seealso \code{\link{blockchain.api.query}}
-#' @references \url{https://blockchain.info/api/exchange_rates_api}
-#' @export
-#' @examples
-#' \dontrun{
-#' # 1000 USD to BTC
-#' toBTC("USD", 1000)
-#' # 1 BTC to USD
-#' fromBTC("USD", 1)
-#' }
-toBTC <- function(currency = "USD", value = 1){
-  url <- paste0('https://blockchain.info/tobtc?currency=',currency,'&value=',format(value, scientific = FALSE))
-  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
-  charNum <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
-  as.numeric(gsub(",","",charNum))
-}
-
-#' @title Fast convert to/from BTC
-#'
-#' @description Fast convert to/from BTC based on blockchain.info exchange rates API.
-#'
-#' @param currency character.
-#' @param value numeric.
-#' @return converted value.
-#' @seealso \code{\link{blockchain.api.query}}
-#' @references \url{https://blockchain.info/api/exchange_rates_api}
-#' @export
-#' @examples
-#' \dontrun{
-#' # 1000 USD to BTC
-#' toBTC("USD", 1000)
-#' # 1 BTC to USD
-#' fromBTC("USD", 1)
-#' }
-fromBTC <- function(currency = "USD", value = 1){
-  url <- paste0('https://blockchain.info/tobtc?currency=',currency,'&value=1')
-  curl <- getCurlHandle(useragent = paste("Rbitcoin",packageVersion("Rbitcoin")))
-  charNum <- rawToChar(getURLContent(curl = curl, url = url, binary = TRUE))
-  value/as.numeric(gsub(",","",charNum))
-}
-
 # available wallet --------------------------------------------------------
 
 #' @title Available wallet
@@ -1221,7 +1173,7 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
   #v.value_currency <- x[J(FALSE),.N, by="value_currency"][order(-N)][1,value_currency]
   
   # verify time dimension length > 1
-  if(x[J(FALSE,v.value_currency), nrow(unique(.SD)), .SDcols=c('wallet_id')] <= 1){ # 1.9.3 change?
+  if(x[J(FALSE,v.value_currency), nrow(unique(.SD)), .SDcols=c('wallet_id')]$V1 <= 1){ # data.table 1.9.3: .SDcols=c('wallet_id')] <= 1){
     stop(paste0("Cannot plot time on x axis: provided combined wallet data consists only one (non-NA measure) observation for (recent used) value currency: ",v.value_currency,", be sure to load wallet archive using wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE) or readRDS(), by default wallet_manager function return only recent wallet data. See examples"), call.=FALSE)
   }
   
@@ -1378,10 +1330,8 @@ Rbitcoin.plot.wallet <- function(x, mask = FALSE, ..., verbose = getOption("Rbit
               lines(x = as.POSIXct(.SD[location==v.location,wallet_id], origin='1970-01-01', tz='UTC'),
                     y = .SD[location==v.location,if(mask) value_mask else value],
                     col = cl)
-              .SD[location==v.location,wallet_id]
               #add to legend
-              lg <- rbindlist(list(lg, data.table(legend_ = if(nchar(v.location) > 10) paste0(substr(v.location,1,10),"...") else v.location, 
-                                                  col_ = cl)))
+              lg <- rbindlist(list(lg, data.table(legend_ = if(nchar(v.location) > 10) paste0(substr(v.location,1,10),"...") else v.location, col_ = cl)))
             }
             lg[,{
               case.legend(legend_, col_, verbose=verbose-1) # different legend for interarctive graphics device and for export due to scaling issue
@@ -1582,7 +1532,7 @@ wallet_value <- function(wallet_dt,
   direct_pair <- 
     priority.ticker.api.dict[currency_to_rate[,list(currency_pair = paste(sort(c(currency,value_currency)),collapse='')), by=c('currency','currency_type')
                                               ][,list(currency, currency_type),keyby='currency_pair'
-                                                ],list(currency_pair, currency, currency_type, market, base, quote) # data.table 1.9.3 change?
+                                                ],list(currency, currency_type, market, base, quote) # data.table 1.9.3: ],list(currency_pair, currency, currency_type, market, base, quote)
                              ][value_currency_type=='fiat' & currency_type=='fiat',`:=`(market = 'yahoo', base = currency, quote = value_currency)
                                ]
   to_transfer_pair <- {

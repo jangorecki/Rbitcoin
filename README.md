@@ -2,15 +2,14 @@
 
 Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, btce, bitmarket). Both public and private API calls.
 
-**Current version**: 0.9.1 ([NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)) in development.
+**Current version**: 0.9.2 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
 
 ## Installation
 
 ```R
-# Rbitcoin 0.9 available in CRAN
+# Rbitcoin 0.9 from CRAN
 install.packages("Rbitcoin")
-# Rbitcoin latest dev 0.9.1, require data.table 1.9.3
-# devtools::install_github("data.table", "Rdatatable")
+# Rbitcoin 0.9.2 from github
 devtools::install_github("Rbitcoin", "jangorecki")
 ```
 
