@@ -1,8 +1,8 @@
 Package: Rbitcoin
 Type: Package
 Title: R & bitcoin integration
-Version: 0.9.2
-Date: 2014-09-01
+Version: 0.9.3
+Date: 2014-09-30
 Author: Jan Gorecki
 Maintainer: Jan Gorecki <j.gorecki@wit.edu.pl>
 Depends:
@@ -10,11 +10,11 @@ Depends:
 Imports:
     RCurl,
     digest,
-    RJSONIO
+    jsonlite
 Description: Utilities related to Bitcoin. Unified markets API interface
     (bitstamp, kraken, btce, bitmarket). Both public and private API calls.
-    Integration of data structures for all markets. Support SSL. Read Rbitcoin
-    documentation (command: ?btc) for more information.
+    Integration of data structures for all markets. By default over SSL. Read
+    Rbitcoin documentation (command: ?btc) for more information.
 License: MIT + file LICENSE
 URL: https://github.com/jangorecki/Rbitcoin
 BugReports: https://github.com/jangorecki/Rbitcoin/issues

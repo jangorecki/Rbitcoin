@@ -1,18 +1,42 @@
 .onLoad <- function(libname, pkgname){
-  options(Rbitcoin.verbose=0)
-  #options(Rbitcoin.archive_exchange_rate=0) #no default, read ?wallet_manager
-  options(RCurlOptions=list(ssl.verifypeer = TRUE, 
-                            ssl.verifyhost = as.integer(2), 
-                            cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"),
-                            verbose = FALSE))
-  options(Rbitcoin.ct.dict = list(
-    crypto = c('BTC','LTC','NMC','FTC','NVC','PPC','TRC','XPM','XDG','XRP','XVN'),
-    fiat = c('USD','EUR','GBP','KRW','PLN','RUR','JPY','CHF','CAD','AUD','NZD','CNY','INR',
-             'TRY','SYP','GEL','AZN','IRR','KZT','NOK','SEK','ISK','MYR','DKK','BGN','HRK',
-             'CZK','HUF','LTL','RON','UAH','IDR','IQD','MNT','BRL','ARS','VEF','MXN')
-  ))
+  
+  ## Dependencies options
+  
+  # turn off sci notation of numbers, important for market API calls
+  options(scipen=100)
+  
+  # override RCurl default for SSL
+  O <- getOption("RCurlOptions")
+  O$ssl.verifyhost <- as.integer(2)
+  O$ssl.verifypeer <- TRUE
+  O$cainfo <- system.file("CurlSSL","cacert.pem",package="RCurl")
+  options("RCurlOptions" = O)
+  
+  ## Rbitcoin options
+  
+  options(Rbitcoin.verbose = 0)
+  options(Rbitcoin.antiddos = TRUE)
+  options(Rbitcoin.antiddos.sec = 10)
+  options(Rbitcoin.antiddos.fun = antiddos_fun)
+  options(Rbitcoin.antiddos.verbose = 0)
+  options(Rbitcoin.json.debug = FALSE)
+  
+  # will be changed soons
+  options(Rbitcoin.archive_exchange_rate = NULL)
+  
+  ## Rbitcoin dictionaries (see dictionaries.R for details)
+  
+  # currency type dict
+  options(Rbitcoin.ct.dict = ct_dict())
+  # query.dict
+  options(Rbitcoin.query.dict = query_dict())
+  # api.dict
+  options(Rbitcoin.api.dict = api_dict())
 }
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage("You are currently using Rbitcoin 0.9.2, be aware of the changes coming in the next releases (0.9.3 - github, 0.9.4 - cran). Do not auto update Rbitcoin to 0.9.3 (or later) without testing. For details see github.com/jangorecki/Rbitcoin. This message will be removed in 0.9.5 (or later).")
+  packageStartupMessage("You are currently using Rbitcoin dev version 0.9.3, be aware of the changes coming in the releases 0.9.3 (github) and 0.9.4 (cran). Do not auto update Rbitcoin to 0.9.3 (or later) without testing. For details see github.com/jangorecki/Rbitcoin. This message will be removed in 0.9.5+.")
 }
+
+# default antiddos_fun cache
+Rbitcoin.last_api_call <- new.env()
