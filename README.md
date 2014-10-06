@@ -12,8 +12,6 @@ Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, b
 * wallet_manager archive contains additional column.
 * Read NEWS file for more details.
 
-temporary: plot not working yet due to the changes in api.dict
-
 ## Installation
 
 ```R
