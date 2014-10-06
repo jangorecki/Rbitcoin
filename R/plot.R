@@ -6,12 +6,17 @@
 #' @param x object to be plotted, result of Rbitcoin function, currently supported: \code{market.api.process(action=c("trades","order_book"))}, \code{wallet_manager(archive_read=TRUE)}.
 #' @param \dots additional params to be passed to particular plot function.
 #' @note Legend may not scale well in interactive viewer, for better scaling save plot to file, see examples.
-#' @return result of the specific \code{plot} function.
+#' @return by side effect a plot.
 #' @seealso \code{\link{plot.btc.trades}}, \code{\link{plot.btc.order_book}}, \code{\link{plot.btc.wallet_manager}}
 #' @aliases Rbitcoin.plot
 #' @export
 #' @examples
 #' \dontrun{
+#' # plot trades
+#' trades <- market.api.process('kraken',c('BTC','EUR'),'trades')
+#' svg()
+#' plot(trades)
+#' dev.off()
 #' # plot wallet_manager archive to svg
 #' wallet_dt <- wallet_manager(archive_write = FALSE, archive_read = TRUE)
 #' svg()
@@ -20,61 +25,6 @@
 #' }
 plot.btc <- function(x,  ...){
   return(plot(x, ...))
-  # recognize input
-  if(is.list(x) & !is.data.table(x)){
-    stopifnot(length(x) > 0)
-    if(!is.null(x[['asks']]) | !is.null(x[['bids']])){
-      action <- 'order_book'
-    } else if(!is.null(x[['trades']])){
-      action <- 'trades'
-    } else{
-      stop(paste0("unknown list object provided to Rbitcoin.plot, list should contain asks/bids/trades element"))
-    }
-  } 
-  else if(is.data.table(x)){
-    stopifnot(nrow(x) > 0)
-    if(all(c('wallet_id','currency','amount','value_currency','value_rate','value') %in% names(x))){
-      if(length(x[,unique(wallet_id)])==1) stop(paste0("Plotting wallet manager possible for wallet archive data, load wallet_manager archive using archive_read=TRUE param, also ensure you did run wallet_manager at least twice using archive_write=TRUE"))
-      else if(length(x[,unique(wallet_id)]) > 1) action <- 'wallet_manager'
-    } 
-    else if(all(c('wallet_id','currency','amount') %in% names(x))){
-      stop(paste0("Plotting wallet manager possible only for results including value, use wallet_manager with value_calc=TRUE param"))
-    } 
-    else {
-      stop(paste0("unknown data.table object provided to Rbitcoin.plot, read manual for supported objects"))
-    }
-  } 
-  else{
-    stop(paste0("unknown object provided to Rbitcoin.plot, read manual for supported objects"))
-  }
-  
-  if(export){
-    #if(!all(export.args[['format']] %in% c('svg','png'))) stop("export format supports currently svg and png format")
-    if(is.null(export.args[['filename']])){
-      export.args[['filename']] <- switch(
-        action,
-        'order_book' = paste(as.character(x[['timestamp']],format='%Y%m%d%H%M%S'),x[['market']],paste0(x[['base']],x[['quote']]),action,sep='_'),
-        'trades' = paste(as.character(x[['timestamp']],format='%Y%m%d%H%M%S'),x[['market']],paste0(x[['base']],x[['quote']]),action,sep='_'),
-        'wallet_manager' = paste(as.character(as.POSIXct(x[,max(wallet_id)], origin='1970-01-01', tz='UTC'),format='%Y%m%d%H%M%S'),action,sep='_')
-      )
-    }
-    export.args[['filename']] <- paste(export.args[['filename']],export.args[['format']],sep='.')
-    FUN <- export.args[['format']]
-    export.args['format']  <- NULL
-    do.call(FUN, export.args)
-    on.exit(invisible(dev.off()), add = FALSE)
-  }
-  # launch plot
-  switch(action,
-         'order_book' = Rbitcoin.plot.order_book(x, ..., verbose = verbose - 1),
-         'trades' = Rbitcoin.plot.trades(x, ..., verbose = verbose - 1),
-         'wallet_manager' = Rbitcoin.plot.wallet(x, mask = mask, ..., verbose = verbose - 1))
-  if(export){
-    invisible(dev.off())
-    on.exit(NULL)
-  }
-  if(verbose > 0) cat(as.character(Sys.time()),': Rbitcoin.plot: plotting finished','\n',sep='')
-  invisible(TRUE)
 }
 
 # plot.btc.wallet_manager -------------------------------------------------------------
