@@ -115,6 +115,7 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
   res <- api.dict.local$catch_market_error[[1]](res)
   # post-process res from market
   res <- api.dict.local$post_process[[1]](res)
+  setclass(res,paste("btc",action,sep="."))
   if(verbose > 0) cat(as.character(Sys.time()),': market.api.process: api call processed finished for ',market,' ',action,'\n',sep='')
   return(res)
 }

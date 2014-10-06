@@ -4,24 +4,23 @@
 \title{Wallet Manager}
 \usage{
 wallet_manager(market.sources = NULL, blockchain.sources = NULL,
-  manual.sources = NULL, min_amount = 1e-04, api.dict = NULL,
-  verbose = getOption("Rbitcoin.verbose", 0), value_calc = TRUE,
+  manual.sources = NULL, min_amount = 1e-04, value_calc = TRUE,
   value_currency = "USD", value_currency_type = NULL, rate_priority,
   transfer_currency_pair = c(crypto = "BTC", fiat = "USD"),
-  archive_write = FALSE, archive_read = FALSE)
+  api.dict = getOption("Rbitcoin.api.dict",
+  stop("no api.dict in options and not provided to wallet_manager")),
+  archive_write = getOption("Rbitcoin.wallet_manager.archive_write", FALSE),
+  archive_read = getOption("Rbitcoin.wallet_manager.archive_read", FALSE),
+  verbose = getOption("Rbitcoin.verbose", 0))
 }
 \arguments{
-\item{market.sources}{list of market sources definition, see examples. Mandatory fields: \code{market, currency_pair, key, secret} (for bitstamp also \code{client_id}).}
+\item{market.sources}{list of market sources definition, see examples. Mandatory fields: \code{market, key, secret} (for bitstamp also \code{client_id}).}
 
 \item{blockchain.sources}{list of blockchain sources definition, see examples. Mandatory field: \code{address}.}
 
 \item{manual.sources}{list of manually provided amounts, see examples. Mandatory fields: \code{currency, amount}, optional field: \code{location, location_type}.}
 
 \item{min_amount}{numeric used to filter out near zero amounts of source currency, default \code{0.0001}.}
-
-\item{api.dict}{data.table required when using custom API dictionary, read \code{\link{market.api.process}} for details.}
-
-\item{verbose}{integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 
 \item{value_calc}{logical calculate value, by default \code{TRUE}, can be turned off by setting to \code{FALSE}. Process will be slightly faster due to no API calls for exchange rates.}
 
@@ -33,12 +32,16 @@ wallet_manager(market.sources = NULL, blockchain.sources = NULL,
 
 \item{transfer_currency_pair}{vector length of 2 of named character, default \code{c(crypto = "BTC", fiat = "USD")}, read Exchange rates note below.}
 
+\item{api.dict}{data.table required when using custom API dictionary, read \code{\link{market.api.process}} for details.}
+
 \item{archive_write}{logical, default \code{FALSE}, recommended \code{TRUE}. If \code{TRUE} wallet manager result will be archived to \code{"wallet_archive.rds"} file in the working directory, read Wallet archive note below.}
 
 \item{archive_read}{logical, default \code{FALSE}, recommended \code{FALSE}. If \code{TRUE} it return full archive of wallets data over time grouped by \code{wallet_id}. To be used when passing results to \code{\link{Rbitcoin.plot}} function or performing other analysis over time, read notes below.}
+
+\item{verbose}{integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \value{
-data.table object with wallet information in denormilized structure. Number of columns depends on \code{value_calc} param, when \code{FALSE} then columns related to the value will not be returned. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format.
+data.table object with wallet information in denormilized structure. Number of columns depends on \code{value_calc} param, when \code{FALSE} then columns related to the value will not be returned. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format. Since 0.9.3 new column has been added \code{auth} which corresponds to the \code{*.sources} args lists elements names, see examples.
 }
 \description{
 Downloads wallet balance from multiple sources and calculate value in chosen currency based on actual exchange rates. Function is limited to dictionary \code{\link{api.dict}} plus fiat-fiat exchange rates.
@@ -66,43 +69,37 @@ While plotting \code{wallet_manager} data any wallet batches which contain at le
 
 \section{Schedule wallet tracking}{
 
-User may consider to schedule execution of the function with \code{archive_write=TRUE} for better wallet assets tracking over time. Schedule can be setup on OS by run prepared R script with \code{wallet_manager} function execution. In case of scheduling also plot of wallet manager use \code{archive_read=TRUE} and add \code{Rbitcoin.plot} function execution.
+User may consider to schedule execution of the function with \code{archive_write=TRUE} for better wallet assets tracking over time. Schedule can be setup on OS by run prepared R script with \code{wallet_manager} function execution. In case of scheduling also plot of wallet manager data use \code{archive_read=TRUE} and pass results to \code{plot}, more on \code{\link{plot.btc.wallet_manager}}.
 }
 
 \section{Troubleshooting}{
 
-In case of the issues with this function verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report.
-Additionally you can always use \code{verbose} argument to print processing informations.
+In case of the issues with this function verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report. Fiat to fiat conversion using yahoo may not be available for all possible currency pairs.
 }
 \examples{
 \dontrun{
 ## define source
 # define wallets on markets
 market.sources <- list(
-  list(market = 'bitstamp', currency_pair = c('BTC', 'USD'),
-       client_id = '', key = '', secret = ''),
-  list(market = 'btce', currency_pair = c('LTC', 'USD'),
-       key = '', secret = ''),
-  list(market = 'btce', currency_pair = c('LTC', 'USD'),
-       key = '', secret = ''), #multiple accounts on same market possible
-  list(market = 'kraken', currency_pair = c('BTC', 'EUR'),
-       key = '', secret = '')
+  "my_account1" = list(market = 'bitstamp', client_id = '', key = '', secret = ''),
+  "my_account1" = list(market = 'btce', key = '', secret = ''),
+  # multiple accounts on same market possible - we can use names to distinguish accounts
+  "my_account2" = list(market = 'btce', key = '', secret = ''),
+  "my_account1" = list(market = 'kraken', key = '', secret = '')
 )
 # define wallets on blockchain
 blockchain.sources <- list(
-  list(address = ''),
-  list(address = '')
+  "my_account1" = list(address = ''),
+  "my_account2" = list(address = '')
 )
 # define wallets manually
 manual.sources <- list(
-  list(location = 'while transferring',
+  "my_account1" = list(location = 'while transferring',
        currency = c('BTC','LTC'),
        amount = c(0.08, 0)),
-  # manually provided value as workaround for bitstamp api unavailability captcha bug
-  list(location = 'bitstamp',
-       location_type = 'market'
-       currency = c('USD','BTC'),
-       amount = c(50,0.012))
+  "my_account1" = list(location = 'brainwallet',
+       currency = c('BTC'),
+       amount = c(0.1))
 )
 
 ## launch wallet manager with no value calculation
@@ -112,7 +109,7 @@ wallet_dt <- wallet_manager(market.sources,
                             value_calc = FALSE)
 print(wallet_dt)
 
-## launch wallet manager
+## launch wallet manager + value calc + archive
 wallet_dt <- wallet_manager(
   market.sources = market.sources,
   blockchain.sources = blockchain.sources,
@@ -124,7 +121,7 @@ wallet_dt <- wallet_manager(
 print(wallet_dt)
 
 # export to excel/google spreadsheet
-setkey(wallet_dt,wallet_id,currency) #sort
+setorder(wallet_dt,wallet_id,currency)
 write.table(wallet_dt, "clipboard", sep="\\t", row.names=FALSE, na = "")
 # now go to excel or google spreadsheet and use "paste" from clipboard
 
@@ -139,12 +136,13 @@ wallet_dt[,list(value = sum(value, na.rm=T)),
            ][order(wallet_id,location_type,location)]
 
 # send to plot
-wallet_dt <- wallet_manager(archive_write=F, archive_read=T)
-Rbitcoin.plot(wallet_dt)
+wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
+plot(wallet_dt)
 
 # discard processing batch, by id, from wallet archive (will omit on plot)
 dt <- readRDS("wallet_archive.rds")
-dt[wallet_id==1390000000,`:=`(amount = NA_real_, value = NA_real_)]
+wallet_id_to_remove <- 1390000000
+dt[wallet_id==wallet_id_to_remove,`:=`(amount = NA_real_, value = NA_real_)]
 saveRDS(dt, "wallet_archive.rds")
 
 # To track exchange rates used set option Rbitcoin.archive_exchange_rate
@@ -154,6 +152,7 @@ wallet_dt <- wallet_manager(market.sources,
                             manual.sources = manual.sources,
                             rate_priority = c('bitstamp','kraken','bitmarket','btce')
                             archive_write = TRUE)
+
 # all exchange rate data as dt
 dt <- readRDS("exchange_rate_archive.rds")
 # last exchange rate table as dt
@@ -168,6 +167,6 @@ write.table(dt, "exchange_rate_archive.csv",
 \url{https://code.google.com/p/yahoo-finance-managed/wiki/csvQuotesDownload}
 }
 \seealso{
-\code{\link{Rbitcoin.plot}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos_fun}}
+\code{\link{plot.btc}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos_fun}}
 }
 

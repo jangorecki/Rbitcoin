@@ -19,6 +19,11 @@
   options(Rbitcoin.antiddos.sec = 10)
   options(Rbitcoin.antiddos.fun = antiddos_fun)
   options(Rbitcoin.antiddos.verbose = 0)
+  # plot related
+  options(Rbitcoin.plot.mask = FALSE)
+  options(Rbitcoin.plot.limit_pct = Inf)
+  
+  # purely technical
   options(Rbitcoin.json.debug = FALSE)
   
   # will be changed soons

@@ -6,6 +6,7 @@
 \alias{Rbitcoin-package}
 \alias{bitcoin}
 \alias{btc}
+\alias{rbtc}
 \title{R & bitcoin integration}
 \description{
 Utilities related to Bitcoin and other cryptocurrencies. Core functionalities are:

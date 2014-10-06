@@ -17,7 +17,7 @@ Rbitcoin 0.9.3 (in dev)
 * wallet_manager:
   * wallet_archive.rds extended for 1 more column, ?wallet_manager
 * plot:
-  * TODO: one plot() function for all Rbitcoin objects, ?plot.btc
+  * one plot() function for all Rbitcoin objects, ?plot.btc
 * api.dict:
   * default api.dict moved from RData to api_dict function
   * api.dict constructor functions in per market R source file

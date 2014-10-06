@@ -43,13 +43,11 @@
 #' ## define source
 #' # define wallets on markets
 #' market.sources <- list(
-#'   "my_account1" = list(market = 'bitstamp', currency_pair = c('BTC', 'USD'),
-#'        client_id = '', key = '', secret = ''),
-#'   "my_account1" = list('btce', c('LTC', 'USD'), key = '', secret = ''),
-#'   "my_account2" = list(market = 'btce', currency_pair = c('LTC', 'USD'),
-#'        key = '', secret = ''), #multiple accounts on same market possible
-#'   "my_account1" = list(market = 'kraken', currency_pair = c('BTC', 'EUR'),
-#'        key = '', secret = '')
+#'   "my_account1" = list(market = 'bitstamp', client_id = '', key = '', secret = ''),
+#'   "my_account1" = list(market = 'btce', key = '', secret = ''),
+#'   # multiple accounts on same market possible - we can use names to distinguish accounts
+#'   "my_account2" = list(market = 'btce', key = '', secret = ''),
+#'   "my_account1" = list(market = 'kraken', key = '', secret = '')
 #' )
 #' # define wallets on blockchain
 #' blockchain.sources <- list(
@@ -191,7 +189,7 @@ wallet_manager <- function(market.sources = NULL,
         data.table(auth = namesNA(market.sources[i]), timestamp = Sys.time(), location = market.sources[[i]][['market']], location_type = 'market', currency = NA_character_, amount = NA_real_)
       }
     )
-    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.market: source processed for ',market.sources[[i]][['market']],'\n',sep='')
+    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.market: source processed for ',namesNA(market.sources[i]),' @ ',market.sources[[i]][['market']],'\n',sep='')
     wal
   }
   wallet_source.blockchain <- function(i, verbose){
@@ -205,7 +203,7 @@ wallet_manager <- function(market.sources = NULL,
         data.table(auth = namesNA(blockchain.sources[i]), timestamp = Sys.time(), location = blockchain.sources[[i]][['address']],  location_type = "blockchain", currency = NA_character_, amount = NA_real_)
       }
     )
-    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.blockchain: source processed for ','blockchain','\n',sep='')
+    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.blockchain: source processed for ',namesNA(blockchain.sources[i]),' @ ','blockchain','\n',sep='')
     wal
   }
   wallet_source.manual <- function(i, verbose){
@@ -215,7 +213,7 @@ wallet_manager <- function(market.sources = NULL,
                       location_type = if(is.null(manual.sources[[i]][['location_type']])) 'manual' else manual.sources[[i]][['location_type']],
                       currency = as.character(manual.sources[[i]][['currency']]),
                       amount = as.numeric(manual.sources[[i]][['amount']]))
-    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.manual: source processed for ',if(is.null(manual.sources[[i]][['location']])) NA_character_ else paste0('\'',manual.sources[[i]][['location']],'\''),'\n',sep='')
+    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.manual: source processed for ',namesNA(manual.sources[i]),' @ ',if(is.null(manual.sources[[i]][['location']])) NA_character_ else manual.sources[[i]][['location']],'\n',sep='')
     wal
   }
 
@@ -272,7 +270,7 @@ wallet_manager <- function(market.sources = NULL,
       wallet_dt.archive[,auth := NA_character_]
       setcolorder(wallet_dt.archive,c("wallet_id","currency","currency_type","auth","timestamp","location","location_type","amount","value_currency","value_rate","value"))
       saveRDS(wallet_dt.archive,"wallet_archive.rds")
-      message(paste0("Your current archive of wallet data stored in file 'wallet_archive.rds' has been renamed to '",backup_092,"'. Since 0.9.3+ there is addtional field stored in archive. Your wallet archive has been extended for that column and resaved. To use new 'auth' column just name the lists within in *.sources args. Unnamed will result NA, column can be useful on grouping data."))
+      message(paste0("Your current archive of wallet data stored in file 'wallet_archive.rds' has been renamed to '",backup_092,"'. Since 0.9.3+ there is addtional field stored in archive. Your wallet archive has been extended for that column and resaved. To use new 'auth' column just name the lists within *.sources args. Unnamed will result NA, column can be useful on grouping data."))
     }
     if(nrow(wallet_dt) > 0){
       wallet_dt.archive <- rbindlist(list(
