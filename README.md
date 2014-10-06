@@ -6,13 +6,13 @@ Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, b
 
 ## Significant changes post 0.9.2
 
-Requires latest data.table `1.9.3` (available at the moment only on [github](https://github.com/Rdatatable/data.table)).
-Each function that query over http(s) by default will invoke antiddos procedure behind the scene. Read `?antiddos` for customization.
-Now it is possible to add new markets and currency pairs just by setting `options()`.
-Read NEWS file for more details.
+* Requires latest data.table `1.9.4`.
+* Each function that query over http(s) by default will invoke antiddos procedure behind the scene. Read `?antiddos` for customization.
+* Now it is possible to add new markets and currency pairs just by setting `options()`.
+* wallet_manager archive contains additional column.
+* Read NEWS file for more details.
 
-temporary:
-wallet_manager and plots might not work yet due to the changes in api.dict
+temporary: plot not working yet due to the changes in api.dict
 
 ## Installation
 

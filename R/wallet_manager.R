@@ -5,12 +5,10 @@
 #'
 #' @description Downloads wallet balance from multiple sources and calculate value in chosen currency based on actual exchange rates. Function is limited to dictionary \code{\link{api.dict}} plus fiat-fiat exchange rates.
 #'
-#' @param market.sources list of market sources definition, see examples. Mandatory fields: \code{market, currency_pair, key, secret} (for bitstamp also \code{client_id}).
+#' @param market.sources list of market sources definition, see examples. Mandatory fields: \code{market, key, secret} (for bitstamp also \code{client_id}).
 #' @param blockchain.sources list of blockchain sources definition, see examples. Mandatory field: \code{address}.
 #' @param manual.sources list of manually provided amounts, see examples. Mandatory fields: \code{currency, amount}, optional field: \code{location, location_type}.
 #' @param min_amount numeric used to filter out near zero amounts of source currency, default \code{0.0001}.
-#' @param api.dict data.table required when using custom API dictionary, read \code{\link{market.api.process}} for details.
-#' @param verbose integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @param value_calc logical calculate value, by default \code{TRUE}, can be turned off by setting to \code{FALSE}. Process will be slightly faster due to no API calls for exchange rates.
 #' @param value_currency character default \code{"USD"}, target currency in which measure the current value.
 #' @param value_currency_type character, optional for most currencies, if \code{value_currency} is an exotic currency you need to define its currency type ('crypto' or 'fiat') in this param or update \code{getOption("Rbitcoin.ct.dict")} param.
@@ -18,7 +16,9 @@
 #' @param transfer_currency_pair vector length of 2 of named character, default \code{c(crypto = "BTC", fiat = "USD")}, read Exchange rates note below.
 #' @param archive_write logical, default \code{FALSE}, recommended \code{TRUE}. If \code{TRUE} wallet manager result will be archived to \code{"wallet_archive.rds"} file in the working directory, read Wallet archive note below.
 #' @param archive_read logical, default \code{FALSE}, recommended \code{FALSE}. If \code{TRUE} it return full archive of wallets data over time grouped by \code{wallet_id}. To be used when passing results to \code{\link{Rbitcoin.plot}} function or performing other analysis over time, read notes below.
-#' @return data.table object with wallet information in denormilized structure. Number of columns depends on \code{value_calc} param, when \code{FALSE} then columns related to the value will not be returned. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format.
+#' @param api.dict data.table required when using custom API dictionary, read \code{\link{market.api.process}} for details.
+#' @param verbose integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
+#' @return data.table object with wallet information in denormilized structure. Number of columns depends on \code{value_calc} param, when \code{FALSE} then columns related to the value will not be returned. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format. Since 0.9.3 new column has been added \code{auth} which corresponds to the \code{*.sources} args lists elements names, see examples.
 #' @section Wallet archive:
 #' To be able to track wallet assets value over time user needs to use \code{archive_write=TRUE}. It will archive wallet manager result \code{data.table} to \code{wallet_archive.rds} file in not encrypted format (not a plain text also), sensitive data like amount and value will be available from R by \code{readRDS("wallet_archive.rds")}. This can be used to correct/manipulate archived data or union the results of the wallet manager performed on different machines by \code{readRDS(); rbindlist(); saveRDS()}. Setting \code{archive_write=FALSE} and \code{archive_read=TRUE} will skip processing and just load the archive, same as \code{readRDS()}.
 #' You should be aware the archive file will be growing over time, unless you have tons of sources defined or you scheduled \code{wallet_manager} every hour or less you should not experience any issues because of that. In case of the big size of archived rds file you can move data to database, wrap function into database archiver function and query full archive from database only for for plotting.
@@ -32,11 +32,10 @@
 #' Be sure to avoid \code{NA} measures: for unavailable sources you can provide amounts as manual source, for not supported alt cryptocurrencies precalculate its value to supported currency and provide as manual source.
 #' While plotting \code{wallet_manager} data any wallet batches which contain at least one \code{NA} measure will be omitted from plot.
 #' @section Schedule wallet tracking:
-#' User may consider to schedule execution of the function with \code{archive_write=TRUE} for better wallet assets tracking over time. Schedule can be setup on OS by run prepared R script with \code{wallet_manager} function execution. In case of scheduling also plot of wallet manager use \code{archive_read=TRUE} and add \code{Rbitcoin.plot} function execution.
+#' User may consider to schedule execution of the function with \code{archive_write=TRUE} for better wallet assets tracking over time. Schedule can be setup on OS by run prepared R script with \code{wallet_manager} function execution. In case of scheduling also plot of wallet manager data use \code{archive_read=TRUE} and pass results to \code{plot}, more on \code{\link{plot.btc.wallet_manager}}.
 #' @section Troubleshooting:
-#' In case of the issues with this function verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report.
-#' Additionally you can always use \code{verbose} argument to print processing informations.
-#' @seealso \code{\link{Rbitcoin.plot}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos_fun}}
+#' In case of the issues with this function verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report. Fiat to fiat conversion using yahoo may not be available for all possible currency pairs.
+#' @seealso \code{\link{plot.btc}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos_fun}}
 #' @references \url{https://code.google.com/p/yahoo-finance-managed/wiki/csvQuotesDownload}
 #' @export
 #' @examples
@@ -44,30 +43,27 @@
 #' ## define source
 #' # define wallets on markets
 #' market.sources <- list(
-#'   list(market = 'bitstamp', currency_pair = c('BTC', 'USD'),
+#'   "my_account1" = list(market = 'bitstamp', currency_pair = c('BTC', 'USD'),
 #'        client_id = '', key = '', secret = ''),
-#'   list(market = 'btce', currency_pair = c('LTC', 'USD'),
-#'        key = '', secret = ''),
-#'   list(market = 'btce', currency_pair = c('LTC', 'USD'),
+#'   "my_account1" = list('btce', c('LTC', 'USD'), key = '', secret = ''),
+#'   "my_account2" = list(market = 'btce', currency_pair = c('LTC', 'USD'),
 #'        key = '', secret = ''), #multiple accounts on same market possible
-#'   list(market = 'kraken', currency_pair = c('BTC', 'EUR'),
+#'   "my_account1" = list(market = 'kraken', currency_pair = c('BTC', 'EUR'),
 #'        key = '', secret = '')
 #' )
 #' # define wallets on blockchain
 #' blockchain.sources <- list(
-#'   list(address = ''),
-#'   list(address = '')
+#'   "my_account1" = list(address = ''),
+#'   "my_account2" = list(address = '')
 #' )
 #' # define wallets manually
 #' manual.sources <- list(
-#'   list(location = 'while transferring',
+#'   "my_account1" = list(location = 'while transferring',
 #'        currency = c('BTC','LTC'),
 #'        amount = c(0.08, 0)),
-#'   # manually provided value as workaround for bitstamp api unavailability captcha bug
-#'   list(location = 'bitstamp',
-#'        location_type = 'market' 
-#'        currency = c('USD','BTC'),
-#'        amount = c(50,0.012))
+#'   "my_account1" = list(location = 'brainwallet',
+#'        currency = c('BTC'),
+#'        amount = c(0.1))
 #' )
 #' 
 #' ## launch wallet manager with no value calculation
@@ -77,7 +73,7 @@
 #'                             value_calc = FALSE)
 #' print(wallet_dt)
 #' 
-#' ## launch wallet manager
+#' ## launch wallet manager + value calc + archive
 #' wallet_dt <- wallet_manager(
 #'   market.sources = market.sources,
 #'   blockchain.sources = blockchain.sources, 
@@ -89,7 +85,7 @@
 #' print(wallet_dt)
 #' 
 #' # export to excel/google spreadsheet
-#' setkey(wallet_dt,wallet_id,currency) #sort
+#' setorder(wallet_dt,wallet_id,currency)
 #' write.table(wallet_dt, "clipboard", sep="\t", row.names=FALSE, na = "")
 #' # now go to excel or google spreadsheet and use "paste" from clipboard
 #' 
@@ -104,12 +100,13 @@
 #'            ][order(wallet_id,location_type,location)]
 #' 
 #' # send to plot
-#' wallet_dt <- wallet_manager(archive_write=F, archive_read=T)
-#' Rbitcoin.plot(wallet_dt)
+#' wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
+#' plot(wallet_dt)
 #' 
 #' # discard processing batch, by id, from wallet archive (will omit on plot)
 #' dt <- readRDS("wallet_archive.rds")
-#' dt[wallet_id==1390000000,`:=`(amount = NA_real_, value = NA_real_)]
+#' wallet_id_to_remove <- 1390000000
+#' dt[wallet_id==wallet_id_to_remove,`:=`(amount = NA_real_, value = NA_real_)]
 #' saveRDS(dt, "wallet_archive.rds")
 #' 
 #' # To track exchange rates used set option Rbitcoin.archive_exchange_rate
@@ -119,6 +116,7 @@
 #'                             manual.sources = manual.sources,
 #'                             rate_priority = c('bitstamp','kraken','bitmarket','btce')
 #'                             archive_write = TRUE)
+#' 
 #' # all exchange rate data as dt
 #' dt <- readRDS("exchange_rate_archive.rds")
 #' # last exchange rate table as dt
@@ -131,22 +129,23 @@
 wallet_manager <- function(market.sources = NULL, 
                            blockchain.sources = NULL, 
                            manual.sources = NULL,
-                           min_amount = 0.0001, 
-                           api.dict = NULL, 
-                           verbose = getOption("Rbitcoin.verbose",0),
+                           min_amount = 1e-4, 
                            value_calc = TRUE, 
                            value_currency = 'USD', 
                            value_currency_type = NULL,
                            rate_priority, 
                            transfer_currency_pair = c(crypto = "BTC", fiat = "USD"),
-                           archive_write = FALSE, 
-                           archive_read = FALSE){
+                           api.dict = getOption("Rbitcoin.api.dict",stop("no api.dict in options and not provided to wallet_manager")), 
+                           archive_write = getOption("Rbitcoin.wallet_manager.archive_write",FALSE), 
+                           archive_read = getOption("Rbitcoin.wallet_manager.archive_read",FALSE),
+                           verbose = getOption("Rbitcoin.verbose",0)){
   # read archive only, skip processing
   if(archive_read & !archive_write){
     wallet_dt.archive <- if(file.exists('wallet_archive.rds')) readRDS('wallet_archive.rds') else stop('Wallet archive file wallet_archive.rds does not exists, run function with archive_write=TRUE')
     if(verbose > 0) cat(as.character(Sys.time()),': wallet_manager: wallet manager processing skipped, returning wallet archive only','\n',sep='')
+    if(!is(wallet_dt.archive, "btc.wallet_manager")) setclass(wallet_dt.archive,"btc.wallet_manager")
     if(value_calc) return(wallet_dt.archive) 
-    else return(wallet_dt.archive[,list(wallet_id,currency,currency_type, timestamp, location, location_type, amount)])
+    else return(wallet_dt.archive[,list(wallet_id, currency, currency_type, auth, timestamp, location, location_type, amount)])
   }
   # convert list() to NULL
   if(!is.null(manual.sources)){ if(length(manual.sources)==0) manual.sources <- NULL}
@@ -169,56 +168,66 @@ wallet_manager <- function(market.sources = NULL,
   # START PROCESSING
   wallet_id <- as.integer(Sys.time())
   
-  # local processing funs
-  wallet_source.market <- function(x, verbose){
+  # NULL and "" names to NA_character_ processing funs
+  namesNA <- function(x){
+    nm <- names(x)
+    if(is.null(nm)) return(rep(NA_character_, length(x)))
+    ifelse(nchar(nm)==0,NA_character_,nm)
+  }
+  
+  wallet_source.market <- function(i, verbose){
     # call api
-    x[['action']] <- 'wallet'
-    x[['api.dict']] <- api.dict
-    x[['verbose']] <- verbose - 2 # market.api.process debugging to background
+    market.sources[[i]][['action']] <- 'wallet'
+    market.sources[[i]][['api.dict']] <- api.dict
+    market.sources[[i]][['verbose']] <- verbose - 1 # market.api.process debugging to background
     wal <- tryCatch(
-      expr = do.call(what = market.api.process, args = x)[,list(timestamp = timestamp, location = x[['market']], location_type = 'market', currency, amount)], #do.call to handle bitstamp client_id param
+      expr = {
+        wallet <- do.call(what = market.api.process, args = market.sources[[i]]) #do.call to handle bitstamp client_id param
+        data.table(auth = namesNA(market.sources[i]), timestamp = wallet$timestamp, location = market.sources[[i]][['market']], location_type = 'market', currency = wallet$wallet$currency, amount = wallet$wallet$amount) 
+      },
       error = function(e){
-        msg <- paste0('error on downloading wallet from ',x[['market']])
+        msg <- paste0('error on downloading wallet from ',market.sources[[i]][['market']])
         warning(paste0(msg,': ',e[["message"]]), call. = FALSE)
-        data.table(timestamp = Sys.time(), location = x[['market']], location_type = 'market', currency = NA_character_, amount = NA_real_)
+        data.table(auth = namesNA(market.sources[i]), timestamp = Sys.time(), location = market.sources[[i]][['market']], location_type = 'market', currency = NA_character_, amount = NA_real_)
       }
     )
-    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.market: source processed for ',x[['market']],'\n',sep='')
+    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.market: source processed for ',market.sources[[i]][['market']],'\n',sep='')
     wal
   }
-  wallet_source.blockchain <- function(x, verbose){
-    x[['method']] <- 'Single Address'
-    x[['verbose']] <- verbose - 2 # blockchain.api.process debugging to background
+  wallet_source.blockchain <- function(i, verbose){
+    blockchain.sources[[i]][['method']] <- 'Single Address'
+    blockchain.sources[[i]][['verbose']] <- verbose - 1 # blockchain.api.process debugging to background
     wal <- tryCatch( #decode location to location_type, address to location
-      expr = do.call(what = blockchain.api.process, args = x)[,list(timestamp = timestamp, location = address, location_type = 'blockchain', currency, amount = final_balance)],
+      expr = do.call(what = blockchain.api.process, args = blockchain.sources[[i]])[,list(auth = namesNA(blockchain.sources[i]), timestamp = timestamp, location = address, location_type = 'blockchain', currency, amount = final_balance)],
       error = function(e){
         msg <- paste0('error on downloading wallet from ','blockchain')
         warning(paste0(msg,': ',e[["message"]]), call. = FALSE)
-        data.table(timestamp = Sys.time(), location = x[['address']], location_type = "blockchain", currency = NA_character_, amount = NA_real_)
+        data.table(auth = namesNA(blockchain.sources[i]), timestamp = Sys.time(), location = blockchain.sources[[i]][['address']],  location_type = "blockchain", currency = NA_character_, amount = NA_real_)
       }
     )
     if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.blockchain: source processed for ','blockchain','\n',sep='')
     wal
   }
-  wallet_source.manual <- function(x, verbose){
-    wal <- data.table(timestamp = Sys.time(), 
-                      location = if(is.null(x[['location']])) NA_character_ else x[['location']], 
-                      location_type = if(is.null(x[['location_type']])) 'manual' else x[['location_type']],
-                      currency = as.character(x[['currency']]),
-                      amount = as.numeric(x[['amount']]))
-    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.manual: source processed for ',if(is.null(x[['location']])) NA_character_ else paste0('\'',x[['location']],'\''),'\n',sep='')
+  wallet_source.manual <- function(i, verbose){
+    wal <- data.table(auth = namesNA(manual.sources[i]),
+                      timestamp = Sys.time(), 
+                      location = if(is.null(manual.sources[[i]][['location']])) NA_character_ else manual.sources[[i]][['location']], 
+                      location_type = if(is.null(manual.sources[[i]][['location_type']])) 'manual' else manual.sources[[i]][['location_type']],
+                      currency = as.character(manual.sources[[i]][['currency']]),
+                      amount = as.numeric(manual.sources[[i]][['amount']]))
+    if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.manual: source processed for ',if(is.null(manual.sources[[i]][['location']])) NA_character_ else paste0('\'',manual.sources[[i]][['location']],'\''),'\n',sep='')
     wal
   }
-  
+
   all.wallet <- list()
   all.wallet[['market']] <- if(length(market.sources) > 0){
-    lapply(market.sources, wallet_source.market, verbose = verbose - 1)
+    lapply(1:length(market.sources), wallet_source.market, verbose = verbose - 1)
   }
   all.wallet[['blockchain']] <- if(length(blockchain.sources) > 0){
-    lapply(blockchain.sources, wallet_source.blockchain, verbose = verbose - 1)
+    lapply(1:length(blockchain.sources), wallet_source.blockchain, verbose = verbose - 1)
   }
   all.wallet[['manual']] <- if(length(manual.sources) > 0){
-    lapply(manual.sources, wallet_source.manual, verbose = verbose - 1)
+    lapply(1:length(manual.sources), wallet_source.manual, verbose = verbose - 1)
   }
   
   # combine cleaned raw results
@@ -231,8 +240,8 @@ wallet_manager <- function(market.sources = NULL,
     # add currency_type dimensions
     wallet_dt <- ct_dt[all.wallet_dt
                        ][,if(.N > 0){
-                         data.table(wallet_id = wallet_id, currency, currency_type, timestamp, location, location_type, amount)
-                       } else data.table(wallet_id = integer(), currency = character(), currency_type = character(), timestamp = as.POSIXct(NA,origin='1970-01-01',tz='UTC')[-1], location = character(), location_type = character(), amount = numeric())
+                         data.table(wallet_id = wallet_id, currency, currency_type, auth, timestamp, location, location_type, amount)
+                       } else data.table(wallet_id = integer(), currency = character(), currency_type = character(), auth = character(), timestamp = as.POSIXct(NA,origin='1970-01-01',tz='UTC')[-1], location = character(), location_type = character(), amount = numeric())
                        ]
   }
   if(nrow(wallet_dt) == 0) warning('Zero rows wallet table, review sources definition and min_amount', call.=FALSE)
@@ -241,7 +250,6 @@ wallet_manager <- function(market.sources = NULL,
   if(value_calc & nrow(wallet_dt) == 0){
     wallet_dt[,`:=`(value_currency = character(), value_rate = numeric(), value = numeric())]
   }
-  
   else if(value_calc & nrow(wallet_dt) > 0){
     if(!identical(rate_priority,unique(rate_priority))){
       stop('rate_priority must contain a vector of unique market names')
@@ -258,21 +266,34 @@ wallet_manager <- function(market.sources = NULL,
   # archive_write
   if(archive_write){
     wallet_dt.archive <- if(file.exists('wallet_archive.rds')) readRDS('wallet_archive.rds') else NULL
+    if(!("auth" %in% names(wallet_dt.archive))){ # 0.9.3 update
+      backup_092 <- paste0('wallet_archive_0.9.2_',as.character(Sys.time(),"%Y%m%d_%H%M%S"),'.rds')
+      stopifnot(file.rename('wallet_archive.rds', backup_092))
+      wallet_dt.archive[,auth := NA_character_]
+      setcolorder(wallet_dt.archive,c("wallet_id","currency","currency_type","auth","timestamp","location","location_type","amount","value_currency","value_rate","value"))
+      saveRDS(wallet_dt.archive,"wallet_archive.rds")
+      message(paste0("Your current archive of wallet data stored in file 'wallet_archive.rds' has been renamed to '",backup_092,"'. Since 0.9.3+ there is addtional field stored in archive. Your wallet archive has been extended for that column and resaved. To use new 'auth' column just name the lists within in *.sources args. Unnamed will result NA, column can be useful on grouping data."))
+    }
     if(nrow(wallet_dt) > 0){
       wallet_dt.archive <- rbindlist(list(
         wallet_dt.archive, 
-        if(value_calc) wallet_dt else wallet_dt[,list(wallet_id,currency,currency_type, timestamp, location, location_type, amount,
+        if(value_calc) wallet_dt else wallet_dt[,list(wallet_id,currency,currency_type, auth, timestamp, location, location_type, amount,
                                                       value_currency = NA_character_, value_rate = NA_real_, value = NA_real_)]
       ))
+      if(!is(wallet_dt.archive, "btc.wallet_manager")) setclass(wallet_dt.archive,"btc.wallet_manager")
       saveRDS(wallet_dt.archive,'wallet_archive.rds')
     }
   }
   
   # archive_read
   if(archive_read){
+    if(verbose > 0) cat(as.character(Sys.time()),': wallet_manager: wallet manager processing finished','\n',sep='')
     if(value_calc) return(wallet_dt.archive) 
-    else return(wallet_dt.archive[,list(wallet_id,currency,currency_type, timestamp, location, location_type, amount)])
+    else return(wallet_dt.archive[,list(wallet_id,currency,currency_type, auth, timestamp, location, location_type, amount)])
   }
+  
+  # no archive
+  if(!is(wallet_dt, "btc.wallet_manager")) setclass(wallet_dt,"btc.wallet_manager")
   if(verbose > 0) cat(as.character(Sys.time()),': wallet_manager: wallet manager processing finished','\n',sep='')
   return(wallet_dt)
 }
@@ -352,6 +373,7 @@ wallet_value <- function(wallet_dt,
                                                 ],list(currency_pair, currency, currency_type, market, base, quote)
                              ][value_currency_type=='fiat' & currency_type=='fiat',`:=`(market = 'yahoo', base = currency, quote = value_currency)
                                ]
+  
   to_transfer_pair <- {
     direct_to_indirect <- direct_pair[is.na(quote) & !is.na(currency_type)]
     if(nrow(direct_to_indirect) > 0){
@@ -421,12 +443,17 @@ wallet_value <- function(wallet_dt,
       )]
     }
     else if(all_pair[i,!is.na(market)]){ #regular rate - download from ticker/yahoo
+      #if(all_pair[i,base]=="RUR" & all_pair[i,quote]=="PLN") browser()
       ab <- all_pair[i,get_rate(v_market = market, v_base = base, v_quote = quote, api.dict = api.dict, verbose = verbose - 1)]
-      ab <- all_pair[i,data.table(market, base, quote, ab)]
-      if(!ab[,is.numeric(ask) & is.numeric(bid)]) stop(all_pair[i,paste0("Incorrect ask-bid data returned for ",base,quote," pair from ",market,sep="")],call.=FALSE)
+      ab <- data.table(all_pair[i,.(market, base, quote)],ab)
+      if(!ab[,is.numeric(ask) & is.numeric(bid)]){
+        warning(all_pair[i,invisible({
+          paste0("Incorrect ask-bid data returned for ",base,quote," pair from ",market,". ",market," do not support such currency pair conversion. It results NA. Use min_amount arg to wallet_manager to filter out 'empty' wallets.",sep="")
+        })] ,call.=FALSE)
+        ab <- data.table(all_pair[i,.(market, base, quote)],ask=NA_real_,bid=NA_real_)
+      }
     }
     else {
-      #if(all_pair[i,is.na(market)]){
       ab <- data.table(market = NA_character_, base = NA_character_, quote = NA_character_, ask = NA_real_, bid = NA_real_) # postponed to second loop for indirect rates
     }
     set(all_pair, i, "market", ab[,market])
@@ -542,14 +569,14 @@ wallet_value <- function(wallet_dt,
   # calc value on wallet data
   all_pair[,list(base,quote,ask,bid),keyby='currency_pair'
            ][wallet_dt,list(
-             wallet_id,currency,currency_type, timestamp, location, location_type, amount, 
+             wallet_id,currency,currency_type, auth, timestamp, location, location_type, amount, 
              value_currency = v.value_currency,
              base, quote, ask, bid
            )][(!is.na(ask) & !is.na(bid)),
               value_rate := f.askbid_value(currency, value_currency, base, quote, ask, bid)
               ][,
                 list( # just a clean return list of columns
-                  wallet_id, currency, currency_type, timestamp, location, location_type, amount, 
+                  wallet_id, currency, currency_type, auth, timestamp, location, location_type, amount, 
                   value_currency, value_rate, 
                   value = amount * value_rate
                 )]

@@ -2,7 +2,7 @@ Package: Rbitcoin
 Type: Package
 Title: R & bitcoin integration
 Version: 0.9.3
-Date: 2014-09-30
+Date: 2014-10-06
 Author: Jan Gorecki
 Maintainer: Jan Gorecki <j.gorecki@wit.edu.pl>
 Depends:

@@ -36,7 +36,7 @@
 #' @docType package
 #' @import RCurl digest jsonlite data.table
 #' @name Rbitcoin
-#' @aliases btc bitcoin BTC
+#' @aliases btc rbtc bitcoin BTC
 #' @examples
 #' \dontrun{
 #' # default options used by Rbitcoin

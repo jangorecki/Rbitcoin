@@ -114,3 +114,18 @@ antiddos_fun <- function(source_system,
   assign(source_system, Sys.time(), envir = Rbitcoin.last_api_call)
   return(wait)
 }
+
+# setclass for DT ---------------------------------------------------------
+
+setclass <- function(x, newclass, append=TRUE) {
+  # https://github.com/Rdatatable/data.table/pull/844
+  if (length(newclass) == 1 && newclass=="data.table") {
+    warning ("use setDT() instead of setclass() to convert an object to data.table by reference")
+    return(setDT(x))
+  }
+  
+  if (isTRUE(append))
+    cl <- c(newclass, class(x))
+  
+  setattr(x, "class", cl)
+}
