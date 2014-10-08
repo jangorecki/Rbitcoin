@@ -103,7 +103,7 @@ In case if user wants to use currency_pair/method not defined in the dictionary 
 Built-in dictionary supports following market and currency pairs
 ```{r api.dict}
 api.dict <- getOption("Rbitcoin.api.dict")
-api.dict[!is.na(base), .(market, `currency pair` = paste0(base,quote))][,unique(.SD)]
+api.dict[!is.na(base), .(market, currency_pair = paste0(base,quote))][,unique(.SD)]
 ```
 
 ## Utilities
