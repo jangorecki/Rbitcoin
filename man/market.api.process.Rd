@@ -11,7 +11,7 @@ market.api.process(market, currency_pair, action, req = list(), ...,
 \arguments{
 \item{market}{character, example: \code{'kraken'}.}
 
-\item{currency_pair}{character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter.}
+\item{currency_pair}{character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter. It will also handle the \code{action} param provided in case of \code{market.api.process("kraken","wallet")}.}
 
 \item{action}{character, defined process/method to get organized data.
 \itemize{
@@ -41,7 +41,7 @@ market.api.process(market, currency_pair, action, req = list(), ...,
 }
 \value{
 Unless \code{skip_post_process==TRUE} the returned value depends on the \code{action} param but does not depend on \code{market} anymore.
-It returns a list or data.table. It can have class attribute attached to dispatch particular \code{plot}.
+It returns a list or data.table.
 It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you might use \code{skip_post_process=TRUE}.
 All actions will return API call response but also metadata about API call itself, in a common structure across different markets.
 Follow the vignettes (should be released till 0.9.4) or examples.
@@ -74,16 +74,15 @@ options(op)
 print(ticker_all)
 
 # get wallet from market
-market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'wallet',
-                   key = '', secret = '')
+market.api.process(market = 'kraken', action = 'wallet', key = '', secret = '')
 
 # get wallet from all markets and combine
 wallet_all <- rbindlist(list(
-  market.api.process(market = 'bitstamp', currency_pair = c('BTC', 'USD'), action = 'wallet',
+  market.api.process(market = 'bitstamp', action = 'wallet',
                      client_id = '', key = '', secret = ''),
-  market.api.process(market = 'btce', currency_pair = c('LTC', 'USD'), action = 'wallet',
+  market.api.process(market = 'btce', action = 'wallet',
                      method = '', key = '', secret = ''),
-  market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'wallet',
+  market.api.process(market = 'kraken', action = 'wallet',
                      key = '', secret = '')
 ))
 print(wallet_all)
@@ -92,8 +91,7 @@ print(wallet_all)
 market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'order_book')
 
 # get open orders from market
-market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'open_orders',
-                   key = '', secret = '')
+market.api.process(market = 'kraken', action = 'open_orders', key = '', secret = '')
 
 # place limit order
 market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'place_limit_order',
@@ -101,7 +99,7 @@ market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 
                    key = '', secret = '')
 
 # cancel order
-market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'cancel_order,
+market.api.process(market = 'kraken', action = 'cancel_order,
                    req = list(oid = 'oid_from_open_orders'),
                    key = '', secret = '')
 

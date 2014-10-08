@@ -16,7 +16,7 @@ Utilities related to Bitcoin and other cryptocurrencies. Core functionalities ar
 \item \code{market.api.process} - integration of market's processing structures: pre-process of API request, post-process API results, market error catching. Input and output common structure across markets. Requires API dictionary definition, for details of package built-in dictionary see \code{\link{api.dict}}.
 \item \code{blockchain.api.query} - launch query on blockchain.info API json interface.
 \item \code{blockchain.api.process} - postprocess blockchain api result, transform to \code{data.table}.
-\item \code{plot.btc} - illustrate the data returned by some Rbitcoin functions.
+\item \code{rbtc.plot} - illustrate the data returned by some Rbitcoin functions.
 \item \code{wallet_manager} - track the assets amounts and values in multiple wallet sources.
 \item \code{antiddos} - built-in antiddos procedure to prevent to be banned.
 }
@@ -73,6 +73,6 @@ options(Rbitcoin.api.dict = api_dict()) # ?api.dict
 Issues report: \url{https://github.com/jangorecki/Rbitcoin/issues}\cr Example SSL CA file source: \url{http://curl.haxx.se/docs/caextract.html}
 }
 \seealso{
-\code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{wallet_manager}}, \code{\link{plot.btc}}, \code{\link{api.dict}}, \code{\link{fromBTC}}
+\code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}, \code{\link{fromBTC}}
 }
 

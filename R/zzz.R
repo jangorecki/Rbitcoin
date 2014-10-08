@@ -2,6 +2,9 @@
   
   ## Dependencies options
   
+  # data.table bug: https://github.com/Rdatatable/data.table/issues/858
+  options(datatable.auto.index=FALSE)
+  
   # turn off sci notation of numbers, important for market API calls
   options(scipen=100)
   
@@ -26,8 +29,8 @@
   # purely technical
   options(Rbitcoin.json.debug = FALSE)
   
-  # will be changed soons
-  options(Rbitcoin.archive_exchange_rate = NULL)
+  # wallet manager exchange rate history
+  options(Rbitcoin.archive_exchange_rate = FALSE)
   
   ## Rbitcoin dictionaries (see dictionaries.R for details)
   
@@ -40,7 +43,7 @@
 }
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage("You are currently using Rbitcoin dev version 0.9.3, be aware of the changes coming in the releases 0.9.3 (github) and 0.9.4 (cran). Do not auto update Rbitcoin to 0.9.3 (or later) without testing. For details see github.com/jangorecki/Rbitcoin. This message will be removed in 0.9.5+.")
+  packageStartupMessage("You are currently using Rbitcoin dev version 0.9.3, be aware of the changes coming in the releases 0.9.3 (github) up to 0.9.4 (cran). Do not auto update Rbitcoin to 0.9.3 (or later) without testing. For details see github.com/jangorecki/Rbitcoin. This message will be removed in 0.9.5+.")
 }
 
 # default antiddos_fun cache

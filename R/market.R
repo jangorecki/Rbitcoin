@@ -6,7 +6,7 @@
 #' @description Unified processing of API call according to API dictionary \code{api.dict}. Limited to markets and currency processing defined in \code{api.dict}, in case of currency pairs and methods not availble in dictionary use \code{market.api.query} directly. This function perform pre processing of request and post processing of API call response to unified structure across markets.
 #' 
 #' @param market character, example: \code{'kraken'}.
-#' @param currency_pair character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter.
+#' @param currency_pair character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter. It will also handle the \code{action} param provided in case of \code{market.api.process("kraken","wallet")}.
 #' @param action character, defined process/method to get organized data.
 #' \itemize{
 #' \item \code{'ticker'} returns \code{data.table} ticker information.
@@ -30,7 +30,7 @@
 #' @details By default it will perform antiddos check and wait if required, it can be turned off but in such case you should expect to be banned quite easily. Read \code{antiddos}.
 #' @return
 #' Unless \code{skip_post_process==TRUE} the returned value depends on the \code{action} param but does not depend on \code{market} anymore.
-#' It returns a list or data.table. It can have class attribute attached to dispatch particular \code{plot}.
+#' It returns a list or data.table.
 #' It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you might use \code{skip_post_process=TRUE}.
 #' All actions will return API call response but also metadata about API call itself, in a common structure across different markets.
 #' Follow the vignettes (should be released till 0.9.4) or examples.
@@ -56,16 +56,15 @@
 #' print(ticker_all)
 #' 
 #' # get wallet from market
-#' market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'wallet', 
-#'                    key = '', secret = '')
+#' market.api.process(market = 'kraken', action = 'wallet', key = '', secret = '')
 #' 
 #' # get wallet from all markets and combine
 #' wallet_all <- rbindlist(list(
-#'   market.api.process(market = 'bitstamp', currency_pair = c('BTC', 'USD'), action = 'wallet',
+#'   market.api.process(market = 'bitstamp', action = 'wallet',
 #'                      client_id = '', key = '', secret = ''),
-#'   market.api.process(market = 'btce', currency_pair = c('LTC', 'USD'), action = 'wallet',
+#'   market.api.process(market = 'btce', action = 'wallet',
 #'                      method = '', key = '', secret = ''),
-#'   market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'wallet',
+#'   market.api.process(market = 'kraken', action = 'wallet',
 #'                      key = '', secret = '')
 #' ))
 #' print(wallet_all)
@@ -74,8 +73,7 @@
 #' market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'order_book')
 #' 
 #' # get open orders from market
-#' market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'open_orders', 
-#'                    key = '', secret = '')
+#' market.api.process(market = 'kraken', action = 'open_orders', key = '', secret = '')
 #' 
 #' # place limit order
 #' market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'place_limit_order',
@@ -83,7 +81,7 @@
 #'                    key = '', secret = '')
 #' 
 #' # cancel order
-#' market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 'cancel_order, 
+#' market.api.process(market = 'kraken', action = 'cancel_order, 
 #'                    req = list(oid = 'oid_from_open_orders'),
 #'                    key = '', secret = '')
 #' 
@@ -94,8 +92,19 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
                                skip_post_process = FALSE,
                                api.dict = getOption("Rbitcoin.api.dict",stop("no api.dict in options! options('Rbitcoin.api.dict')")),
                                verbose = getOption("Rbitcoin.verbose",0)){
+  # format input
   if(!all.equal(key(api.dict),c("market","base","quote","action"))) setkeyv(api.dict,c("market","base","quote","action"))
-  if(missing(currency_pair) || is.null(currency_pair) || any(action %in% c("wallet","open_orders","cancel_order"))) currency_pair <- c(NA_character_,NA_character_)
+  if(missing(currency_pair)) currency_pair <- c(NA_character_,NA_character_)
+  if(is.null(currency_pair)) currency_pair <- c(NA_character_,NA_character_)
+  if(length(currency_pair)==1){
+    # remap `action` provided as second arg (currency pair) - in case if anybody use market.api.process("kraken","wallet")
+    if(currency_pair %in% c("wallet","open_orders","cancel_order") & missing(action)){
+      action <- currency_pair
+      currency_pair <- c(NA_character_,NA_character_)
+    }
+    else stop("Invalid currency_pair arg, read ?market.api.process")
+  }
+  # process
   api.dict.filter <- bquote(J(.(market),.(currency_pair[[1]]),.(currency_pair[[2]]),.(action)))
   api.dict.local <- api.dict[eval(api.dict.filter),nomatch=0]
   if(nrow(api.dict.local)<1) stop(paste0('Missing api.dict data for particular set: ',market,', ',currency_pair[[1]],', ',currency_pair[[2]],', ',action,". Extend api.dict."))
@@ -103,19 +112,15 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
   url = api.dict.local$url # here can be updated by pre_process(
   req = api.dict.local$pre_process[[1]](req)
   # pre-process req for market
-  res <- market.api.query(market = market, 
-                          url = url,
-                          req = req,
-                          ..., 
-                          verbose = verbose - 1)
+  res <- market.api.query(market = market, url = url, req = req, ...,  verbose = verbose - 1)
   if(skip_post_process){
     if(verbose > 0) cat(as.character(Sys.time()),': market.api.process: skip_post_process=TRUE, returning raw object just after fromJSON for ',market,' ',action,'\n',sep='')
     return(res)
   }
+  # catch market error
   res <- api.dict.local$catch_market_error[[1]](res)
   # post-process res from market
   res <- api.dict.local$post_process[[1]](res)
-  setclass(res,paste("btc",action,sep="."))
   if(verbose > 0) cat(as.character(Sys.time()),': market.api.process: api call processed finished for ',market,' ',action,'\n',sep='')
   return(res)
 }

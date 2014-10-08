@@ -6,13 +6,15 @@
 wallet_value(wallet_dt, ct.dict = getOption("Rbitcoin.ct.dict"),
   value_currency, value_currency_type = NULL, rate_priority,
   transfer_currency_pair, api.dict = getOption("Rbitcoin.api.dict",
-  stop("api.dict is mandatory")), verbose = getOption("Rbitcoin.verbose", 0))
+  stop("api.dict is mandatory")),
+  archive_exchange_rate = getOption("Rbitcoin.archive_exchange_rate", FALSE),
+  verbose = getOption("Rbitcoin.verbose", 0))
 }
 \description{
 Defines the currency pairs required to cover needed exchange rates and chose the source according to rate priority, also utilize the transfer_currency_pair when no direct currency pair available.
 }
 \note{
-Setting option "Rbitcoin.archive_exchange_rate" to numeric 0, 1 o 2 will lead to archive exchange rates used during the processing. Value 0 for rds file, 1 for csv (dec='.', sep=','), 2 for csv (dec=',', sep=';'). Read \code{\link{wallet_manager}} manual.
+Setting option "Rbitcoin.archive_exchange_rate" to \code{TRUE} will lead to archive exchange rates used during the processing. Read \code{\link{wallet_manager}} manual.
 }
 \keyword{internal}
 

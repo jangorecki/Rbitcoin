@@ -1,0 +1,182 @@
+---
+title: "Introduction to Rbitcoin"
+author: "Jan Gorecki"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to Rbitcoin}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+The goal of the vignettes is to present a possible workflow based on the functions available in the package. Additionally few other handy utilies are also presented.
+
+There is also simple GUI app for Rbitcoin package [shinyBTC](https://github.com/jangorecki/shinyBTC) which can be complementary to this vignette.  
+```{r shinybtc, eval=FALSE}
+shiny::runGitHub("jangorecki/shinyBTC")
+```
+
+```{r init, echo=FALSE}
+suppressPackageStartupMessages(library(Rbitcoin))
+```
+
+## Market API
+
+The core functionality of Rbitcoin is to communicate with cryptocurrency exchanges API directly from R, and to unify the structure of market API response across the different markets.  
+Lets see the full process.
+
+0. We will start by picking the market and currency pairs on which we will operate
+```{r market_currency_pair}
+market <- "kraken"
+currency_pair <- c("BTC","EUR")
+```
+
+### Public API call
+
+Public API calls do not require any authentication and you can query it without having an account on market.
+
+1. At the beginning we might be interested to see top level price data using `ticker` API method
+```{r ticker_api}
+ticker <- market.api.process(market, currency_pair, "ticker")
+ticker
+```
+
+2. a. Then we may want to lookup recent `trades`
+```{r trades_api}
+trades <- market.api.process(market,currency_pair,"trades")
+trades[["trades"]][,tail(.SD,10)] # print only last 10 trades
+```
+
+2. b. Above call gives us a raw trades data which might be not so meaningful, we can visualize trades to see a little bit more
+```{r trades_plot, fig.width = 7, fig.height = 5}
+rbtc.plot(trades)
+```
+
+3. a. So far good but we want to confirm the order book is depth enough to fulfill our order
+```{r order_book_api, fig.width = 7, fig.height = 5}
+order_book <- market.api.process(market,currency_pair,"order_book")
+rbtc.plot(order_book)
+```
+
+3. b. If we are going to buy we might want to check the top of *asks* from order book
+```{r order_book_print}
+order_book[["asks"]][,head(.SD,10)] # print only first 10 asks
+```
+
+### Private API call
+
+Private API calls requires authentication, user need to have an account on market and generate API keys (`key` and `secret` param pair).  
+Below examples will not be evaluated due to missing `key` and `secret` parameters in the vignette.
+
+4. Query your wallet (account balance) information from market
+```{r wallet_api, eval=FALSE}
+wallet <- market.api.process(market, action = "wallet", key = "", secret = "")
+wallet[["wallet"]] # print currencies and their amount in the wallet
+```
+
+5. Place limit order on the market (buy amount of 0.15 BTC at 500 EUR price per 1 BTC)
+```{r place_limit_order_api, eval=FALSE}
+place_limit_order <- market.api.process(market, currency_pair, action = "place_limit_order", 
+                                        req = list(type = "buy",
+                                                   price = 500,
+                                                   amount = 0.15)
+                                        key = "", secret = "")
+```
+
+6. Fetch currently open orders on the market
+```{r open_orders_api, eval=FALSE}
+open_orders <- market.api.process(market, action = "open_orders", key = "", secret = "")
+```
+
+7. Cancel opened order on market, `oid` must be provided (`oid` can be obtained using `open_orders` method)
+```{r cancel_order_api, eval=FALSE}
+cancel_order <- market.api.process(market, action = "cancel_order", 
+                                   req = list(oid = "")
+                                   key = "", secret = "")
+```
+
+### Notes
+
+To avoid ban on API interface caused by a sequence of API calls, the `market.api.process` (and any other function which query over web) will perform antiddos procedure behind the scene (to customize see `?antiddos`).  
+Because of the `market.api.process` function do post-process and pre-process of API calls to common structure across markets, the function is limited to defined markets and currency pairs in the dictionary (`?api.dict`). User can extend built-in dictionary for new markets (`?query.dict`) or new currency pairs or new API methods (`?api.dict`).  
+In case if user wants to use currency_pair/method not defined in the dictionary it is possible using `market.api.query` function, this function can handle any currency pair and any method but it requires appropriate format of method arguments and it will not post-process API response to common structure.  
+Built-in dictionary supports following market and currency pairs
+```{r api.dict}
+api.dict <- getOption("Rbitcoin.api.dict")
+api.dict[!is.na(base), .(market, `currency pair` = paste0(base,quote))][,unique(.SD)]
+```
+
+## Utilities
+
+### Blockchain API
+
+Simple conversion of fiat currencies to BTC (based on blockchain.info rates)
+```{r to_from_api}
+fromBTC(1) # current BTCUSD price
+toBTC(150, "GBP") # convert 150 GBP to BTC
+```
+
+Query blockchain.info API
+```{r blockchain_api}
+# some first wallets btc address details
+addr <- blockchain.api.process('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
+str(addr)
+# some first wallets btc address final balance
+blockchain.api.process('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')[["final_balance"]]
+# some transaction details
+tx <- blockchain.api.process('e5c4de1c70cb6d60db53410e871e9cab6a0ba75404360bf4cda1b993e58d45f8')
+str(tx, max.level=1)
+```
+If you need to query any other data from blockchain API you can use `blockchain.api.query` function which allows any methods but do not post-process response.
+
+### Wallet Manager
+
+Wallet manager is quite complex function to track your cryptocurrency balances in different markets/accounts.  
+By default function do not archive it's results, this can be setup using `archive_write=TRUE` args but user should be aware that sensitive data will be archived localy in working directory as `wallet_archive.rds` file.  
+Archive will allow `rbtc.plot` to plot historical cryptocurrency balances. Historical balances might be also important for user's further analysis.
+```{r wallet_manager_api, eval=FALSE}
+# sources definition
+market.sources <- list(
+  "my_account1" = list(market='kraken', key='', secret=''),
+  "my_account1" = list(market='btce', key='', secret=''),
+  "my_account2" = list(market='btce', key='', secret='') # second account possible
+)
+# define wallets on blockchain
+blockchain.sources <- list(
+  "my_account1" = list(address=''),
+  "my_account1" = list(address='')
+)
+# define wallets manually
+manual.sources <- list(
+  "my_account1" = list(location='transferring', currency='LTC', amount=0.8),
+  "my_account1" = list(location='brainwallet', currenc ='BTC', amount=0.1)
+)
+# execute
+wallet_dt <- wallet_manager(
+  market.sources = market.sources,
+  blockchain.sources = blockchain.sources,
+  manual.sources = manual.sources,
+  value_currency = 'GBP', # your target currency
+  rate_priority = c('bitstamp','kraken','bitmarket','btce')
+  archive_write = TRUE # by default FALSE, read ?wallet_manager
+)
+print(wallet_dt)
+# after multiple runs of wallet_manager(archive_write=TRUE) we can do plot
+wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
+rbtc.plot(wallet_dt)
+```
+
+## Reference
+
+### Dependencies used
+
+ * [RCurl](http://cran.r-project.org/web/packages/RCurl/index.html): connect to the market API interface over https
+ * [digest](http://cran.r-project.org/web/packages/digest/index.html): authorize on market API private api calls
+ * [jsonlite](http://cran.r-project.org/web/packages/jsonlite/index.html): decode market API response json string to R objects
+ * [data.table](http://cran.r-project.org/web/packages/data.table/index.html): any data manipulation, totally replaces data.frames
+
+### Missing something?
+
+Report, make Feature Request or even better Pull Request to [Rbitcoin github](https://github.com/jangorecki/Rbitcoin).
+
+[MIT license](http://opensource.org/licenses/MIT)

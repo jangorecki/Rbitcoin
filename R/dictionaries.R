@@ -51,8 +51,6 @@ query_dict <- function(){
 
 # ct_dict -----------------------------------------------------------------
 
-# query_dict --------------------------------------------------------------
-
 #' @name ct_dict
 #' @title Currency type (fiat or crypti) dictionary
 #' @description By default provided to \code{getOption("Rbitcoin.ct.dict")}. Simple crypto/fiat indicator, used in few places, can be extended here.

@@ -1,5 +1,6 @@
 Rbitcoin 0.9.3 (in dev)
 ==============
+* vignette: vignette("introduction", package="Rbitcoin")
 * added toBTC/fromBTC functions for easier conversion
 * dependency migrated from RJSONIO to jsonlite
 * market.api.process:
@@ -17,7 +18,7 @@ Rbitcoin 0.9.3 (in dev)
 * wallet_manager:
   * wallet_archive.rds extended for 1 more column, ?wallet_manager
 * plot:
-  * one plot() function for all Rbitcoin objects, ?plot.btc
+  * one rbtc.plot() function for all Rbitcoin objects
 * api.dict:
   * default api.dict moved from RData to api_dict function
   * api.dict constructor functions in per market R source file
