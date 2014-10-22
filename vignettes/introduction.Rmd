@@ -96,7 +96,7 @@ cancel_order <- market.api.process(market, action = "cancel_order",
                                    key = "", secret = "")
 ```
 
-### Notes
+### Market API notes
 
 To avoid ban on API interface caused by a sequence of API calls, the `market.api.process` (and any other function which query over web) will perform antiddos procedure behind the scene (to customize see `?antiddos`).  
 Because of the `market.api.process` function do post-process and pre-process of API calls to common structure across markets, the function is limited to defined markets and currency pairs in the dictionary (`?api.dict`). User can extend built-in dictionary for new markets (`?query.dict`) or new currency pairs or new API methods (`?api.dict`).  
@@ -175,17 +175,17 @@ rbtc.plot(wallet_dt)
 dev.off()
 ```
 
-## Reference
+## Rbitcoin notes
 
-If you find this package useful or you made some moneys using it please consider [donation to Rbitcoin](bitcoin:15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi)  
-Part of the received donations will likely be transferred to `Rbitcoin` dependencies (`data.table`, `RCurl`, `jsonlite`, `digest`, `R Foundation`) if and when they will setup BTC donation address.
+If you find this package useful or you made profit from using it please consider donation to Rbitcoin [15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi](https://blockchain.info/address/15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi)  
+Part of the received donations will likely be transferred to **Rbitcoin** dependencies (**data.table**, **RCurl**, **jsonlite**, **digest**, **R Foundation**) if and when they will setup BTC donation address.
 
 ### Dependencies used
 
+ * [data.table](http://cran.r-project.org/web/packages/data.table/index.html): any data manipulation, totally replaces data.frames
  * [RCurl](http://cran.r-project.org/web/packages/RCurl/index.html): connect to the market API interface over https
  * [digest](http://cran.r-project.org/web/packages/digest/index.html): authorize on market API private api calls
  * [jsonlite](http://cran.r-project.org/web/packages/jsonlite/index.html): decode market API response json string to R objects
- * [data.table](http://cran.r-project.org/web/packages/data.table/index.html): any data manipulation, totally replaces data.frames
  * [R](http://www.r-project.org/): R Core
 
 ### Missing something?
