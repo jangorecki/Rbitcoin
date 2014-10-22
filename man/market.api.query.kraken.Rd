@@ -38,4 +38,5 @@ market.api.query.kraken(url = 'https://api.kraken.com/0/private/Balance',
 \seealso{
 \code{\link{market.api.query}}
 }
+\keyword{internal}
 

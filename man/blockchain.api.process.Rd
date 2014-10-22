@@ -14,7 +14,7 @@ blockchain.api.process(..., method, verbose = getOption("Rbitcoin.verbose",
 \item{\dots}{params passed to blockchain.info API, specific for particular method, example \code{'bitcoin_address'} or \code{'tx_index'}, for more read \code{\link{blockchain.api.query}}.}
 }
 \value{
-data.table object, blockchain api data transformed to table.
+post processed response from blockchain api, list or data.table.
 }
 \description{
 Query and process results from blockchain.info.

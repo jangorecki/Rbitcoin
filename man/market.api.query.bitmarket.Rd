@@ -42,4 +42,5 @@ market.api.query.bitmarket(url = 'https://www.bitmarket.pl/api2/',
 \seealso{
 \code{\link{market.api.query}}
 }
+\keyword{internal}
 

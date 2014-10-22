@@ -42,4 +42,5 @@ market.api.query.btce(url = 'https://btc-e.com/tapi',
 \seealso{
 \code{\link{market.api.query}}
 }
+\keyword{internal}
 

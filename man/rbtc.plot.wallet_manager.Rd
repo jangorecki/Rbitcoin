@@ -3,21 +3,21 @@
 \alias{rbtc.plot.wallet_manager}
 \title{Plot wallet manager results}
 \usage{
-rbtc.plot.wallet_manager(x, y.type = c("value", "amount"),
+rbtc.plot.wallet_manager(wallet_dt, type = "value",
   mask = getOption("Rbitcoin.plot.mask", FALSE),
   verbose = getOption("Rbitcoin.verbose", 0))
 }
 \arguments{
-\item{x}{data.table, result from \code{wallet_manager(archive_read=TRUE)}}
+\item{wallet_dt}{data.table, result from \code{wallet_manager}}
 
-\item{y.type}{character, measure to be used on Y axis, it will affect a global type of plot. Only "value" currently supported.}
+\item{type}{character, type of plot: \code{"value"} - wallet value in time, \code{"amount"} - wallet amount in time (not yet supported), \code{"recent"} - recent wallet.}
 
-\item{mask}{logical default \code{FALSE}. If set to \code{TRUE} it will mask any amounts and blockchain addresses.}
+\item{mask}{logical default \code{FALSE}. If set to \code{TRUE} it will mask sensitive informations such as: amounts, values, blockchain addresses, auth accounts.}
 
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \value{
-\code{TRUE} invisibily. Side effect a base plot - dashboard panel to track different measures of your assets and its value. Use \code{mask} if you want to share the results to somebody, it will overwrite value with value ratio and also mask blockchain addresses.
+invisibily \code{NULL}. Side effect a base plot, for type \code{"value"} or \code{"amount"} the dashboard panel to track different measures of your assets over time. For type \code{"recent"} a base plot of the most recent non-NA measures wallet data.
 }
 \description{
 Plot wallet manager results archive
@@ -29,9 +29,15 @@ Target value currency is taken from the last execution of \code{wallet_manager} 
 }
 \examples{
 \dontrun{
-wallet_dt <- wallet_manager(archive_write = FALSE, archive_read = TRUE)
+wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
+# plot wallet value over time
 rbtc.plot(wallet_dt)
+# the same but with masked sensitive data
 rbtc.plot(wallet_dt, mask=TRUE)
+# legend lookS better when plot to file
+svg("value.svg"); rbtc.plot(wallet_dt, type="value", mask=TRUE); dev.off()
+# plot recent wallet value
+rbtc.plot(wallet_dt, type="recent")
 }
 }
 \seealso{

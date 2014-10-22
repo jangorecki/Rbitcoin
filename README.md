@@ -11,7 +11,7 @@ See [introduction](https://github.com/jangorecki/Rbitcoin/blob/master/vignettes/
 * Requires latest data.table `1.9.4`.
 * Each function that query over http(s) by default will invoke antiddos procedure behind the scene. Read `?antiddos` for customization.
 * Now it is possible to add new markets and currency pairs just by setting `options()`.
-* Wallet_manager archive contains additional column.
+* wallet_manager archive contains additional column.
 * Renamed plotting functions.
 * Read NEWS file for more details.
 

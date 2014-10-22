@@ -15,7 +15,7 @@ market.api.query.bitstamp(url, client_id, key, secret, req = list(),
 
 \item{secret}{character API secret used in private API calls.}
 
-\item{req}{list of object passed to API: price and amount of opening order, id of cancelling order, etc..}
+\item{req}{list of object passed to API: price and amount of opening order, id of cancelling order, etc.}
 
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
@@ -41,4 +41,5 @@ market.api.query.bitstamp(url = 'https://www.bitstamp.net/api/balance/',
 \seealso{
 \code{\link{market.api.query}}
 }
+\keyword{internal}
 

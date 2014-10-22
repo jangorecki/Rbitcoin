@@ -13,6 +13,7 @@
 #' @return Character string a response from market's API call.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://www.kraken.com/help/api}
+#' @keywords internal
 #' @export
 #' @examples
 #' \dontrun{

@@ -12,7 +12,7 @@ fromBTC(value = 1, currency = "USD",
 
 \item{currency}{character.}
 
-\item{antiddos}{logical default \code{TRUE}. Default 10s, read \code{\link{market.api.query}} Antiddos section for customization.}
+\item{antiddos}{logical default \code{TRUE}. Default 10s, read \code{\link{antiddos}}.}
 
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
@@ -36,6 +36,6 @@ fromBTC(1, "EUR")
 \url{https://blockchain.info/api/exchange_rates_api}
 }
 \seealso{
-\code{\link{toBTC}}, \code{\link{blockchain.api.query}}
+\code{\link{toBTC}}, \code{\link{blockchain.api.query}}, \code{\link{antiddos}}
 }
 

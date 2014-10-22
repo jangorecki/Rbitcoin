@@ -11,7 +11,7 @@ market.api.process(market, currency_pair, action, req = list(), ...,
 \arguments{
 \item{market}{character, example: \code{'kraken'}.}
 
-\item{currency_pair}{character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter. It will also handle the \code{action} param provided in case of \code{market.api.process("kraken","wallet")}.}
+\item{currency_pair}{character vector of length 2, e.g. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter. It will also handle the \code{action} param provided in case of \code{market.api.process("kraken","wallet")}.}
 
 \item{action}{character, defined process/method to get organized data.
 \itemize{
@@ -44,7 +44,7 @@ Unless \code{skip_post_process==TRUE} the returned value depends on the \code{ac
 It returns a list or data.table.
 It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you might use \code{skip_post_process=TRUE}.
 All actions will return API call response but also metadata about API call itself, in a common structure across different markets.
-Follow the vignettes (should be released till 0.9.4) or examples.
+Follow Rbitcoin introduction vignette or examples.
 }
 \description{
 Unified processing of API call according to API dictionary \code{api.dict}. Limited to markets and currency processing defined in \code{api.dict}, in case of currency pairs and methods not availble in dictionary use \code{market.api.query} directly. This function perform pre processing of request and post processing of API call response to unified structure across markets.

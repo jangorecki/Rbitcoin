@@ -14,6 +14,7 @@
 #' @note Market specific btce \code{method} param should be provided in \code{req} object.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://btc-e.com/api/documentation}
+#' @keywords internal
 #' @export
 #' @examples
 #' \dontrun{

@@ -21,7 +21,7 @@ antiddos_fun(source_system, antiddos.sec = getOption("Rbitcoin.antiddos.sec",
 numeric time of wait in seconds.
 }
 \description{
-Wait if you should before next API call to market (or any other source system) to do not get banned.
+Wait if necessary before next API call to market (or any other source system) to do not get banned.
 }
 \details{
 The following options can control antiddos process:

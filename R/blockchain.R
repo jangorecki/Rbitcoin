@@ -9,7 +9,7 @@
 #' @param method character. For details see \code{blockchain.api.query}, currently supported \code{'Single Address'} and \code{'Single Transaction'}. If \code{method} missing the function will try to guess it based on first param in \dots.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @details By default it will perform antiddos check and wait if required, it can be turned off but in such case you should expect to be banned quite easily. Read \code{antiddos}.
-#' @return data.table object, blockchain api data transformed to table.
+#' @return post processed response from blockchain api, list or data.table.
 #' @seealso \code{\link{blockchain.api.query}}, \code{\link{antiddos}}
 #' @references \url{https://blockchain.info/api/blockchain_api}
 #' @export
@@ -67,7 +67,7 @@ blockchain.api.process <- function(... , method,
 #'
 #' @param \dots params passed to blockchain.info API, specific for particular method, example \code{'bitcoin_address'} or \code{'tx_index'}, for more see references or examples.
 #' @param method character. For details see references, currently supported \code{'Single Address'} and \code{'Single Transaction'}. If \code{method} missing the function will try to guess it based on first param in \dots.
-#' @param antiddos logical default \code{TRUE}. Default 10s, read \code{\link{market.api.query}} Antiddos section for customization.
+#' @param antiddos logical default \code{TRUE}. Default 10s, read \code{\link{antiddos}}.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @return result returned by \code{fromJSON} function applied on the blockchain result, most probably the list.
 #' @seealso \code{\link{blockchain.api.process}}, \code{\link{antiddos}}
@@ -142,10 +142,10 @@ blockchain.api.query <- function(... , method,
 #'
 #' @param value numeric.
 #' @param currency character.
-#' @param antiddos logical default \code{TRUE}. Default 10s, read \code{\link{market.api.query}} Antiddos section for customization.
+#' @param antiddos logical default \code{TRUE}. Default 10s, read \code{\link{antiddos}}.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @return converted value.
-#' @seealso \code{\link{fromBTC}}, \code{\link{blockchain.api.query}}, , \code{\link{antiddos}}
+#' @seealso \code{\link{fromBTC}}, \code{\link{blockchain.api.query}}, \code{\link{antiddos}}
 #' @references \url{https://blockchain.info/api/exchange_rates_api}
 #' @export
 #' @examples
@@ -175,10 +175,10 @@ toBTC <- function(value = 1, currency = "USD",
 #'
 #' @param value numeric.
 #' @param currency character.
-#' @param antiddos logical default \code{TRUE}. Default 10s, read \code{\link{market.api.query}} Antiddos section for customization.
+#' @param antiddos logical default \code{TRUE}. Default 10s, read \code{\link{antiddos}}.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @return converted value.
-#' @seealso \code{\link{toBTC}}, \code{\link{blockchain.api.query}}
+#' @seealso \code{\link{toBTC}}, \code{\link{blockchain.api.query}}, \code{\link{antiddos}}
 #' @references \url{https://blockchain.info/api/exchange_rates_api}
 #' @export
 #' @examples

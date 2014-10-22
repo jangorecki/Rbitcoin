@@ -1,5 +1,5 @@
 
-# available wallet --------------------------------------------------------
+# available_wallet --------------------------------------------------------
 
 #' @title Available wallet
 #'
@@ -13,9 +13,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' wallet <- market.api.process('kraken',c('BTC','EUR'),'wallet', key = '', secret = '')
-#' open_orders <- market.api.process('kraken',c('BTC','EUR'),'open_orders', key = '', secret = '')
-#' aw <- available_wallet(wallet, open_orders, verbose = 1)
+#' wallet <- market.api.process('kraken', action='wallet', key='', secret='')
+#' open_orders <- market.api.process('kraken', action='open_orders', key='', secret='')
+#' aw <- available_wallet(wallet[["wallet"]], open_orders[["open_orders"]], verbose = 1)
 #' print(aw)
 #' }
 available_wallet <- function(wallet, open_orders, 
@@ -65,7 +65,7 @@ available_wallet <- function(wallet, open_orders,
 
 #' @title Anti DDoS
 #'
-#' @description Wait if you should before next API call to market (or any other source system) to do not get banned.
+#' @description Wait if necessary before next API call to market (or any other source system) to do not get banned.
 #'
 #' @param source_system character, a unique name of source system, could be any name \code{c('kraken','bitstamp','blockchain','alt_bitstamp')} 
 #' @param antiddos.sec numeric time in seconds between API calls on the particular source system, defeault \code{getOption("Rbitcoin.antiddos.sec",10)}.

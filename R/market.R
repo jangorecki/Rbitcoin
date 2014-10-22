@@ -6,7 +6,7 @@
 #' @description Unified processing of API call according to API dictionary \code{api.dict}. Limited to markets and currency processing defined in \code{api.dict}, in case of currency pairs and methods not availble in dictionary use \code{market.api.query} directly. This function perform pre processing of request and post processing of API call response to unified structure across markets.
 #' 
 #' @param market character, example: \code{'kraken'}.
-#' @param currency_pair character vector of length 2, ex. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter. It will also handle the \code{action} param provided in case of \code{market.api.process("kraken","wallet")}.
+#' @param currency_pair character vector of length 2, e.g. \code{c(base = 'BTC', quote = 'EUR')}, names are not mandatory but order does matter. It will also handle the \code{action} param provided in case of \code{market.api.process("kraken","wallet")}.
 #' @param action character, defined process/method to get organized data.
 #' \itemize{
 #' \item \code{'ticker'} returns \code{data.table} ticker information.
@@ -33,7 +33,7 @@
 #' It returns a list or data.table.
 #' It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you might use \code{skip_post_process=TRUE}.
 #' All actions will return API call response but also metadata about API call itself, in a common structure across different markets.
-#' Follow the vignettes (should be released till 0.9.4) or examples.
+#' Follow Rbitcoin introduction vignette or examples.
 #' @note The api dictionary was not fully tested, if you find any bugs please report. Use only api dictionaries from trusted source or review them before using!
 #' @seealso \code{\link{market.api.query}}, \code{\link{api.dict}}, \code{\link{antiddos}}, \code{\link{query.dict}}
 #' @export
@@ -129,14 +129,14 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
 
 #' @title Send request to market API
 #'
-#' @description Route a request to particular market function.
+#' @description Route a request to particular market function according to dictionary \code{query.dict}.
 #'
-#' @param market character which identifies market on which we want to send request: bitstamp, btce, kraken, bitmarket.
+#' @param market character which identifies market on which we want to send request, e.g. kraken.
 #' @param url character url on which launch api call.
 #' @param \dots objects to be passed to api: \code{key}, \code{secret}, \code{req}, \code{client_id} (used on bitstamp).
 #' @param antiddos logical default \code{TRUE}. Default to 10s. To customize read \code{antiddos}.
 #' @param query.dict data.table default built-in dictionary with market query functions, read \code{query.dict}.
-#' @param json.debug logical default \code{FALSE}. Purely technical, if set to \code{TRUE} it will allow to debug case of unknown non-json format returned by market, by saving market response in working directory as timestamped txt file.
+#' @param json.debug logical default \code{FALSE}. Purely technical, if set to \code{TRUE} it will allow to debug case of unknown non-json format returned by market, by saving market response in working directory as timestamped txt file in case of \code{fromJSON} error.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @return R object created by \code{fromJSON} decoded response from market's API call.
 #' @seealso \code{\link{market.api.process}}, \code{\link{antiddos}}, \code{\link{query.dict}}

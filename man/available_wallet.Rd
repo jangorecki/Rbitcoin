@@ -21,9 +21,9 @@ Calculates assets available to trade, not on hold by current open orders.
 }
 \examples{
 \dontrun{
-wallet <- market.api.process('kraken',c('BTC','EUR'),'wallet', key = '', secret = '')
-open_orders <- market.api.process('kraken',c('BTC','EUR'),'open_orders', key = '', secret = '')
-aw <- available_wallet(wallet, open_orders, verbose = 1)
+wallet <- market.api.process('kraken', action='wallet', key='', secret='')
+open_orders <- market.api.process('kraken', action='open_orders', key='', secret='')
+aw <- available_wallet(wallet[["wallet"]], open_orders[["open_orders"]], verbose = 1)
 print(aw)
 }
 }

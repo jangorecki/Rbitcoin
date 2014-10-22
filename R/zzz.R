@@ -29,7 +29,8 @@
   # purely technical
   options(Rbitcoin.json.debug = FALSE)
   
-  # wallet manager exchange rate history
+  # wallet manager related
+  options(Rbitcoin.wallet_manager.archive_path = "wallet_archive.rds")
   options(Rbitcoin.archive_exchange_rate = FALSE)
   
   ## Rbitcoin dictionaries (see dictionaries.R for details)

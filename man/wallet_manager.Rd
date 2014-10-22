@@ -4,14 +4,15 @@
 \title{Wallet Manager}
 \usage{
 wallet_manager(market.sources = NULL, blockchain.sources = NULL,
-  manual.sources = NULL, min_amount = 1e-04, value_calc = TRUE,
+  manual.sources = NULL, min_amount = 0.0001, value_calc = TRUE,
   value_currency = "USD", value_currency_type = NULL, rate_priority,
   transfer_currency_pair = c(crypto = "BTC", fiat = "USD"),
   api.dict = getOption("Rbitcoin.api.dict",
   stop("no api.dict in options and not provided to wallet_manager")),
   archive_write = getOption("Rbitcoin.wallet_manager.archive_write", FALSE),
   archive_read = getOption("Rbitcoin.wallet_manager.archive_read", FALSE),
-  verbose = getOption("Rbitcoin.verbose", 0))
+  archive_path = getOption("Rbitcoin.wallet_manager.archive_path",
+  "wallet_archive.rds"), verbose = getOption("Rbitcoin.verbose", 0))
 }
 \arguments{
 \item{market.sources}{list of market sources definition, see examples. Mandatory fields: \code{market, key, secret} (for bitstamp also \code{client_id}).}
@@ -38,18 +39,20 @@ wallet_manager(market.sources = NULL, blockchain.sources = NULL,
 
 \item{archive_read}{logical, default \code{FALSE}, recommended \code{FALSE}. If \code{TRUE} it return full archive of wallets data over time grouped by \code{wallet_id}. To be used when passing results to \code{\link{rbtc.plot}} function or performing other analysis over time, read notes below.}
 
+\item{archive_path}{character, default \code{"wallet_archive.rds"}, a wallet archive location.}
+
 \item{verbose}{integer Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \value{
-data.table object with wallet information in denormilized structure. Number of columns depends on \code{value_calc} param, when \code{FALSE} then columns related to the value will not be returned. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format. Since 0.9.3 new column has been added \code{auth} which corresponds to the \code{*.sources} args lists elements names, see examples.
+data.table object with wallet information in denormilized structure. When launch with \code{wallet_read=TRUE} then all historical archived wallet statuses will be returned. Field \code{wallet_id} is a processing batch id and also the timestamp of single wallet manager processing as integer in Unix time format. Since 0.9.3 new column has been added \code{auth} which corresponds to the \code{*.sources} args lists elements names, see examples.
 }
 \description{
 Downloads wallet balance from multiple sources and calculate value in chosen currency based on actual exchange rates. Function is limited to dictionary \code{\link{api.dict}} plus fiat-fiat exchange rates.
 }
 \section{Wallet archive}{
 
-To be able to track wallet assets value over time user needs to use \code{archive_write=TRUE}. It will archive wallet manager result \code{data.table} to \code{wallet_archive.rds} file in not encrypted format (not a plain text also), sensitive data like amount and value will be available from R by \code{readRDS("wallet_archive.rds")}. This can be used to correct/manipulate archived data or union the results of the wallet manager performed on different machines by \code{readRDS(); rbindlist(); saveRDS()}. Setting \code{archive_write=FALSE} and \code{archive_read=TRUE} will skip processing and just load the archive, same as \code{readRDS()}.
-You should be aware the archive file will be growing over time, unless you have tons of sources defined or you scheduled \code{wallet_manager} every hour or less you should not experience any issues because of that. In case of the big size of archived rds file you can move data to database, wrap function into database archiver function and query full archive from database only for for plotting.
+To be able to track wallet assets value over time you need to use \code{archive_write=TRUE}. It will archive wallet manager result \code{data.table} to \code{wallet_archive.rds} file (or filepath as \code{archive_path} arg) in not encrypted format (not a plain text also), sensitive data like amount and value will be available from R by \code{readRDS("wallet_archive.rds")}. This can be used to correct/manipulate archived data or union the results of the wallet manager performed on different machines by \code{readRDS(); rbindlist(); saveRDS()}, see examples. Setting \code{archive_write==FALSE & archive_read==TRUE} will skip processing and just load the archive, same as \code{readRDS()}.
+You should be aware the archive file will be growing over time, unless you have tons of sources defined or you scheduled \code{wallet_manager} every hour or less you should not experience any issues because of that. In case of the big size of archived rds file you can move data to database, use \code{archive_write=FALSE} and wrap function into database archiver function. For later analysis simply query full archive from database, be sure to match original data types.
 }
 
 \section{Exchange rates}{
@@ -57,7 +60,7 @@ You should be aware the archive file will be growing over time, unless you have 
 Exchange rates will be downloaded from different sources. Fiat-fiat rates will be sourced from yahoo finance, if yahoo would not be available then also fiat-fiat rate cannot be calculated. Rates for cryptocurrencies will be downloaded from market's tickers according to \code{rate_priority} and currency pairs available in \code{api.dict}. Currency type (crypto or fiat) is already defined in \code{getOption("Rbitcoin.ct.dict")}, can be edited for support other/new currency.\cr
 Markets used for crypto rates are defined by \code{rate_priority} as vector of market names in order of its priority from highest to lowest. User need to chose own trusted exchange rates providers and keep in mind to update \code{rate_priority} parameter when necessary. As we recently seen the mtgox after death was still spreading the public API data and any system which sources data from them would be affected, so the control over the source for exchange rates needs to be maintained by user.
 In case of calculation crypto rate for a currency pair which is not available in \code{\link{api.dict}} then \code{transfer_currency_pair} will be used to get indirect exchange rate. Example: exchange rate for NMC-GBP will be computed as NMC-BTC-USD-GBP using the default \code{transfer_currency_pair} and current \code{api.dict}.
-The process was not exhaustively tested, you can track all the exchange rates used by setting \code{options(Rbitcoin.archive_exchange_rate=TRUE)}. This option will append the data to \code{exchange_rate_archive.rds} file in working directory.
+The process was not exhaustively tested, you can track all the exchange rates used in the processing by setting \code{options(Rbitcoin.archive_exchange_rate=TRUE)}. This option will append the data to \code{exchange_rate_archive.rds} file in working directory.
 }
 
 \section{NA measures}{
@@ -74,7 +77,7 @@ User may consider to schedule execution of the function with \code{archive_write
 
 \section{Troubleshooting}{
 
-In case of the issues with this function verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers, yahoo (see references). If all sources works and issue still occurs please report. Fiat to fiat conversion using yahoo may not be available for all possible currency pairs.
+In case of the issues with this function try first to verify if all of the sources are returning correct data, use \code{blockchain.api.process} and \code{market.api.process} functions. Possible sources for wallet data: market api, blockchain api, manually provided. Possible sources for exchange rate data: market tickers (taken from \code{api.dict} according to \code{rate_priority}), yahoo (for fiat-fiat, see references). If all sources works and issue still occurs please report. Fiat to fiat conversion using yahoo may not be available for all possible fiat currency pairs.
 }
 \examples{
 \dontrun{
@@ -83,7 +86,7 @@ In case of the issues with this function verify if all of the sources are return
 market.sources <- list(
   "my_account1" = list(market = 'bitstamp', client_id = '', key = '', secret = ''),
   "my_account1" = list(market = 'btce', key = '', secret = ''),
-  # multiple accounts on same market possible - we can use names to distinguish accounts
+  # multiple accounts on same market possible - we can use names to distinguish auth accounts
   "my_account2" = list(market = 'btce', key = '', secret = ''),
   "my_account1" = list(market = 'kraken', key = '', secret = '')
 )
@@ -139,11 +142,11 @@ wallet_dt[,list(value = sum(value, na.rm=T)),
 wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
 rbtc.plot(wallet_dt)
 
-# discard processing batch, by id, from wallet archive (will omit on plot)
+# remove processing batch from archive, by id
 dt <- readRDS("wallet_archive.rds")
+setkey(dt,wallet_id)
 wallet_id_to_remove <- 1390000000
-dt[wallet_id==wallet_id_to_remove,`:=`(amount = NA_real_, value = NA_real_)]
-saveRDS(dt, "wallet_archive.rds")
+saveRDS(dt[!.(wallet_id_to_remove)], "wallet_archive.rds")
 
 # To track exchange rates used set option Rbitcoin.archive_exchange_rate
 options(Rbitcoin.archive_exchange_rate=TRUE)
@@ -167,6 +170,6 @@ write.table(dt, "exchange_rate_archive.csv",
 \url{https://code.google.com/p/yahoo-finance-managed/wiki/csvQuotesDownload}
 }
 \seealso{
-\code{\link{rbtc.plot}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos_fun}}
+\code{\link{rbtc.plot}}, \code{\link{blockchain.api.process}}, \code{\link{market.api.process}}, \code{\link{antiddos}}
 }
 

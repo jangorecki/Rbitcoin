@@ -9,9 +9,9 @@ query_dict()
 \description{
 By default provided to \code{getOption("Rbitcoin.query.dict")}. This function returns built-in Rbitcoin supported markets dictionary. Granularity of query dictionary data is \code{c("market")}. This dictionary can be edited/extended by user for new markets.\cr Currently supported:
 \itemize{
+\item \code{kraken}
 \item \code{bitstamp}
 \item \code{btce}
-\item \code{kraken}
 \item \code{bitmarket}
 }
 }

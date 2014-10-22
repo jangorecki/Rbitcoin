@@ -13,12 +13,16 @@ Rbitcoin 0.9.3 (in dev)
   * removed args: on.error
 * market.api.query.*:
   * returned value is now character json string, fromJSON moved to market.api.query
+  * funs are now internal (not listed in index) but still exported
 * blockchain.api.*:
   * built-in antiddos, by default active, set to 10s
 * wallet_manager:
   * wallet_archive.rds extended for 1 more column, ?wallet_manager
+  * value_calc=FALSE will return full column set dt, value related will be NA
+  * wallet archive path as arg/option
 * plot:
-  * one rbtc.plot() function for all Rbitcoin objects
+  * one rbtc.plot() function for all Rbitcoin objects instead Rbitcoin.plot
+  * improved wallet manager plot, added recent wallet plot
 * api.dict:
   * default api.dict moved from RData to api_dict function
   * api.dict constructor functions in per market R source file
@@ -28,6 +32,7 @@ Rbitcoin 0.9.3 (in dev)
   * wallet, open_orders - result nested in a list
 * verbose will now result only one status message per function call
 * minor fixes for changes in data.table 1.9.4
+* documentation improvement
 
 
 Rbitcoin 0.9.2

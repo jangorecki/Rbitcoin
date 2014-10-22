@@ -14,6 +14,7 @@
 #' @note Market specific bitmarket \code{method} param should be provided in \code{req} object.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://www.bitmarket.pl/docs.php?file=api_private.html}
+#' @keywords internal
 #' @export
 #' @examples
 #' \dontrun{

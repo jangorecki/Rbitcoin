@@ -9,7 +9,7 @@ blockchain.api.query(..., method, antiddos = getOption("Rbitcoin.antiddos",
 \arguments{
 \item{method}{character. For details see references, currently supported \code{'Single Address'} and \code{'Single Transaction'}. If \code{method} missing the function will try to guess it based on first param in \dots.}
 
-\item{antiddos}{logical default \code{TRUE}. Default 10s, read \code{\link{market.api.query}} Antiddos section for customization.}
+\item{antiddos}{logical default \code{TRUE}. Default 10s, read \code{\link{antiddos}}.}
 
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 

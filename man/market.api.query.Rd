@@ -10,7 +10,7 @@ market.api.query(market, url, ..., antiddos = getOption("Rbitcoin.antiddos",
   verbose = getOption("Rbitcoin.verbose", 0))
 }
 \arguments{
-\item{market}{character which identifies market on which we want to send request: bitstamp, btce, kraken, bitmarket.}
+\item{market}{character which identifies market on which we want to send request, e.g. kraken.}
 
 \item{url}{character url on which launch api call.}
 
@@ -18,7 +18,7 @@ market.api.query(market, url, ..., antiddos = getOption("Rbitcoin.antiddos",
 
 \item{query.dict}{data.table default built-in dictionary with market query functions, read \code{query.dict}.}
 
-\item{json.debug}{logical default \code{FALSE}. Purely technical, if set to \code{TRUE} it will allow to debug case of unknown non-json format returned by market, by saving market response in working directory as timestamped txt file.}
+\item{json.debug}{logical default \code{FALSE}. Purely technical, if set to \code{TRUE} it will allow to debug case of unknown non-json format returned by market, by saving market response in working directory as timestamped txt file in case of \code{fromJSON} error.}
 
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 
@@ -28,7 +28,7 @@ market.api.query(market, url, ..., antiddos = getOption("Rbitcoin.antiddos",
 R object created by \code{fromJSON} decoded response from market's API call.
 }
 \description{
-Route a request to particular market function.
+Route a request to particular market function according to dictionary \code{query.dict}.
 }
 \examples{
 \dontrun{
