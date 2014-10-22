@@ -2,7 +2,7 @@
 
 Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, btce, bitmarket). Both public and private API calls. Other utils related to cryptocurrencies.
 
-See [introduction](https://github.com/jangorecki/Rbitcoin/blob/master/vignettes/introduction.html) vignette and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.
+See [introduction](https://github.com/jangorecki/Rbitcoin/blob/master/vignettes/introduction.Rmd) vignette and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.
 
 **Current version**: 0.9.3 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
 
