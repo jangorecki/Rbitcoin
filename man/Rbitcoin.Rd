@@ -11,7 +11,7 @@
 \description{
 Utilities related to Bitcoin and other cryptocurrencies. Core functionalities are:
 \itemize{
-\item \code{fromBTC} \code{toBTC} - fast conversion based on blockchain.info rates.
+\item \code{fromBTC}, \code{toBTC} - fast conversion based on blockchain.info rates.
 \item \code{market.api.query} - launch query on market's API. Both public and private API calls supported. All methods and all currency pairs supported.
 \item \code{market.api.process} - launch query in a common way (for all markets), receive results in a common structure (for all markets). It will perform pre-process of API request, post-process of API results, and catch market error. Requires API dictionary definition, for built-in dictionary see \code{\link{api.dict}}.
 \item \code{blockchain.api.query} - launch query on blockchain.info API json interface.
@@ -20,9 +20,9 @@ Utilities related to Bitcoin and other cryptocurrencies. Core functionalities ar
 \item \code{wallet_manager} - track the assets amounts and values in multiple source systems.
 \item \code{antiddos} - built-in antiddos procedure to prevent to be banned.
 }
-You need to note that imported \code{digest} package docs states: \emph{Please note that this package is not meant to be deployed for cryptographic purposes for which more comprehensive (and widely tested) libraries such as OpenSSL should be used}. Still \code{digest} is one of the top downloaded package from CRAN.\cr
+You need to note that imported \strong{digest} package docs states: \emph{Please note that this package is not meant to be deployed for cryptographic purposes for which more comprehensive (and widely tested) libraries such as OpenSSL should be used}. Still \strong{digest} is one of the top downloaded package from CRAN.\cr
 It is advised to maintain your API keys security level as tight as possible, if you do not need withdraw api method be sure to disable it for api keys.\cr
-SSL will be used by default. It can be customized using \code{options("RCurlOptions")}, see examples or read \code{RCurl} docs.\cr
+SSL will be used by default. It can be customized using \code{options("RCurlOptions")}, see examples or read \strong{RCurl} docs.\cr
 In case of SSL error try update certificate CA file (\code{cacert.pem} in \code{cainfo = system.file("CurlSSL","cacert.pem",package="RCurl")}), see references for CA file source. Alternatively you can always disable SSL.\cr
 At the time of writing the most recent market's API version were used:
 \itemize{
@@ -34,10 +34,10 @@ At the time of writing the most recent market's API version were used:
 
 For package-level options see examples below.
 
-If you find this package useful or you made some moneys using it please consider donation to \code{Rbitcoin}: \url{bitcoin:15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi}
-Please note the part of the donations will be transferred to \code{Rbitcoin} dependencies (\code{data.table}, \code{RCurl}, \code{jsonlite}, \code{digest}, \code{R Foundation}) if and when they will setup BTC donation address.
+If you find this package useful or you made profit from using it please consider donation to Rbitcoin: \url{bitcoin:15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi}.\cr
+Part of the received donations will likely be transferred to \strong{Rbitcoin} dependencies if and when they will setup BTC donation address: \strong{data.table}, \strong{RCurl}, \strong{jsonlite}, \strong{digest}, \strong{R Foundation}.
 
-There is also simple GUI app for \code{Rbitcoin} package \code{shinyBTC}: \url{https://github.com/jangorecki/shinyBTC}
+There is also simple GUI app for \strong{Rbitcoin} package \strong{shinyBTC}: \url{https://github.com/jangorecki/shinyBTC}
 }
 \note{
 Only 3 letters currency codes are supported (USD, GBP, BTC, etc.), others (e.g. DOGE) were not tested and might not work.

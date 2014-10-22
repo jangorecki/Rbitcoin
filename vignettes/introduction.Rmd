@@ -136,23 +136,24 @@ Wallet manager is quite complex function to track your cryptocurrency balances (
 By default function do not archive it's results, this must be setup using `archive_write=TRUE` args but user should be aware that sensitive data (balance and its sources **but not api keys**) will be archived locally in working directory as `wallet_archive.rds` file.  
 Archive will allow `rbtc.plot` to plot historical assets balances. Historical balances might be also important for user's further analysis.
 ```{r wallet_manager_api, eval=FALSE}
-# sources definition
+# example market.sources
 market.sources <- list(
   "my_account1" = list(market='kraken', key='', secret=''),
   "my_account1" = list(market='btce', key='', secret=''),
   "my_account2" = list(market='btce', key='', secret='') # second account possible
 )
-# define wallets on blockchain
+# example blockchain.sources
 blockchain.sources <- list(
   "my_account1" = list(address=''),
   "my_account1" = list(address='')
 )
-# define wallets manually
+# example manual.sources
 manual.sources <- list(
   "my_account1" = list(location='transferring', currency='LTC', amount=0.8),
   # non supported markets manually defined
   "my_account1" = list(location='bitfinex', location_type='market', currency='BTC', amount=0.25),
-  "my_account1" = list(location='brainwallet', currency=c('BTC','LTC'), amount=c(0.1,6))
+  # also a regular bank account balance archive
+  "my_account1" = list(location='fidor', location_type='bank', currency='USD', amount=35)
 )
 # execute
 wallet_dt <- wallet_manager(
@@ -160,7 +161,7 @@ wallet_dt <- wallet_manager(
   blockchain.sources = blockchain.sources,
   manual.sources = manual.sources,
   value_currency = 'GBP', # your target currency
-  rate_priority = c('bitstamp','kraken','bitmarket','btce') # value rates source priority
+  rate_priority = c('bitstamp','kraken','btce','bitmarket') # value rates source priority
   archive_write = TRUE # by default FALSE, read ?wallet_manager
 )
 print(wallet_dt)
@@ -178,7 +179,7 @@ dev.off()
 ## Rbitcoin notes
 
 If you find this package useful or you made profit from using it please consider donation to Rbitcoin [15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi](https://blockchain.info/address/15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi)  
-Part of the received donations will likely be transferred to **Rbitcoin** dependencies (**data.table**, **RCurl**, **jsonlite**, **digest**, **R Foundation**) if and when they will setup BTC donation address.
+Part of the received donations will likely be transferred to **Rbitcoin** dependencies if and when they will setup BTC donation address.
 
 ### Dependencies used
 
