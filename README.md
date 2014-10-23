@@ -21,7 +21,7 @@ See [introduction](https://github.com/jangorecki/Rbitcoin/blob/master/vignettes/
 # Rbitcoin 0.9.2 from CRAN
 install.packages("Rbitcoin")
 # Rbitcoin 0.9.3 from github
-devtools::install_github("jangorecki/Rbitcoin")
+devtools::install_github("jangorecki/Rbitcoin", build_vignettes=TRUE) # vignette optional
 ```
 
 ## Usage
