@@ -15,7 +15,7 @@
 #' \dontrun{
 #' wallet <- market.api.process('kraken', action='wallet', key='', secret='')
 #' open_orders <- market.api.process('kraken', action='open_orders', key='', secret='')
-#' aw <- available_wallet(wallet[["wallet"]], open_orders[["open_orders"]], verbose = 1)
+#' aw <- available_wallet(wallet, open_orders, verbose = 1)
 #' print(aw)
 #' }
 available_wallet <- function(wallet, open_orders, 
@@ -74,9 +74,11 @@ available_wallet <- function(wallet, open_orders,
 #' @return numeric time of wait in seconds.
 #' @details
 #' The following options can control antiddos process: 
-#' \code{getOption("Rbitcoin.antiddos",TRUE)}
-#' \code{getOption("Rbitcoin.antiddos.sec",10)} seconds to wait between calls to the same system
-#' \code{getOption("Rbitcoin.antiddos.fun",antiddos_fun)} - custom antiddos function. Default the one documentated on this site.
+#' \itemize{
+#' \item \code{getOption("Rbitcoin.antiddos",TRUE)}
+#' \item \code{getOption("Rbitcoin.antiddos.sec",10)} seconds to wait between calls to the same system
+#' \item \code{getOption("Rbitcoin.antiddos.fun",antiddos_fun)} - custom antiddos function. Default the one documentated on this site.
+#' }
 #' @note 
 #' Rbitcoin built-in antiddos function handle only api calls launched within the current R session.
 #' By default it will wait \code{getOption("Rbitcoin.antiddos.sec",10)} seconds between calls to the same system.

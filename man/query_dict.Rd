@@ -18,4 +18,9 @@ By default provided to \code{getOption("Rbitcoin.query.dict")}. This function re
 \note{
 Do not use \code{query.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 }
+\examples{
+\dontrun{
+query_dict()[]
+}
+}
 

@@ -22,12 +22,12 @@
 #' \itemize{
 #' \item auth params: \code{key}, \code{secret}
 #' \item auth param on bitstamp: \code{client_id}
-#' \item any other args in case of own custom market function (read \code{query.dict})
+#' \item any other args in case of own custom market function
 #' }
 #' @param skip_post_process logical skip post-processing and return results only after \code{fromJSON} processing. Useful in case of change response structure from market API. It can always be manually post-processed on user side as a workaround till the Rbitcoin api dict update.
-#' @param api.dict data.table user custom API dictionary definition, if not provided function will use default Rbitcoin \code{getOption("Rbitcoin.api.dict")} \code{api.dict}.
+#' @param api.dict data.table user custom API dictionary definition, if not provided function will use default Rbitcoin \code{getOption("Rbitcoin.api.dict")}.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
-#' @details By default it will perform antiddos check and wait if required, it can be turned off but in such case you should expect to be banned quite easily. Read \code{antiddos}.
+#' @details By default it will perform antiddos check and wait if required, it can be turned off but in such case you should expect to be banned quite easily. Read \code{?antiddos}.
 #' @return
 #' Unless \code{skip_post_process==TRUE} the returned value depends on the \code{action} param but does not depend on \code{market} anymore.
 #' It returns a list or data.table.

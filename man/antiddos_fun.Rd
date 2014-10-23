@@ -25,9 +25,11 @@ Wait if necessary before next API call to market (or any other source system) to
 }
 \details{
 The following options can control antiddos process:
-\code{getOption("Rbitcoin.antiddos",TRUE)}
-\code{getOption("Rbitcoin.antiddos.sec",10)} seconds to wait between calls to the same system
-\code{getOption("Rbitcoin.antiddos.fun",antiddos_fun)} - custom antiddos function. Default the one documentated on this site.
+\itemize{
+\item \code{getOption("Rbitcoin.antiddos",TRUE)}
+\item \code{getOption("Rbitcoin.antiddos.sec",10)} seconds to wait between calls to the same system
+\item \code{getOption("Rbitcoin.antiddos.fun",antiddos_fun)} - custom antiddos function. Default the one documentated on this site.
+}
 }
 \note{
 Rbitcoin built-in antiddos function handle only api calls launched within the current R session.

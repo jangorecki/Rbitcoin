@@ -28,7 +28,7 @@ market.api.process(market, currency_pair, action, req = list(), ...,
 
 \item{skip_post_process}{logical skip post-processing and return results only after \code{fromJSON} processing. Useful in case of change response structure from market API. It can always be manually post-processed on user side as a workaround till the Rbitcoin api dict update.}
 
-\item{api.dict}{data.table user custom API dictionary definition, if not provided function will use default Rbitcoin \code{getOption("Rbitcoin.api.dict")} \code{api.dict}.}
+\item{api.dict}{data.table user custom API dictionary definition, if not provided function will use default Rbitcoin \code{getOption("Rbitcoin.api.dict")}.}
 
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 
@@ -36,7 +36,7 @@ market.api.process(market, currency_pair, action, req = list(), ...,
 \itemize{
 \item auth params: \code{key}, \code{secret}
 \item auth param on bitstamp: \code{client_id}
-\item any other args in case of own custom market function (read \code{query.dict})
+\item any other args in case of own custom market function
 }}
 }
 \value{
@@ -50,7 +50,7 @@ Follow Rbitcoin introduction vignette or examples.
 Unified processing of API call according to API dictionary \code{api.dict}. Limited to markets and currency processing defined in \code{api.dict}, in case of currency pairs and methods not availble in dictionary use \code{market.api.query} directly. This function perform pre processing of request and post processing of API call response to unified structure across markets.
 }
 \details{
-By default it will perform antiddos check and wait if required, it can be turned off but in such case you should expect to be banned quite easily. Read \code{antiddos}.
+By default it will perform antiddos check and wait if required, it can be turned off but in such case you should expect to be banned quite easily. Read \code{?antiddos}.
 }
 \note{
 The api dictionary was not fully tested, if you find any bugs please report. Use only api dictionaries from trusted source or review them before using!

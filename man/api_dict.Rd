@@ -15,7 +15,15 @@ By default provided to \code{getOption("Rbitcoin.api.dict")}. This function retu
 \item \code{bitmarket: BTCPLN, LTCPLN}
 }
 }
+\details{
+Default dictionary post-process function returns list or data.table. The data.table is returned in case of (always) one row response from API (ticker, place_limit_order, etc.). The list is returned in case of (possible) multiple rows response from API (trades, wallet, etc.).
+}
 \note{
 Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
+}
+\examples{
+\dontrun{
+api_dict()[]
+}
 }
 

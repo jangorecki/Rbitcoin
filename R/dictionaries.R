@@ -10,9 +10,14 @@
 #' \item \code{kraken: BTCEUR, LTCEUR, BTCLTC}
 #' \item \code{bitmarket: BTCPLN, LTCPLN}
 #' }
+#' @details Default dictionary post-process function returns list or data.table. The data.table is returned in case of (always) one row response from API (ticker, place_limit_order, etc.). The list is returned in case of (possible) multiple rows response from API (trades, wallet, etc.).
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @export
 #' @aliases api.dict
+#' @examples
+#' \dontrun{
+#' api_dict()[]
+#' }
 api_dict <- function(){
   api.dict.list <- list(
     kraken_api_dict(),
@@ -38,6 +43,10 @@ api_dict <- function(){
 #' @note Do not use \code{query.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @export
 #' @aliases query.dict
+#' @examples
+#' \dontrun{
+#' query_dict()[]
+#' }
 query_dict <- function(){
   query.dict.list <- list(
     data.table(market = "kraken", query = c(market.api.query.kraken)),

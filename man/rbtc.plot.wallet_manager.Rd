@@ -35,7 +35,9 @@ rbtc.plot(wallet_dt)
 # the same but with masked sensitive data
 rbtc.plot(wallet_dt, mask=TRUE)
 # legend lookS better when plot to file
-svg("value.svg"); rbtc.plot(wallet_dt, type="value", mask=TRUE); dev.off()
+svg("wallet_value.svg")
+rbtc.plot(wallet_dt, type="value", mask=TRUE)
+dev.off()
 # plot recent wallet value
 rbtc.plot(wallet_dt, type="recent")
 }

@@ -4,6 +4,7 @@
 \title{Get rate}
 \usage{
 get_rate(v_market, v_base, v_quote, api.dict,
+  antiddos = getOption("Rbitcoin.antiddos", TRUE),
   verbose = getOption("Rbitcoin.verbose", 0))
 }
 \description{

@@ -7,7 +7,7 @@
 rbtc.plot(x, ..., verbose = getOption("Rbitcoin.verbose", 0))
 }
 \arguments{
-\item{x}{object to be plotted, result of Rbitcoin function, currently supported: \code{market.api.process(action=c("trades","order_book"))}, \code{wallet_managere}.}
+\item{x}{object to be plotted, result of Rbitcoin function, currently supported: \code{market.api.process(action=c("trades","order_book"))} and \code{wallet_manager}.}
 
 \item{\dots}{additional params to be passed to particular plot function.}
 }
@@ -18,7 +18,7 @@ by side effect a base plot.
 Generic function to plot different objects returned by some Rbitcoin functions.
 }
 \note{
-Legend may not scale well in interactive viewer, for better scaling save plot to file, see examples.
+For wallet manager plot legend may not scale well in interactive viewer, for better scaling save plot to file, see examples.
 }
 \examples{
 \dontrun{
@@ -26,11 +26,12 @@ Legend may not scale well in interactive viewer, for better scaling save plot to
 trades <- market.api.process('kraken',c('BTC','EUR'),'trades')
 # plot trades
 rbtc.plot(trades)
-# plot trades to svg
-svg("trades.svg")
-rbtc.plot(trades)
-dev.off()
-# plot wallet_manager archive to svg
+# fetch order_book
+order_book <- market.api.process('kraken',c('LTC','EUR'),'order_book')
+# plot order book
+rbtc.plot(order_book)
+rbtc.plot(order_book, limit_pct = 0.5)
+# plot wallet_manager archive to svg file
 wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
 svg("wallet_value.svg")
 rbtc.plot(wallet_dt)

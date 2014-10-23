@@ -16,7 +16,7 @@ Plot order book data
 }
 \examples{
 \dontrun{
-order_book <- market.api.process('bitmarket',c('BTC','PLN'),'order_book')
+order_book <- market.api.process('kraken',c('LTC','EUR'),'order_book')
 rbtc.plot(order_book)
 rbtc.plot(order_book, limit_pct = 0.5)
 }

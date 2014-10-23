@@ -141,7 +141,7 @@ wallet_manager <- function(market.sources = NULL,
                            verbose = getOption("Rbitcoin.verbose",0)){
   # read archive only, skip processing
   if(archive_read & !archive_write){
-    wallet_dt.archive <- if(file.exists(archive_path)) readRDS(archive_path) else stop('Wallet archive file wallet_archive.rds does not exists, run function with archive_write=TRUE')
+    wallet_dt.archive <- if(file.exists(archive_path)) readRDS(archive_path) else stop(paste0('Wallet archive file ',archive_path,' does not exists, define wallet sources and run function using archive_write=TRUE'))
     if(verbose > 0) cat(as.character(Sys.time()),': wallet_manager: wallet manager processing skipped, returning wallet archive only','\n',sep='')
     return(setkeyv(wallet_dt.archive,"wallet_id"))
   }
@@ -210,7 +210,7 @@ wallet_manager <- function(market.sources = NULL,
     wal <- data.table(auth = namesNA(manual.sources[i]),
                       timestamp = Sys.time(), 
                       location = if(is.null(manual.sources[[i]][['location']])) NA_character_ else manual.sources[[i]][['location']], 
-                      location_type = if(is.null(manual.sources[[i]][['location_type']])) 'manual' else manual.sources[[i]][['location_type']],
+                      location_type = if(is.null(manual.sources[[i]][['location_type']])) NA_character_ else manual.sources[[i]][['location_type']],
                       currency = as.character(manual.sources[[i]][['currency']]),
                       amount = as.numeric(manual.sources[[i]][['amount']]))
     if(verbose > 0) cat(as.character(Sys.time()),': wallet_source.manual: source processed for ',namesNA(manual.sources[i]),' @ ',if(is.null(manual.sources[[i]][['location']])) NA_character_ else manual.sources[[i]][['location']],'\n',sep='')
@@ -303,10 +303,12 @@ wallet_manager <- function(market.sources = NULL,
 #' @keywords internal
 get_rate <- function(v_market, v_base, v_quote, 
                      api.dict, 
+                     antiddos = getOption("Rbitcoin.antiddos",TRUE),
                      verbose = getOption("Rbitcoin.verbose",0)){
   if(v_market == 'yahoo'){
     ab_dt <- tryCatch(
       expr = {
+        wait <- if(antiddos) getOption("Rbitcoin.antiddos.fun",antiddos_fun)(source_system = v_market, verbose = verbose - 1) else 0
         raw_char <- getURL(url = paste0('https://download.finance.yahoo.com/d/quotes.csv?s=',paste0(v_base,v_quote),'=X&f=sl1d1t1ab&e=.csv'),
                            .opts = list(useragent = paste("Rbitcoin",packageVersion("Rbitcoin"))))
         rate_dt <- fread(raw_char)
@@ -435,8 +437,7 @@ wallet_value <- function(wallet_dt,
   
   # download exchange rates all pairs used for direct and indirect
   for(i in 1:nrow(all_pair)){
-    # exceptions
-    if(all_pair[i,identical(substr(currency_pair,1,3),substr(currency_pair,4,6))]){# 1:1 rate
+    if(all_pair[i,identical(substr(currency_pair,1,3),substr(currency_pair,4,6))]){
       ab <- all_pair[i,list(
         market = NA_character_, 
         base = substr(currency_pair,1,3), 
@@ -444,9 +445,8 @@ wallet_value <- function(wallet_dt,
         ask = 1, 
         bid = 1
       )]
-    }
-    else if(all_pair[i,!is.na(market)]){ #regular rate - download from ticker/yahoo
-      #if(all_pair[i,base]=="RUR" & all_pair[i,quote]=="PLN") browser()
+    } # 1:1 rate
+    else if(all_pair[i,!is.na(market)]){
       ab <- all_pair[i,get_rate(v_market = market, v_base = base, v_quote = quote, api.dict = api.dict, verbose = verbose - 1)]
       ab <- data.table(all_pair[i,.(market, base, quote)],ab)
       if(!ab[,is.numeric(ask) & is.numeric(bid)]){
@@ -455,10 +455,10 @@ wallet_value <- function(wallet_dt,
         })] ,call.=FALSE)
         ab <- data.table(all_pair[i,.(market, base, quote)],ask=NA_real_,bid=NA_real_)
       }
-    }
+    } # regular rate - download from market ticker/yahoo
     else {
-      ab <- data.table(market = NA_character_, base = NA_character_, quote = NA_character_, ask = NA_real_, bid = NA_real_) # postponed to second loop for indirect rates
-    }
+      ab <- data.table(market = NA_character_, base = NA_character_, quote = NA_character_, ask = NA_real_, bid = NA_real_)
+    } # postponed to second loop for indirect rates
     set(all_pair, i, "market", ab[,market])
     set(all_pair, i, "base", ab[,base])
     set(all_pair, i, "quote", ab[,quote])

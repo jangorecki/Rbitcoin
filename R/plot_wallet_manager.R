@@ -21,7 +21,9 @@
 #' # the same but with masked sensitive data
 #' rbtc.plot(wallet_dt, mask=TRUE)
 #' # legend lookS better when plot to file
-#' svg("value.svg"); rbtc.plot(wallet_dt, type="value", mask=TRUE); dev.off()
+#' svg("wallet_value.svg")
+#' rbtc.plot(wallet_dt, type="value", mask=TRUE)
+#' dev.off()
 #' # plot recent wallet value
 #' rbtc.plot(wallet_dt, type="recent")
 #' }
@@ -30,11 +32,12 @@ rbtc.plot.wallet_manager <- function(wallet_dt, type = "value",
                                      verbose = getOption("Rbitcoin.verbose",0)){
   x <- copy(wallet_dt)
   
-  # choose last process meta
-  last_wallet_meta <- x[which.max(wallet_id),list(wallet_id, value_currency)]
-  
   # NA wallet_id groups! will be omitted
   x[,NA_group := any(is.na(value) | is.na(amount)), by=wallet_id]
+  
+  # choose last process meta
+  last_wallet_meta <- x[!evalq(NA_group)][which.max(wallet_id),list(wallet_id, value_currency)]
+
   # notification if type="recent" AND last NA_group TRUE
   if( type == "recent" & x[which.max(wallet_id),NA_group] == TRUE ){
     last_valid_wallet_id <- x[!evalq(NA_group) & value_currency == last_wallet_meta$value_currency][which.max(wallet_id),wallet_id]

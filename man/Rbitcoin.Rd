@@ -66,7 +66,7 @@ options(Rbitcoin.json.debug = FALSE) # ?market.api.query
 options(Rbitcoin.plot.mask = FALSE) # ?rbtc.plot
 options(Rbitcoin.plot.limit_pct = Inf) # ?rbtc.plot
 options(Rbitcoin.archive_exchange_rate = FALSE) # ?wallet_manager
-options(Rbitcoin.wallet_manager.archive_path = "wallet_archive.rds") ?wallet_manager
+options(Rbitcoin.wallet_manager.archive_path = "wallet_archive.rds") # ?wallet_manager
 
 # Rbitcoin dictionaries
 options(Rbitcoin.query.dict = query_dict()) # ?query.dict
