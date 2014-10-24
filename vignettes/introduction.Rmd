@@ -2,25 +2,29 @@
 title: "Introduction to Rbitcoin"
 author: "Jan Gorecki"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{Introduction to Rbitcoin}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---
 
+## Introduction
+
 Rbitcoin package can be used to create end-to-end trading engine in R.  
 The goal of the vignettes is to present a possible workflow based on the functions available in the package. Additionally few other handy utilies are also presented.
+```{r init, echo=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+suppressPackageStartupMessages(library(Rbitcoin))
+Sys.setenv(TZ="UTC") # plot always in UTC
+options("Rbitcoin.antiddos.sec"=5)
+```
 
 There is also simple shinyApp as GUI for Rbitcoin package [shinyBTC](https://github.com/jangorecki/shinyBTC) which can be complementary to this vignette.  
 ```{r shinybtc, eval=FALSE}
 shiny::runGitHub("jangorecki/shinyBTC")
-```
-
-```{r init, echo=FALSE}
-suppressPackageStartupMessages(library(Rbitcoin))
-Sys.setenv(TZ="UTC") # plot always in UTC
-options("Rbitcoin.antiddos.sec"=5)
 ```
 
 ## Market API
@@ -111,13 +115,15 @@ api.dict[!is.na(base), .(market, currency_pair = paste0(base,quote))][,unique(.S
 
 ## Utilities
 
-### Blockchain API
+### to/from BTC
 
 Simple conversion of fiat currencies to BTC (based on **blockchain.info** rates)
 ```{r to_from_api}
 fromBTC(1) # current BTCUSD price
 toBTC(150, "GBP") # convert 150 GBP to BTC
 ```
+
+### Blockchain API
 
 Query blockchain.info API
 ```{r blockchain_api}
@@ -151,9 +157,12 @@ blockchain.sources <- list(
 )
 # example manual.sources
 manual.sources <- list(
-  "john smith" = list(location='bitfinex', location_type='market', currency=c('BTC','USD'), amount=c(0.4,0)),
-  "john smith" = list(location='fidor', location_type='bank', currency=c('EUR','USD'), amount=c(20,0)),
-  "jane smith" = list(location='fidor', location_type='bank', currency=c('EUR','GBP'), amount=c(10,105))
+  "john smith" = list(location='bitfinex', location_type='market',
+                      currency=c('BTC','USD'), amount=c(0.4,0)),
+  "john smith" = list(location='fidor', location_type='bank',
+                      currency=c('EUR','USD'), amount=c(20,0)),
+  "jane smith" = list(location='fidor', location_type='bank',
+                      currency=c('EUR','GBP'), amount=c(10,105))
 )
 # execute
 wallet_dt <- wallet_manager(
@@ -196,8 +205,8 @@ We may do a simple plot of only recent balances
 rbtc.plot(wallet_dt, type="recent")
 wallet_dt <- full_wallet_dt # load full archive
 ```
-  
-After multiple runs of `wallet_manager(archive_write=TRUE)` we may plot historical balances
+
+After multiple runs of `wallet_manager(..., archive_write=TRUE)` we may plot historical balances
 ```{r wallet_manager_archive_load, eval=FALSE}
 # load archive only
 wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
@@ -215,7 +224,7 @@ dev.off()
 If you find this package useful or you made profit from using it please consider donation to Rbitcoin [15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi](https://blockchain.info/address/15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi)  
 Part of the received donations will likely be transferred to **Rbitcoin** dependencies if and when they will setup BTC donation address.
 
-### Dependencies used
+#### Dependencies used
 
  * [data.table](http://cran.r-project.org/web/packages/data.table/index.html): any data manipulation, totally replaces data.frames
  * [RCurl](http://cran.r-project.org/web/packages/RCurl/index.html): connect to the market API interface over https
@@ -223,7 +232,7 @@ Part of the received donations will likely be transferred to **Rbitcoin** depend
  * [jsonlite](http://cran.r-project.org/web/packages/jsonlite/index.html): decode market API response json string to R objects
  * [R](http://www.r-project.org/): R Core
 
-### Contribution
+#### Contribution
 
 [Rbitcoin github](https://github.com/jangorecki/Rbitcoin):  
 
@@ -231,6 +240,6 @@ Part of the received donations will likely be transferred to **Rbitcoin** depend
  * make feature request
  * make pull request
  
-### License
+## License
 
 [MIT license](http://opensource.org/licenses/MIT)

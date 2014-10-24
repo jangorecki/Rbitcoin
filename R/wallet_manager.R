@@ -54,9 +54,12 @@
 #' )
 #' # example manual.sources
 #' manual.sources <- list(
-#'   "john smith" = list(location='bitfinex', location_type='market', currency=c('BTC','USD'), amount=c(0.4,0)),
-#'   "john smith" = list(location='fidor', location_type='bank', currency=c('EUR','USD'), amount=c(20,0)),
-#'   "jane smith" = list(location='fidor', location_type='bank', currency=c('EUR','GBP'), amount=c(10,105))
+#'   "john smith" = list(location='bitfinex', location_type='market',
+#'                       currency=c('BTC','USD'), amount=c(0.4,0)),
+#'   "john smith" = list(location='fidor', location_type='bank',
+#'                       currency=c('EUR','USD'), amount=c(20,0)),
+#'   "jane smith" = list(location='fidor', location_type='bank',
+#'                       currency=c('EUR','GBP'), amount=c(10,105))
 #' )
 #' # execute
 #' wallet_dt <- wallet_manager(
@@ -133,6 +136,11 @@ wallet_manager <- function(market.sources = NULL,
     if(!is.list(market.sources)) stop("market.sources must be a list")
     if(length(market.sources)==0) market.sources <- NULL
     else if(any(sapply(market.sources, function(x) nchar(x[["key"]])==0 | nchar(x[["secret"]])==0))) stop("market.sources must contain non empty 'key' and 'secret' fields")
+  }
+  if(value_calc){
+    if(!identical(rate_priority,unique(rate_priority))){
+      stop('rate_priority must contain a vector of unique market names')
+    } # stop, vector needs to be unique
   }
   
   # common missing param - throw error without processing wallets
@@ -219,13 +227,15 @@ wallet_manager <- function(market.sources = NULL,
   }
   else if(length(all.wallet) > 0){
     all.wallet_dt <- rbindlist(lapply(all.wallet, function(x) rbindlist(x)))[amount >= min_amount | is.na(amount),.SD,,keyby='currency']
-    
     # add currency_type dimensions
-    wallet_dt <- ct_dt[all.wallet_dt
-                       ][,if(.N > 0){
-                         data.table(wallet_id = wallet_id, currency, currency_type, auth, timestamp, location, location_type, amount)
-                       } else data.table(wallet_id = integer(), currency = character(), currency_type = character(), auth = character(), timestamp = as.POSIXct(NA,origin='1970-01-01',tz='UTC')[-1], location = character(), location_type = character(), amount = numeric())
-                       ]
+    wallet_dt <- ct_dt[all.wallet_dt]
+    # add wallet_id field
+    if(nrow(wallet_dt)==0){
+      wallet_dt <- wallet_dt[,list(wallet_id = integer(), currency = character(), currency_type = character(), auth = character(), timestamp = as.POSIXct(NA,origin='1970-01-01',tz='UTC')[-1], location = character(), location_type = character(), amount = numeric())]
+    }
+    else{
+      wallet_dt <- wallet_dt[,list(wallet_id = wallet_id, currency, currency_type, auth, timestamp, location, location_type, amount)]
+    }
   }
   if(nrow(wallet_dt) == 0) warning('Zero rows wallet table, review sources definition and min_amount', call.=FALSE)
   
@@ -233,9 +243,6 @@ wallet_manager <- function(market.sources = NULL,
   if(value_calc){
     if(nrow(wallet_dt) == 0) wallet_dt[,`:=`(value_currency = character(), value_rate = numeric(), value = numeric())]
     else if(nrow(wallet_dt) > 0){
-      if(!identical(rate_priority,unique(rate_priority))){
-        stop('rate_priority must contain a vector of unique market names')
-      } # stop, vector needs to be unique
       wallet_dt <- wallet_value(wallet_dt = wallet_dt, 
                                 value_currency = value_currency, 
                                 value_currency_type = value_currency_type,
@@ -253,7 +260,7 @@ wallet_manager <- function(market.sources = NULL,
   # archive_write
   if(archive_write){
     wallet_dt.archive <- if(file.exists(archive_path)) readRDS(archive_path) else NULL
-    if(!("auth" %in% names(wallet_dt.archive))){ # 0.9.3 update
+    if(!is.null(wallet_dt.archive) & !("auth" %in% names(wallet_dt.archive))){ # 0.9.3 update
       backup_092 <- paste0(archive_path,'_0.9.2_',as.character(Sys.time(),"%Y%m%d_%H%M%S"),'.rds')
       stopifnot(file.rename(archive_path, backup_092))
       wallet_dt.archive[,auth := NA_character_]
@@ -384,8 +391,9 @@ wallet_value <- function(wallet_dt,
         ][,list(currency_pair, currency, currency_type, market, base, quote)
           ]
     } 
-    if(nrow(direct_to_indirect) == 0) 
+    else if(nrow(direct_to_indirect) == 0){
       res <- data.table(currency_pair = character(), currency = character(), currency_type = character(), market = character(), base = character(), quote = character())
+    }
     res
   }
   
@@ -402,12 +410,13 @@ wallet_value <- function(wallet_dt,
                         currency_type = 'fiat',
                         market = 'yahoo', 
                         base = transfer_currency_pair[['fiat']], quote = value_currency)
-    } else if(value_currency_type == 'crypto'){
+    }
+    else if(value_currency_type == 'crypto'){
       dt <- data.table(currency_pair = paste(sort(c(value_currency,transfer_currency_pair[['crypto']])),collapse=''),
                        currency = transfer_currency_pair[['crypto']],
                        currency_type = 'crypto', 
                        key = 'currency_pair')
-      res <- priority.ticker.api.dict[dt, list(currency, currency_type, market, base, quote)]
+      res <- priority.ticker.api.dict[dt, list(currency_pair, currency, currency_type, market, base, quote)]
     }
     res
   }

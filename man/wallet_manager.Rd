@@ -94,9 +94,12 @@ blockchain.sources <- list(
 )
 # example manual.sources
 manual.sources <- list(
-  "john smith" = list(location='bitfinex', location_type='market', currency=c('BTC','USD'), amount=c(0.4,0)),
-  "john smith" = list(location='fidor', location_type='bank', currency=c('EUR','USD'), amount=c(20,0)),
-  "jane smith" = list(location='fidor', location_type='bank', currency=c('EUR','GBP'), amount=c(10,105))
+  "john smith" = list(location='bitfinex', location_type='market',
+                      currency=c('BTC','USD'), amount=c(0.4,0)),
+  "john smith" = list(location='fidor', location_type='bank',
+                      currency=c('EUR','USD'), amount=c(20,0)),
+  "jane smith" = list(location='fidor', location_type='bank',
+                      currency=c('EUR','GBP'), amount=c(10,105))
 )
 # execute
 wallet_dt <- wallet_manager(
