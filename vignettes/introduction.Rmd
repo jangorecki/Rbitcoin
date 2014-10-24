@@ -19,6 +19,8 @@ shiny::runGitHub("jangorecki/shinyBTC")
 
 ```{r init, echo=FALSE}
 suppressPackageStartupMessages(library(Rbitcoin))
+Sys.setenv(TZ="UTC") # plot always in UTC
+options("Rbitcoin.antiddos.sec"=5)
 ```
 
 ## Market API
@@ -75,7 +77,7 @@ wallet <- market.api.process(market, action = "wallet", key = "", secret = "")
 wallet[["wallet"]] # print currencies and their amount in the wallet
 ```
 
-5. *Place limit order* on the market (buy amount of 0.15 BTC at 500 EUR price per 1 BTC)
+5. *Place limit order* on the market (*buy* amount of *0.15* BTC at *500* EUR price per 1 BTC)
 ```{r place_limit_order_api, eval=FALSE}
 place_limit_order <- market.api.process(market, currency_pair, action = "place_limit_order", 
                                         req = list(type = "buy",
@@ -111,7 +113,7 @@ api.dict[!is.na(base), .(market, currency_pair = paste0(base,quote))][,unique(.S
 
 ### Blockchain API
 
-Simple conversion of fiat currencies to BTC (based on blockchain.info rates)
+Simple conversion of fiat currencies to BTC (based on **blockchain.info** rates)
 ```{r to_from_api}
 fromBTC(1) # current BTCUSD price
 toBTC(150, "GBP") # convert 150 GBP to BTC
@@ -133,44 +135,76 @@ If you need to query any other data from blockchain API you can use `blockchain.
 ### Wallet Manager
 
 Wallet manager is quite complex function to track your cryptocurrency balances (and it's values at a time) on different markets/accounts/addresses.  
-By default function do not archive it's results, this must be setup using `archive_write=TRUE` args but user should be aware that sensitive data (balance and its sources **but not api keys**) will be archived locally in working directory as `wallet_archive.rds` file.  
-Archive will allow `rbtc.plot` to plot historical assets balances. Historical balances might be also important for user's further analysis.
-```{r wallet_manager_api, eval=FALSE}
+By default function do not archive it's results, this must be setup using `archive_write=TRUE` args but user should be aware that sensitive data (balance and its sources **but not api keys**) will be archived locally in working directory as `wallet_archive.rds` file. Archive will allow `rbtc.plot` to plot historical assets balance over time. Historical balances might be also important for user's further analysis.  
+Below is the example of sources definition and wallet manager execution:
+```{r wallet_manager_exec, eval=FALSE}
 # example market.sources
 market.sources <- list(
-  "my_account1" = list(market='kraken', key='', secret=''),
-  "my_account1" = list(market='btce', key='', secret=''),
-  "my_account2" = list(market='btce', key='', secret='') # second account possible
+  "john smith" = list(market='kraken', key='', secret=''),
+  "jane smith" = list(market='kraken', key='', secret=''),
+  "john smith" = list(market='btce', key='', secret=''),
+  "jane smith" = list(market='btce', key='', secret='')
 )
 # example blockchain.sources
 blockchain.sources <- list(
-  "my_account1" = list(address=''),
-  "my_account1" = list(address='')
+  "john smith" = list(address='')
 )
 # example manual.sources
 manual.sources <- list(
-  "my_account1" = list(location='transferring', currency='LTC', amount=0.8),
-  # non supported markets manually defined
-  "my_account1" = list(location='bitfinex', location_type='market', currency='BTC', amount=0.25),
-  # also a regular bank account balance archive
-  "my_account1" = list(location='fidor', location_type='bank', currency='USD', amount=35)
+  "john smith" = list(location='bitfinex', location_type='market', currency=c('BTC','USD'), amount=c(0.4,0)),
+  "john smith" = list(location='fidor', location_type='bank', currency=c('EUR','USD'), amount=c(20,0)),
+  "jane smith" = list(location='fidor', location_type='bank', currency=c('EUR','GBP'), amount=c(10,105))
 )
 # execute
 wallet_dt <- wallet_manager(
   market.sources = market.sources,
   blockchain.sources = blockchain.sources,
   manual.sources = manual.sources,
-  value_currency = 'GBP', # your target currency
-  rate_priority = c('bitstamp','kraken','btce','bitmarket') # value rates source priority
+  value_currency = 'USD', # your target currency
+  rate_priority = c('bitstamp','kraken','btce','bitmarket'), # value rates source priority
   archive_write = TRUE # by default FALSE, read ?wallet_manager
 )
-print(wallet_dt)
-# we may do a simple plot of only recent balances
+```
+```{r populate_wallet_dt, echo=FALSE}
+full_wallet_dt <- structure(
+  list(wallet_id = c(1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L,1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1396310400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1398902400L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1401580800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1404172800L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1406851200L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L, 1409529600L),
+  currency = c("BTC", "BTC", "BTC", "BTC", "BTC", "EUR", "EUR", "EUR", "EUR", "GBP", "LTC", "LTC", "LTC", "USD", "USD", "USD", "USD", "USD", "BTC", "BTC", "BTC", "BTC", "BTC", "EUR", "EUR", "EUR", "EUR", "GBP", "LTC", "LTC", "LTC", "USD", "USD", "USD", "USD", "USD", "BTC", "BTC", "BTC", "BTC", "BTC", "EUR", "EUR", "EUR", "EUR", "GBP", "LTC", "LTC", "LTC", "USD", "USD", "USD", "USD", "USD", "BTC", "BTC", "BTC", "BTC", "BTC", "EUR", "EUR", "EUR", "EUR", "GBP", "LTC", "LTC", "LTC", "USD", "USD", "USD", "USD", "USD", "BTC", "BTC", "BTC", "BTC", "BTC", "EUR", "EUR", "EUR", "EUR", "GBP", "LTC", "LTC", "LTC", "USD", "USD", "USD", "USD", "USD", "BTC", "BTC", "BTC", "BTC", "BTC", "EUR", "EUR", "EUR", "EUR", "GBP", "LTC", "LTC", "LTC", "USD", "USD", "USD", "USD", "USD"),
+currency_type = c("crypto", "crypto", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat", "crypto", "crypto", "crypto", "fiat", "fiat", "fiat", "fiat", "fiat"),
+auth = c("john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "jane smith", "john smith", "jane smith", "jane smith", "john smith", "john smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "jane smith", "john smith", "jane smith", "jane smith", "john smith", "john smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "jane smith", "john smith", "jane smith", "jane smith", "john smith", "john smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "jane smith", "john smith", "jane smith", "jane smith", "john smith", "john smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "jane smith", "john smith", "jane smith", "jane smith", "john smith", "john smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "john smith", "john smith", "jane smith", "jane smith", "john smith", "jane smith", "jane smith", "john smith", "john smith", "john smith", "john smith", "jane smith"),
+timestamp = structure(c(1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1396310400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1398902400, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1401580800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1404172800, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1406851200, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600, 1409529600), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
+location = c("bitfinex", "kraken", "kraken", "btce", "15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi", "fidor", "fidor", "kraken", "kraken", "fidor", "kraken", "kraken", "btce", "fidor", "bitfinex", "kraken", "btce", "btce", "bitfinex", "kraken", "kraken", "btce", "15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi", "fidor", "fidor", "kraken", "kraken", "fidor", "kraken", "kraken", "btce", "fidor", "bitfinex", "kraken", "btce", "btce", "bitfinex", "kraken", "kraken", "btce", "15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi", "fidor", "fidor", "kraken", "kraken", "fidor", "kraken", "kraken", "btce", "fidor", "bitfinex", "kraken", "btce", "btce", "bitfinex", "kraken", "kraken", "btce", "15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi", "fidor", "fidor", "kraken", "kraken", "fidor", "kraken", "kraken", "btce", "fidor", "bitfinex", "kraken", "btce", "btce", "bitfinex", "kraken", "kraken", "btce", "15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi", "fidor", "fidor", "kraken", "kraken", "fidor", "kraken", "kraken", "btce", "fidor", "bitfinex", "kraken", "btce", "btce", "bitfinex", "kraken", "kraken", "btce", "15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi", "fidor", "fidor", "kraken", "kraken", "fidor", "kraken", "kraken", "btce", "fidor", "bitfinex", "kraken", "btce", "btce"),
+location_type = c("market", "market", "market", "market", "blockchain", "bank", "bank", "market", "market", "bank", "market", "market", "market", "bank", "market", "market", "market", "market", "market", "market", "market", "market", "blockchain", "bank", "bank", "market", "market", "bank", "market", "market", "market", "bank", "market", "market", "market", "market", "market", "market", "market", "market", "blockchain", "bank", "bank", "market", "market", "bank", "market", "market", "market", "bank", "market", "market", "market", "market", "market", "market", "market", "market", "blockchain", "bank", "bank", "market", "market", "bank", "market", "market", "market", "bank", "market", "market", "market", "market", "market", "market", "market", "market", "blockchain", "bank", "bank", "market", "market", "bank", "market", "market", "market", "bank", "market", "market", "market", "market", "market", "market", "market", "market", "blockchain", "bank", "bank", "market", "market", "bank", "market", "market", "market", "bank", "market", "market", "market", "market"),
+amount = c(0, 0.15, 0, 0, 0.1, 190, 130, 40, 80, 110, 0, 4, 1, 275, 25, 10, 30, 30, 0, 0.15, 0, 0, 0.1, 10, 0, 170, 260, 0, 0, 4, 1, 0, 100, 110, 130, 205, 0.22, 0.6, 0.45, 0.3, 0.1, 10, 10, 0, 40, 15, 10, 8, 10.5, 0, 0, 5, 15, 105, 0.12, 0.1, 0.45, 0.3, 0.7, 10, 20, 0, 40, 105, 10, 0, 18.5, 0, 0, 5, 0, 5, 0, 0.1, 0.2, 0, 0.15, 10, 20, 0, 140, 105, 10, 5, 0, 0, 400, 5, 225, 160, 0.4, 0.1, 0.6, 0.4, 0.55, 10, 20, 0, 0, 105, 10, 5, 35, 0, 0, 5, 50, 15),
+value_currency = c("USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD", "USD"),
+value_rate = c(478.98, 478.98, 478.98, 478.98, 478.98, 1.380905, 1.380905, 1.380905, 1.380905, 1.674109, 13.24, 13.24, 13.24, 1, 1, 1, 1, 1, 460.97, 460.97, 460.97, 460.97, 460.97, 1.373171, 1.373171, 1.373171, 1.373171, 1.68398, 11.02, 11.02, 11.02, 1, 1, 1, 1, 1, 630.99, 630.99, 630.99, 630.99, 630.99, 1.359912, 1.359912, 1.359912, 1.359912, 1.691485, 11.04, 11.04, 11.04, 1, 1, 1, 1, 1, 638.25, 638.25, 638.25, 638.25, 638.25, 1.353611, 1.353611, 1.353611, 1.353611, 1.70729, 7.83, 7.83, 7.83, 1, 1, 1, 1, 1, 589.59, 589.59, 589.59, 589.59, 589.59, 1.331674, 1.331674, 1.331674, 1.331674, 1.669659, 7.67, 7.67, 7.67, 1, 1, 1, 1, 1, 474.54, 474.54, 474.54, 474.54, 474.54, 1.288716, 1.288716, 1.288716, 1.288716, 1.629786, 4.7, 4.7, 4.7, 1, 1, 1, 1, 1),
+value = c(0, 71.847, 0, 0, 47.898, 262.37195, 179.51765, 55.2362, 110.4724, 184.15199, 0, 52.96, 13.24, 275, 25, 10, 30, 30, 0, 69.1455, 0, 0, 46.097, 13.73171, 0, 233.43907, 357.02446, 0, 0, 44.08, 11.02, 0, 100, 110, 130, 205, 138.8178, 378.594, 283.9455, 189.297, 63.099, 13.59912, 13.59912, 0, 54.39648, 25.372275, 110.4, 88.32, 115.92, 0, 0, 5, 15, 105, 76.59, 63.825, 287.2125, 191.475, 446.775, 13.53611, 27.07222, 0, 54.14444, 179.26545, 78.3, 0, 144.855, 0, 0, 5, 0, 5, 0, 58.959, 117.918, 0, 88.4385, 13.31674, 26.63348, 0, 186.43436, 175.314195, 76.7, 38.35, 0, 0, 400, 5, 225, 160, 189.816, 47.454, 284.724, 189.816, 260.997, 12.88716, 25.77432, 0, 0, 171.12753, 47, 23.5, 164.5, 0, 0, 5, 50, 15)),
+.Names = c("wallet_id", "currency", "currency_type", "auth", "timestamp", "location", "location_type", "amount", "value_currency", "value_rate", "value"),
+row.names = c(NA, -108L),
+class = c("data.table", "data.frame"),
+sorted = c("wallet_id", "currency")
+)
+```
+
+Function gather all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structure:
+```{r wallet_manager_recent_str, echo=c(2)}
+wallet_dt <- full_wallet_dt[wallet_id==max(wallet_id)] # recent wallet
+str(wallet_dt)
+```
+
+We may do a simple plot of only recent balances
+```{r wallet_manager_recent_plot, echo=c(1), dev="svg", fig.width = 7, fig.height = 5}
 rbtc.plot(wallet_dt, type="recent")
-# after multiple runs of wallet_manager(archive_write=TRUE) we can also plot historical balances
-wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE) # load full archive
+wallet_dt <- full_wallet_dt # load full archive
+```
+  
+After multiple runs of `wallet_manager(archive_write=TRUE)` we may plot historical balances
+```{r wallet_manager_archive_load, eval=FALSE}
+# load archive only
+wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
+```
+```{r wallet_manager_archive_plot_value, eval=c(1), fig.width = 7, fig.height = 7}
 rbtc.plot(wallet_dt)
-# due to poor legend scalling it might be better to export plot to file
+# in case of poor legend scaling it might be better to export plot to file
 svg("wallet_manager_value.svg")
 rbtc.plot(wallet_dt)
 dev.off()
@@ -189,8 +223,14 @@ Part of the received donations will likely be transferred to **Rbitcoin** depend
  * [jsonlite](http://cran.r-project.org/web/packages/jsonlite/index.html): decode market API response json string to R objects
  * [R](http://www.r-project.org/): R Core
 
-### Missing something?
+### Contribution
 
-Report bugs, make Feature Request or even better Pull Request to [Rbitcoin github](https://github.com/jangorecki/Rbitcoin).
+[Rbitcoin github](https://github.com/jangorecki/Rbitcoin):  
+
+ * report issues
+ * make feature request
+ * make pull request
+ 
+### License
 
 [MIT license](http://opensource.org/licenses/MIT)

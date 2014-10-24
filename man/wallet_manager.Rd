@@ -81,72 +81,54 @@ In case of the issues with this function try first to verify if all of the sourc
 }
 \examples{
 \dontrun{
-## define source
-# define wallets on markets
+# example market.sources
 market.sources <- list(
-  "my_account1" = list(market = 'bitstamp', client_id = '', key = '', secret = ''),
-  "my_account1" = list(market = 'btce', key = '', secret = ''),
-  # multiple accounts on same market possible - we can use names to distinguish auth accounts
-  "my_account2" = list(market = 'btce', key = '', secret = ''),
-  "my_account1" = list(market = 'kraken', key = '', secret = '')
+  "john smith" = list(market='kraken', key='', secret=''),
+  "jane smith" = list(market='kraken', key='', secret=''),
+  "john smith" = list(market='btce', key='', secret=''),
+  "jane smith" = list(market='btce', key='', secret='')
 )
-# define wallets on blockchain
+# example blockchain.sources
 blockchain.sources <- list(
-  "my_account1" = list(address = ''),
-  "my_account2" = list(address = '')
+  "john smith" = list(address='')
 )
-# define wallets manually
+# example manual.sources
 manual.sources <- list(
-  "my_account1" = list(location = 'while transferring',
-       currency = c('BTC','LTC'),
-       amount = c(0.08, 0)),
-  "my_account1" = list(location = 'brainwallet',
-       currency = c('BTC'),
-       amount = c(0.1))
+  "john smith" = list(location='bitfinex', location_type='market', currency=c('BTC','USD'), amount=c(0.4,0)),
+  "john smith" = list(location='fidor', location_type='bank', currency=c('EUR','USD'), amount=c(20,0)),
+  "jane smith" = list(location='fidor', location_type='bank', currency=c('EUR','GBP'), amount=c(10,105))
 )
-
-## launch wallet manager with no value calculation
-wallet_dt <- wallet_manager(market.sources,
-                            blockchain.sources,
-                            manual.sources,
-                            value_calc = FALSE)
-print(wallet_dt)
-
-## launch wallet manager + value calc + archive
+# execute
 wallet_dt <- wallet_manager(
   market.sources = market.sources,
   blockchain.sources = blockchain.sources,
   manual.sources = manual.sources,
-  value_currency = 'GBP',
-  rate_priority = c('bitstamp','kraken','bitmarket','btce')
-  archive_write = TRUE
+  value_currency = 'USD', # your target currency
+  rate_priority = c('bitstamp','kraken','btce','bitmarket'), # value rates source priority
+  archive_write = TRUE # by default FALSE, read ?wallet_manager
 )
 print(wallet_dt)
 
-# export to excel/google spreadsheet
-setorder(wallet_dt,wallet_id,currency)
-write.table(wallet_dt, "clipboard", sep="\\t", row.names=FALSE, na = "")
-# now go to excel or google spreadsheet and use "paste" from clipboard
+# plot recent wallet balances
+rbtc.plot(wallet_dt, type="recent")
 
-# aggregate measures by currency and type
-wallet_dt[,list(amount = sum(amount, na.rm=T),
-                value = sum(value, na.rm=T)),
-           by = c('wallet_id','currency','value_currency')
-           ][order(wallet_id,currency,value_currency)]
-# aggregate value by location and type
-wallet_dt[,list(value = sum(value, na.rm=T)),
-           by = c('wallet_id','location_type','location')
-           ][order(wallet_id,location_type,location)]
-
-# send to plot
+# load archive
 wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
+
+# aggregate measures by time and currency
+wallet_dt[,list(amount = sum(amount), value = sum(value)),
+           keyby = c('wallet_id','currency','value_currency')]
+# aggregate value by time and location
+wallet_dt[,list(value = sum(value)),
+           keyby = c('wallet_id','location','value_currency')]
+
+# plot value over time
 rbtc.plot(wallet_dt)
 
 # remove processing batch from archive, by id
-dt <- readRDS("wallet_archive.rds")
-setkey(dt,wallet_id)
+setkey(wallet_dt,wallet_id)
 wallet_id_to_remove <- 1390000000
-saveRDS(dt[!.(wallet_id_to_remove)], "wallet_archive.rds")
+saveRDS(wallet_dt[!.(wallet_id_to_remove)], "wallet_archive.rds")
 
 # To track exchange rates used set option Rbitcoin.archive_exchange_rate
 options(Rbitcoin.archive_exchange_rate=TRUE)
@@ -155,15 +137,7 @@ wallet_dt <- wallet_manager(market.sources,
                             manual.sources = manual.sources,
                             rate_priority = c('bitstamp','kraken','bitmarket','btce')
                             archive_write = TRUE)
-
-# all exchange rate data as dt
-dt <- readRDS("exchange_rate_archive.rds")
-# last exchange rate table as dt
-dt <- readRDS("exchange_rate_archive.rds")[value_rate_id==max(value_rate_id)]
-# save to csv
-write.table(dt, "exchange_rate_archive.csv",
-            row.names=FALSE,quote=FALSE,append=FALSE,col.names=TRUE,
-            sep=";", dec=",")
+exchange_rates_dt <- readRDS("exchange_rate_archive.rds")
 }
 }
 \references{
