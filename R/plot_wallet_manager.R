@@ -129,7 +129,7 @@ rbtc.plot.wallet_manager.value <- function(x, mask, verbose=0){
     ][,{
       plot(x = as.POSIXct(wallet_id, origin='1970-01-01', tz='UTC'),
            y = value, type = 'l', col = 1, xlab="", ylab="",
-           main = paste('by .'))
+           main = paste('total'))
       legend_("topleft", legend = "value", fill = 1)
       invisible(NULL)
     }]
@@ -236,17 +236,19 @@ rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
       dt <- x[,list(value=sum(value)),by="currency"][, setattr(as.list(value), 'names', currency)]
       col <- "grey"
       fill = col
-    }
+      main = paste('total')
+    } # exception
     else{
       dt <- dcast.data.table(x, j_formula, fun = sum)
       row.names <- dt[,eval(column)]
       dt[,as.character(column):=NULL]
       col = 2:(length(row.names)+1)
       fill = col
+      main = paste('by ',gsub("_"," ",as.character(column)))
     }
     setcolorder(dt,names(dt)[order(-dt[,lapply(.SD,sum)])])
     mx <- dt[,as.matrix(setattr(setDF(.SD),"row.names",row.names))]
-    barplot(mx, col = col, main = paste('by ',gsub("_"," ",as.character(column))))
+    barplot(mx, col = col, main = main)
     legend_("topright",legend=row.names, fill=fill)
     invisible(NULL)
   }

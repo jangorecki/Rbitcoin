@@ -21,7 +21,7 @@ knitr::opts_chunk$set(collapse = TRUE,
                       dev="svg")
 suppressPackageStartupMessages(library(Rbitcoin))
 Sys.setenv(TZ="UTC") # plot always in UTC
-options("Rbitcoin.antiddos.sec"=5)
+options("Rbitcoin.antiddos.sec"=5) # faster build vignette
 ```
 
 There is also simple shinyApp as GUI for Rbitcoin package [shinyBTC](https://github.com/jangorecki/shinyBTC) which can be complementary to this vignette.  
@@ -196,7 +196,7 @@ sorted = c("wallet_id", "currency")
 )
 ```
 
-Function gathers all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structure.
+Function gathers all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structurem (*value_currency* can be also cryptocurrency).
 ```{r wallet_manager_recent_str, echo=c(2)}
 wallet_dt <- full_wallet_dt[wallet_id==max(wallet_id)] # recent wallet
 str(wallet_dt)
@@ -209,7 +209,7 @@ wallet_dt <- full_wallet_dt # load full archive
 ```
 
 After multiple runs of `wallet_manager(..., archive_write=TRUE)` we may plot historical balances.  
-Simple low-resolution (monthly, n=6) example of wallet manager dummy data over time:
+Simple low-resolution (monthly, n=6) example of wallet manager dummy data over time.
 ```{r wallet_manager_archive_load, eval=FALSE}
 # load archive only
 wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
@@ -226,7 +226,7 @@ Notice the graphs in this html are in .svg so are well zoomable.
 
 ## Rbitcoin notes
 
-If you find this package useful or you made profit from using it please consider donation to Rbitcoin [15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi](https://blockchain.info/address/15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi)  
+If you find this package useful or you made profit from using it please consider donation to Rbitcoin [15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi](https://blockchain.info/address/15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi).  
 Part of the received donations will likely be transferred to **Rbitcoin** dependencies if and when they will setup BTC donation address.
 
 #### Dependencies used
