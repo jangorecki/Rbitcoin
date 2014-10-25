@@ -16,7 +16,9 @@ vignette: >
 Rbitcoin package can be used to create end-to-end trading engine in R.  
 The goal of the vignettes is to present a possible workflow based on the functions available in the package. Additionally few other handy utilies are also presented.
 ```{r init, echo=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(collapse = TRUE,
+                      comment = "#>",
+                      dev="svg")
 suppressPackageStartupMessages(library(Rbitcoin))
 Sys.setenv(TZ="UTC") # plot always in UTC
 options("Rbitcoin.antiddos.sec"=5)
@@ -142,7 +144,7 @@ If you need to query any other data from blockchain API you can use `blockchain.
 
 Wallet manager is quite complex function to track your cryptocurrency balances (and it's values at a time) on different markets/accounts/addresses.  
 By default function do not archive it's results, this must be setup using `archive_write=TRUE` args but user should be aware that sensitive data (balance and its sources **but not api keys**) will be archived locally in working directory as `wallet_archive.rds` file. Archive will allow `rbtc.plot` to plot historical assets balance over time. Historical balances might be also important for user's further analysis.  
-Below is the example of sources definition and wallet manager execution:
+Below is the example of sources definition and wallet manager execution.
 ```{r wallet_manager_exec, eval=FALSE}
 # example market.sources
 market.sources <- list(
@@ -194,30 +196,33 @@ sorted = c("wallet_id", "currency")
 )
 ```
 
-Function gather all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structure:
+Function gathers all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structure.
 ```{r wallet_manager_recent_str, echo=c(2)}
 wallet_dt <- full_wallet_dt[wallet_id==max(wallet_id)] # recent wallet
 str(wallet_dt)
 ```
 
-We may do a simple plot of only recent balances
-```{r wallet_manager_recent_plot, echo=c(1), dev="svg", fig.width = 7, fig.height = 5}
-rbtc.plot(wallet_dt, type="recent")
+Simple plot of only recent balances, last wallet manager check on example dummy data.
+```{r wallet_manager_recent_plot, echo=c(1), fig.width = 7, fig.height = 7}
+rbtc.plot(wallet_dt) # type="recent" due to `archive_read=FALSE` so: wallet_dt[,length(unique(wallet_id))]==1
 wallet_dt <- full_wallet_dt # load full archive
 ```
 
-After multiple runs of `wallet_manager(..., archive_write=TRUE)` we may plot historical balances
+After multiple runs of `wallet_manager(..., archive_write=TRUE)` we may plot historical balances.  
+Simple low-resolution (monthly, n=6) example of wallet manager dummy data over time:
 ```{r wallet_manager_archive_load, eval=FALSE}
 # load archive only
 wallet_dt <- wallet_manager(archive_write=FALSE, archive_read=TRUE)
 ```
 ```{r wallet_manager_archive_plot_value, eval=c(1), fig.width = 7, fig.height = 7}
-rbtc.plot(wallet_dt)
+rbtc.plot(wallet_dt) # type="value" due to `archive_read=TRUE`
 # in case of poor legend scaling it might be better to export plot to file
 svg("wallet_manager_value.svg")
 rbtc.plot(wallet_dt)
 dev.off()
 ```
+
+Notice the graphs in this html are in .svg so are well zoomable.
 
 ## Rbitcoin notes
 

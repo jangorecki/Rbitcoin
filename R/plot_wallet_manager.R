@@ -27,7 +27,7 @@
 #' # plot recent wallet value
 #' rbtc.plot(wallet_dt, type="recent")
 #' }
-rbtc.plot.wallet_manager <- function(wallet_dt, type = "value", 
+rbtc.plot.wallet_manager <- function(wallet_dt, type = c("value","recent"), 
                                      mask = getOption("Rbitcoin.plot.mask",FALSE),
                                      verbose = getOption("Rbitcoin.verbose",0)){
   x <- copy(wallet_dt)
@@ -37,12 +37,35 @@ rbtc.plot.wallet_manager <- function(wallet_dt, type = "value",
   
   # choose last process meta
   last_wallet_meta <- x[!evalq(NA_group)][which.max(wallet_id),list(wallet_id, value_currency)]
-
+  
+  # types validation and match
+  unq_wallet_id <- x[!evalq(NA_group) & value_currency == last_wallet_meta$value_currency,unique(wallet_id)]
+  if(length(unq_wallet_id)==0){
+    stop("In all wallet manager observations there are NA measures, fix the source definition all needs to working without NA results")
+  }
+  else if(length(unq_wallet_id)==1){
+    if(missing(type)){
+      type="recent"
+    }
+    else if(type %in% c("value","amount")){
+      warning("Provided wallet data contains only one non-NA measure observation, plot will be performed as `type='recent'`. read ?wallet_manager")
+      type="recent"
+    }
+  }
+  else if(length(unq_wallet_id)>1){
+    if(missing(type)){
+      type="value"
+    }
+  }
+  
   # notification if type="recent" AND last NA_group TRUE
   if( type == "recent" & x[which.max(wallet_id),NA_group] == TRUE ){
     last_valid_wallet_id <- x[!evalq(NA_group) & value_currency == last_wallet_meta$value_currency][which.max(wallet_id),wallet_id]
     if(length(last_valid_wallet_id) & interactive()) warning(paste0("wallet manager plot will be performed for ",as.character(as.POSIXct(last_valid_wallet_id, origin="1970-01-01", tz="UTC"))," wallet data due to NA measures in the last wallet manager process. read ?wallet_manager"))
   }
+  
+  # if recent cut to last
+  if(type=="recent") x <- x[wallet_id==max(wallet_id)]
   
   # aggregate to unq set - if 2 accounts missing auth they will be aggregated
   x <- x[!evalq(NA_group) & value_currency == last_wallet_meta$value_currency
@@ -51,11 +74,9 @@ rbtc.plot.wallet_manager <- function(wallet_dt, type = "value",
              ]
   if(nrow(x)==0) stop(paste0("Provided wallet archive contains 0 (non-NA measure) observation for (recently used) value currency ",last_wallet_meta$value_currency,". One of the defined sources in wallet_manager might not work. Read NA measure section in ?wallet_manager"))
   
-  # TEST
+  
   if(mask){
-    # address mask only for location_type=="blockchain"
     address_dt <- x[location_type=="blockchain",list(new_address = paste("address",.GRP,sep="_")), keyby=list(location_type,location)]
-    # auth mask global
     auth_dt <- x[,list(new_auth = paste("auth",.GRP,sep="_")), keyby=list(auth)]
     if(nrow(address_dt) > 0){
       setkeyv(x,c("location_type","location"))
@@ -69,35 +90,32 @@ rbtc.plot.wallet_manager <- function(wallet_dt, type = "value",
                       ][,list(wallet_id, currency, currency_type, auth, location, location_type, amount, value_currency, value_rate, value)
                         ]
     }
-  }
+  } #  mask address in location_type=="blockchain" and auth
   
   # trunc address nchar > 10
   x[nchar(location)>10, location:=paste0(substr(location,1,7),"...")]
   
-  # mask value
   if(mask){
     if(type %in% c("value","amount")){
       first_wallet <- x[wallet_id==min(wallet_id)]
       x[,value:=value/first_wallet[,sum(value)], by="wallet_id"]
     }
     else if(type=="recent"){
-      x[wallet_id==max(wallet_id),value:=value/sum(value), by="wallet_id"]
+      x[,value:=value/sum(value), by="wallet_id"]
     }
-  }
+  } # mask values
   
   # route plot type
-  if(type %in% c("value","amount")){
-    if(x[,length(unique(wallet_id))] == 1){
-      stop(paste0("Provided wallet archive contains only one wallet manager observation, cannot plot type=='",type,"', use type=='recent' for one observation wallets. Be sure archive wallet data by: wallet_manager(archive_write=TRUE) and also to load whole archive by: wallet_manager(archive_read=TRUE)."))
-    }
-    else{
-      if(type=="value") rbtc.plot.wallet_manager.value(x, mask=mask, verbose=verbose-1)
-      else if(type=="amount") rbtc.plot.wallet_manager.amount(x, mask=mask, verbose=verbose-1)
-    }
+  if(type=="value"){
+    r <- rbtc.plot.wallet_manager.value(x, mask=mask, verbose=verbose-1)
+  }
+  else if(type=="amount"){
+    r <- rbtc.plot.wallet_manager.amount(x, mask=mask, verbose=verbose-1)
   }
   else if(type=="recent"){
-    rbtc.plot.wallet_manager.recent(x = x[wallet_id==max(wallet_id)], mask=mask, verbose=verbose-1)
+    r <- rbtc.plot.wallet_manager.recent(x = x, mask=mask, verbose=verbose-1)
   }
+  invisible(r)
 }
 
 # rbtc.plot.wallet_manager.value -----------------------------------------------------------------
@@ -106,12 +124,13 @@ rbtc.plot.wallet_manager.value <- function(x, mask, verbose=0){
   # plot window for matrix of plots
   par(mfrow=c(3,2),mar=c(3.1,2.6,2.1,1.1),oma=c(1.1,0,2.6,0))
   
-  # total value over time
+  # by .
   x[,list(value = sum(value)),keyby=c("wallet_id","value_currency")
     ][,{
       plot(x = as.POSIXct(wallet_id, origin='1970-01-01', tz='UTC'),
            y = value, type = 'l', col = 1, xlab="", ylab="",
-           main = paste('total value'))
+           main = paste('by .'))
+      legend_("topleft", legend = "value", fill = 1)
       invisible(NULL)
     }]
   # by auth
@@ -204,22 +223,46 @@ rbtc.plot.wallet_manager.value <- function(x, mask, verbose=0){
 
 rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
   value_currency <- x[,value_currency[1]]
-  dt <- data.table:::dcast.data.table(x, location ~ currency, fun = sum)
-  row.names <- dt[,location]
-  dt[,location:=NULL]
-  setcolorder(dt,names(dt)[order(-dt[,lapply(.SD,sum)])])
-  mx <- dt[,as.matrix(setattr(setDF(.SD),"row.names",row.names))]
-  barplot(mx,
-          col = 2:(length(row.names)+1),
-          xlab = paste("Total value:", paste(c(as.character(round(sum(mx),2)), if(!mask) value_currency),collapse=" ")), # xlab used as 'sub'
-          ylab = 'value',
-          main = paste0('Wallet currency value in ',value_currency, if(mask) ' ratio'))
-  legend_("topright",
-         row.names,
-         fill = 2:(length(row.names)+1))
+  # plot window for matrix of plots
+  par(mfrow=c(2,2),mar=c(3.1,2.6,2.1,1.1),oma=c(1.1,0,2.6,0))
+  jj_formula <- c(as.formula(. ~ currency),
+                  as.formula(auth ~ currency),
+                  as.formula(location ~ currency),
+                  as.formula(location_type ~ currency))
+  f <- function(j_formula, x){ # j_formula=jj_formula[[1]]
+    column <- j_formula[[2]]
+    if(as.character(column)=="."){
+      row.names = "value"
+      dt <- x[,list(value=sum(value)),by="currency"][, setattr(as.list(value), 'names', currency)]
+      col <- "grey"
+      fill = col
+    }
+    else{
+      dt <- dcast.data.table(x, j_formula, fun = sum)
+      row.names <- dt[,eval(column)]
+      dt[,as.character(column):=NULL]
+      col = 2:(length(row.names)+1)
+      fill = col
+    }
+    setcolorder(dt,names(dt)[order(-dt[,lapply(.SD,sum)])])
+    mx <- dt[,as.matrix(setattr(setDF(.SD),"row.names",row.names))]
+    barplot(mx, col = col, main = paste('by ',gsub("_"," ",as.character(column))))
+    legend_("topright",legend=row.names, fill=fill)
+    invisible(NULL)
+  }
+  r <- lapply(jj_formula, f, x)
+  
+  # labels etc
+  par(mfrow=c(1,1),mar=c(5.1,4.1,2.1,2.1), oma=rep(0,4))
   par(new=TRUE)
+  x[,{
+    title(main = paste(c("Recent wallet currency value in",value_currency[1],if(mask) "ratio"), collapse=" "),
+          sub = as.character(as.POSIXct(max(wallet_id), origin='1970-01-01', tz='UTC'), format = '%Y-%m-%d %H:%M:%S %Z'),
+          cex.sub = 0.7)
+  }] # main and sub
   mtext(side=1, line=-1, text="plot by Rbitcoin", adj=0, outer=TRUE, col = "darkgrey", cex = 0.7)
   par(new=FALSE)
+  par(mar=c(5.1,4.1,4.1,2.1))
   if(verbose > 0) cat(as.character(Sys.time()),': rbtc.plot.wallet_manager.recent: plot DONE','\n',sep='')
   invisible(NULL)
 }

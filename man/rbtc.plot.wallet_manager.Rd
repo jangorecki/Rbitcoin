@@ -3,7 +3,7 @@
 \alias{rbtc.plot.wallet_manager}
 \title{Plot wallet manager results}
 \usage{
-rbtc.plot.wallet_manager(wallet_dt, type = "value",
+rbtc.plot.wallet_manager(wallet_dt, type = c("value", "recent"),
   mask = getOption("Rbitcoin.plot.mask", FALSE),
   verbose = getOption("Rbitcoin.verbose", 0))
 }
