@@ -225,31 +225,29 @@ rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
   value_currency <- x[,value_currency[1]]
   # plot window for matrix of plots
   par(mfrow=c(2,2),mar=c(3.1,2.6,2.1,1.1),oma=c(1.1,0,2.6,0))
-  jj_formula <- c(as.formula(. ~ currency),
+  jj_formula <- c(as.formula(NULL ~ currency),
                   as.formula(auth ~ currency),
                   as.formula(location ~ currency),
                   as.formula(location_type ~ currency))
   f <- function(j_formula, x){ # j_formula=jj_formula[[1]]
     column <- j_formula[[2]]
-    if(as.character(column)=="."){
+    if(is.null(column)){
       row.names = "value"
       dt <- x[,list(value=sum(value)),by="currency"][, setattr(as.list(value), 'names', currency)]
       col <- "grey"
-      fill = col
       main = paste('total')
-    } # exception
+    } # exception: NULL ~ currency
     else{
       dt <- dcast.data.table(x, j_formula, fun = sum)
       row.names <- dt[,eval(column)]
       dt[,as.character(column):=NULL]
       col = 2:(length(row.names)+1)
-      fill = col
       main = paste('by ',gsub("_"," ",as.character(column)))
     }
     setcolorder(dt,names(dt)[order(-dt[,lapply(.SD,sum)])])
     mx <- dt[,as.matrix(setattr(setDF(.SD),"row.names",row.names))]
     barplot(mx, col = col, main = main)
-    legend_("topright",legend=row.names, fill=fill)
+    legend_("topright",legend=row.names, fill=col)
     invisible(NULL)
   }
   r <- lapply(jj_formula, f, x)
