@@ -7,6 +7,8 @@ rbtc.plot.trades(x, verbose = getOption("Rbitcoin.verbose", 0))
 }
 \arguments{
 \item{x}{list, a result from \code{market.api.process(action="trades")}.}
+
+\item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \description{
 Plot trades data

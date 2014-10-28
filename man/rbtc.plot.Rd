@@ -9,6 +9,8 @@ rbtc.plot(x, ..., verbose = getOption("Rbitcoin.verbose", 0))
 \arguments{
 \item{x}{object to be plotted, result of Rbitcoin function, currently supported: \code{market.api.process(action=c("trades","order_book"))} and \code{wallet_manager}.}
 
+\item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
+
 \item{\dots}{additional params to be passed to particular plot function.}
 }
 \value{

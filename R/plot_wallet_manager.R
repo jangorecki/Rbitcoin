@@ -238,8 +238,8 @@ rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
       main = paste('total')
     } # exception: NULL ~ currency
     else{
-      dt <- dcast.data.table(x, j_formula, fun = sum)
-      row.names <- dt[,eval(column)]
+      dt <- dcast.data.table(x, j_formula, fun.aggregate = sum)
+      row.names <- na.fill(dt[,eval(column)],"NA")
       dt[,as.character(column):=NULL]
       col = 2:(length(row.names)+1)
       main = paste('by ',gsub("_"," ",as.character(column)))

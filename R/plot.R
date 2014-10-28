@@ -5,6 +5,7 @@
 #' @description Generic function to plot different objects returned by some Rbitcoin functions.
 #' @param x object to be plotted, result of Rbitcoin function, currently supported: \code{market.api.process(action=c("trades","order_book"))} and \code{wallet_manager}.
 #' @param \dots additional params to be passed to particular plot function.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @note For wallet manager plot legend may not scale well in interactive viewer, for better scaling save plot to file, see examples.
 #' @return by side effect a base plot.
 #' @seealso \code{\link{rbtc.plot.trades}}, \code{\link{rbtc.plot.order_book}}, \code{\link{rbtc.plot.wallet_manager}}
@@ -62,6 +63,7 @@ rbtc.plot <- function(x, ...,
 
 #' @title Plot trades data
 #' @param x list, a result from \code{market.api.process(action="trades")}.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @seealso \code{\link{market.api.process}}, \code{\link{rbtc.plot}}
 #' @export
 #' @examples
@@ -86,6 +88,7 @@ rbtc.plot.trades <- function(x,
 #' @title Plot order book data
 #' @param x list, a result from \code{market.api.process(action="order_book")}.
 #' @param limit_pct numeric, percentage of limit from middle price. It acts like a zoom-in to the middle of order book plot.
+#' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @seealso \code{\link{market.api.process}}, \code{\link{rbtc.plot}}
 #' @export
 #' @examples

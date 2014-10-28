@@ -10,6 +10,8 @@ rbtc.plot.order_book(x, limit_pct = getOption("Rbitcoin.plot.limit_pct", Inf),
 \item{x}{list, a result from \code{market.api.process(action="order_book")}.}
 
 \item{limit_pct}{numeric, percentage of limit from middle price. It acts like a zoom-in to the middle of order book plot.}
+
+\item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \description{
 Plot order book data
