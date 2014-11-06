@@ -109,9 +109,9 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
   api.dict.local <- api.dict[eval(api.dict.filter),nomatch=0]
   if(nrow(api.dict.local)<1) stop(paste0('Missing api.dict data for particular set: ',market,', ',currency_pair[[1]],', ',currency_pair[[2]],', ',action,". Extend api.dict."))
   if(nrow(api.dict.local)>1) stop(paste0('Multiple api.dict data for particular set: ',market,', ',currency_pair[[1]],', ',currency_pair[[2]],', ',action,". Clean api.dict."))
-  url = api.dict.local$url # here can be updated by pre_process(
-  req = api.dict.local$pre_process[[1]](req)
+  url = api.dict.local$url # can be later updated by pre_process function
   # pre-process req for market
+  req <- api.dict.local$pre_process[[1]](req)
   res <- market.api.query(market = market, url = url, req = req, ...,  verbose = verbose - 1)
   if(skip_post_process){
     if(verbose > 0) cat(as.character(Sys.time()),': market.api.process: skip_post_process=TRUE, returning raw object just after fromJSON for ',market,' ',action,'\n',sep='')

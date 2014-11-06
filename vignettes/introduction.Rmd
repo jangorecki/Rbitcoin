@@ -140,6 +140,7 @@ If you need to query any other data from blockchain API you can use `blockchain.
 
 ### Wallet Manager
 
+There is wise advice to do not store assets in a single location. This function might be direct tool to manage your assets distributed across different locations.  
 Wallet manager is quite complex function to track your cryptocurrency balances (and it's values at a time) on different markets/accounts/addresses.  
 By default function do not archive it's results, this must be setup using `archive_write=TRUE` args but user should be aware that sensitive data (balance and its sources **but not api keys**) will be archived locally in working directory as `wallet_archive.rds` file. Archive will allow `rbtc.plot` to plot historical assets balance over time. Historical balances might be also important for user's further analysis.  
 Below is the example of sources definition and wallet manager execution.
@@ -194,7 +195,7 @@ full_wallet_dt <- structure(
 )
 ```
 
-Function gathers all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structurem (*value_currency* can be also cryptocurrency).
+Function gathers all the wallet balances from specified sources, calculates its values in specified *value_currency* and returns following structure (*value_currency* can be also cryptocurrency).
 ```{r wallet_manager_recent_str, echo=c(2)}
 wallet_dt <- full_wallet_dt[wallet_id==max(wallet_id)] # ECHO OFF recent wallet from populated data
 str(wallet_dt)

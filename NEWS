@@ -22,6 +22,7 @@ Rbitcoin 0.9.3 (in dev)
   * wallet archive path as arg/option
 * plot:
   * one rbtc.plot() function for all Rbitcoin objects instead Rbitcoin.plot
+  * removed extra arguments to save plot to file, now you need to use png(), svg(), etc.
   * improved wallet manager plot, added recent wallet plot
 * api.dict:
   * default api.dict moved from RData to api_dict function
