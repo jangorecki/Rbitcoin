@@ -229,6 +229,12 @@ bitmarket_api_dict <- function(){
   
   # currency specific
   
+  base = 'BTC'; quote = 'EUR'
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_ticker(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_trades(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_order_book(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_place_limit_order(base = base, quote = quote)
+  
   base = 'BTC'; quote = 'PLN'
   api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_ticker(base = base, quote = quote)
   api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_trades(base = base, quote = quote)
