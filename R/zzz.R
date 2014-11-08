@@ -44,7 +44,7 @@
 }
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage("You are currently using Rbitcoin dev version 0.9.3, be aware of the changes coming in the releases 0.9.3 (github) up to 0.9.4 (cran). Do not auto update Rbitcoin to 0.9.3 (or later) without testing. For details see github.com/jangorecki/Rbitcoin. This message will be removed in 0.9.5+.")
+  packageStartupMessage("You are using Rbitcoin 0.9.4, be aware of the changes coming in this version. Do not auto update your production environment without testing. For details see NEWS file. This message will be removed in 0.9.5+.")
 }
 
 # default antiddos_fun cache
