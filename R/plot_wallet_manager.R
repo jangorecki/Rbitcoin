@@ -124,7 +124,7 @@ rbtc.plot.wallet_manager.value <- function(x, mask, verbose=0){
   # plot window for matrix of plots
   par(mfrow=c(3,2),mar=c(3.1,2.6,2.1,1.1),oma=c(1.1,0,2.6,0))
   
-  # by .
+  # by NULL
   x[,list(value = sum(value)),keyby=c("wallet_id","value_currency")
     ][,{
       plot(x = as.POSIXct(wallet_id, origin='1970-01-01', tz='UTC'),
@@ -256,7 +256,9 @@ rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
   par(mfrow=c(1,1),mar=c(5.1,4.1,2.1,2.1), oma=rep(0,4))
   par(new=TRUE)
   x[,{
-    title(main = paste(c("Recent wallet currency value in",value_currency[1],if(mask) "ratio"), collapse=" "),
+    title(main = paste(paste(c("Recent wallet currency value in",value_currency[1],if(mask) "ratio"), collapse=" "),
+                       paste0("Total value: ",round(sum(value),2)," ",value_currency[1],if(mask) " ratio"),
+                       sep="\n"),
           sub = as.character(as.POSIXct(max(wallet_id), origin='1970-01-01', tz='UTC'), format = '%Y-%m-%d %H:%M:%S %Z'),
           cex.sub = 0.7)
   }] # main and sub
