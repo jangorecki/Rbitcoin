@@ -173,7 +173,7 @@ bitmarket_api_dict <- function(){
                post_process = c(function(x){
                  data.table(market = market, base = base, quote = quote,
                             timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                            market_timestamp = as.POSIXct(NA), 
+                            market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
                             oid = NA_character_,
                             type = NA_character_,
                             price = NA_real_,
