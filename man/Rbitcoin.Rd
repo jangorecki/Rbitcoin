@@ -40,9 +40,6 @@ Part of the received donations will likely be transferred to \strong{Rbitcoin} d
 
 There is also simple GUI app for \strong{Rbitcoin} package \strong{shinyBTC}: \url{https://github.com/jangorecki/shinyBTC}
 }
-\note{
-Only 3 letters currency codes are supported (USD, GBP, BTC, etc.), others (e.g. DOGE) were not tested and might not work.
-}
 \examples{
 \dontrun{
 # default options used by Rbitcoin

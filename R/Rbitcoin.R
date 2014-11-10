@@ -34,8 +34,6 @@
 #' 
 #' There is also simple GUI app for \strong{Rbitcoin} package \strong{shinyBTC}: \url{https://github.com/jangorecki/shinyBTC}
 #' 
-#' @note Only 3 letters currency codes are supported (USD, GBP, BTC, etc.), others (e.g. DOGE) were not tested and might not work.
-#' 
 #' @seealso \code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{antiddos}}, \code{\link{fromBTC}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}
 #' @references Issues report: \url{https://github.com/jangorecki/Rbitcoin/issues}\cr Example SSL CA file source: \url{http://curl.haxx.se/docs/caextract.html}
 #' @docType package
