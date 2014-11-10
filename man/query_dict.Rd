@@ -13,6 +13,7 @@ By default provided to \code{getOption("Rbitcoin.query.dict")}. This function re
 \item \code{bitstamp}
 \item \code{btce}
 \item \code{bitmarket}
+\item \code{hitbtc}
 }
 }
 \note{

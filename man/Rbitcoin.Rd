@@ -30,6 +30,7 @@ At the time of writing the most recent market's API version were used:
 \item bitstamp v2 (public) / ? (private)
 \item btce v3 (public) / v1 (private)
 \item bitmarket v2
+\item hitbtc v1
 }
 
 For package-level options see examples below.

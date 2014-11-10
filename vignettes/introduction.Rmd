@@ -171,7 +171,7 @@ wallet_dt <- wallet_manager(
   blockchain.sources = blockchain.sources,
   manual.sources = manual.sources,
   value_currency = 'USD', # your target currency
-  rate_priority = c('bitstamp','kraken','btce','bitmarket'), # value rates source priority
+  rate_priority = c('bitstamp','kraken','btce','bitmarket','hitbtc'), # value rates source priority
   archive_write = TRUE # by default FALSE, read ?wallet_manager
 )
 ```

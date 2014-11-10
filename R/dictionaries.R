@@ -3,13 +3,7 @@
 
 #' @name api_dict
 #' @title API dictionary
-#' @description By default provided to \code{getOption("Rbitcoin.api.dict")}. This function returns built-in Rbitcoin data set contains API dictionary for \code{\link{market.api.process}} function to perform pre-process API call arguments, post-process API call results and catch market level errors. Still there is function \code{\link{market.api.query}} that do not require any dictionary and can operate on any currency pair. Granularity of api dictionary data is \code{c("market", "base", "quote", "action")}. This dictionary can be edited/extended by user for new markets, currency pairs and actions.\cr Currently supported currency pairs:
-#' \itemize{
-#' \item \code{bitstamp: BTCUSD}
-#' \item \code{btce: BTCUSD, LTCUSD, LTCBTC, NMCBTC}
-#' \item \code{kraken: BTCEUR, LTCEUR, BTCLTC}
-#' \item \code{bitmarket: BTCPLN, LTCPLN}
-#' }
+#' @description By default provided to \code{getOption("Rbitcoin.api.dict")}. This function returns built-in Rbitcoin data set contains API dictionary for \code{\link{market.api.process}} function to perform pre-process API call arguments, post-process API call results and catch market level errors. Still there is function \code{\link{market.api.query}} that do not require any dictionary and can operate on any currency pair. Granularity of api dictionary data is \code{c("market", "base", "quote", "action")}. This dictionary can be edited/extended by user for new markets, currency pairs and actions.\cr Currently supported market, currency pairs, actions use: \code{api_dict()[!is.na(base), .(market, currency_pair = paste0(base,quote))][,unique(.SD)]}.
 #' @details Default dictionary post-process function returns list or data.table. The data.table is returned in case of (always) one row response from API (ticker, place_limit_order, etc.). The list is returned in case of (possible) multiple rows response from API (trades, wallet, etc.).
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @export
@@ -40,6 +34,7 @@ api_dict <- function(){
 #' \item \code{bitstamp}
 #' \item \code{btce}
 #' \item \code{bitmarket}
+#' \item \code{hitbtc}
 #' }
 #' @note Do not use \code{query.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @export

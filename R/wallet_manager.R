@@ -12,7 +12,7 @@
 #' @param value_calc logical calculate value, by default \code{TRUE}, can be turned off by setting to \code{FALSE}. Process will be slightly faster due to no API calls for exchange rates.
 #' @param value_currency character default \code{"USD"}, target currency in which measure the current value.
 #' @param value_currency_type character, optional for most currencies, if \code{value_currency} is an exotic currency you need to define its currency type ('crypto' or 'fiat') in this param or update \code{getOption("Rbitcoin.ct.dict")} param.
-#' @param rate_priority character vector of market and priorioties for sourcing exchange rates, this param needs to be maintained by user, read Exchange rates note below. Example param value \code{rate_priority = c('bitstamp','kraken','bitmarket','btce')}.
+#' @param rate_priority character vector of market and priorioties for sourcing exchange rates, this param needs to be maintained by user, read Exchange rates note below. Example param value \code{rate_priority = c('bitstamp','kraken','hitbtc','bitmarket','btce')}.
 #' @param transfer_currency_pair vector length of 2 of named character, default \code{c(crypto = "BTC", fiat = "USD")}, read Exchange rates note below.
 #' @param archive_write logical, default \code{FALSE}, recommended \code{TRUE}. If \code{TRUE} wallet manager result will be archived to \code{"wallet_archive.rds"} file in the working directory, read Wallet archive note below.
 #' @param archive_read logical, default \code{FALSE}, recommended \code{FALSE}. If \code{TRUE} it return full archive of wallets data over time grouped by \code{wallet_id}. To be used when passing results to \code{\link{rbtc.plot}} function or performing other analysis over time, read notes below.
@@ -67,7 +67,7 @@
 #'   blockchain.sources = blockchain.sources,
 #'   manual.sources = manual.sources,
 #'   value_currency = 'USD', # your target currency
-#'   rate_priority = c('bitstamp','kraken','btce','bitmarket'), # value rates source priority
+#'   rate_priority = c('bitstamp','kraken','hitbtc','btce','bitmarket'), # rates source priority
 #'   archive_write = TRUE # by default FALSE, read ?wallet_manager
 #' )
 #' print(wallet_dt)
@@ -98,7 +98,7 @@
 #' wallet_dt <- wallet_manager(market.sources,
 #'                             blockchain.sources,
 #'                             manual.sources = manual.sources,
-#'                             rate_priority = c('bitstamp','kraken','bitmarket','btce')
+#'                             rate_priority = c('bitstamp','kraken','hitbtc','bitmarket','btce')
 #'                             archive_write = TRUE)
 #' exchange_rates_dt <- readRDS("exchange_rate_archive.rds")
 #' }
