@@ -1,6 +1,7 @@
 Rbitcoin 0.9.3 (in dev)
 ==============
 * vignette: vignette("introduction", package="Rbitcoin")
+* added hitbtc market support
 * added toBTC/fromBTC functions for easier conversion
 * dependency migrated from RJSONIO to jsonlite
 * market.api.process:
