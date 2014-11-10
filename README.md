@@ -4,7 +4,15 @@ Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, b
 
 See [introduction vignette](http://cran.r-project.org/web/packages/Rbitcoin/vignettes/introduction.html) and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.
 
-**Current version**: 0.9.3 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
+**Current version**: 0.9.3.9 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
+
+Biggest changes are:
+* introduction vignette
+* built-in antiddos
+* hitbtc market support
+* toBTC/fromBTC funs
+* improved wallet manager and its plot
+* simplified new market integration
 
 ## Installation
 
