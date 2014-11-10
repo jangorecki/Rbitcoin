@@ -23,7 +23,8 @@ api_dict <- function(){
     kraken_api_dict(),
     bitstamp_api_dict(),
     btce_api_dict(),
-    bitmarket_api_dict()
+    bitmarket_api_dict(),
+    hitbtc_api_dict()
     )
   api.dict <- rbindlist(api.dict.list)
   setkeyv(api.dict,c("market","base","quote","action"))
@@ -52,7 +53,8 @@ query_dict <- function(){
     data.table(market = "kraken", query = c(market.api.query.kraken)),
     data.table(market = "bitstamp", query = c(market.api.query.bitstamp)),
     data.table(market = "btce", query = c(market.api.query.btce)),
-    data.table(market = "bitmarket", query = c(market.api.query.bitmarket))
+    data.table(market = "bitmarket", query = c(market.api.query.bitmarket)),
+    data.table(market = "hitbtc", query = c(market.api.query.hitbtc))
   )
   query.dict <- rbindlist(query.dict.list)
   setkeyv(query.dict,"market")
