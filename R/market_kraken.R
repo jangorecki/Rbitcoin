@@ -55,7 +55,8 @@ market.api.query.kraken <- function(url, key, secret, req = list(),
 
 # kraken_api_dict ----------------------------------------------------------------
 
-kraken_api_dict <- function(){  
+kraken_api_dict <- function(){
+  
   # define global kraken technical
   kraken_xbt_code <- function(currency){
     ifelse(currency!="XBT",

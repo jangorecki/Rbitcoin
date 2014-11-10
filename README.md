@@ -30,4 +30,4 @@ vignette("introduction", package="Rbitcoin")
 
 ## Contact
 
-`j.gorecki@wit.edu.pl`
+`J.Gorecki@wit.edu.pl`

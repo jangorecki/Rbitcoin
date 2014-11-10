@@ -138,7 +138,7 @@ btce_api_dict <- function(){
                                                        market_timestamp = as.POSIXct(x[[paste(tolower(c(base,quote)),collapse="_")]][['updated']], origin = '1970-01-01', tz = 'UTC'), 
                                                        last = x[[paste(tolower(c(base,quote)),collapse="_")]][['last']], 
                                                        vwap = x[[paste(tolower(c(base,quote)),collapse="_")]][['avg']], 
-                                                       volume = x[[paste(tolower(c(base,quote)),collapse="_")]][['vol']],
+                                                       volume = x[[paste(tolower(c(base,quote)),collapse="_")]][['vol_cur']],
                                                        ask = x[[paste(tolower(c(base,quote)),collapse="_")]][['buy']],
                                                        bid = x[[paste(tolower(c(base,quote)),collapse="_")]][['sell']])),
                catch_market_error = c(function(x){

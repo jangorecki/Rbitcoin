@@ -81,7 +81,7 @@
 #'                    key = '', secret = '')
 #' 
 #' # cancel order
-#' market.api.process(market = 'kraken', action = 'cancel_order, 
+#' market.api.process(market = 'kraken', action = 'cancel_order', 
 #'                    req = list(oid = 'oid_from_open_orders'),
 #'                    key = '', secret = '')
 #' 
@@ -199,6 +199,7 @@ market.api.query <- function(market, url, ...,
                              query.dict = getOption("Rbitcoin.query.dict",stop("query.dict is mandatory for redirection to market query function")),
                              json.debug = getOption("Rbitcoin.json.debug",FALSE),
                              verbose = getOption("Rbitcoin.verbose",0)){
+  if(length(url) > 1) stop("market.api.query: `url` argument should be length one character vector")
   # antiddos
   wait <- if(antiddos) getOption("Rbitcoin.antiddos.fun",antiddos_fun)(source_system = market, verbose = verbose - 1) else 0
   # redirection to market function

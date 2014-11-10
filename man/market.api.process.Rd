@@ -99,7 +99,7 @@ market.api.process(market = 'kraken', currency_pair = c('BTC', 'EUR'), action = 
                    key = '', secret = '')
 
 # cancel order
-market.api.process(market = 'kraken', action = 'cancel_order,
+market.api.process(market = 'kraken', action = 'cancel_order',
                    req = list(oid = 'oid_from_open_orders'),
                    key = '', secret = '')
 
