@@ -6,12 +6,13 @@
 #' @description By default provided to \code{getOption("Rbitcoin.api.dict")}. This function returns built-in Rbitcoin data set contains API dictionary for \code{\link{market.api.process}} function to perform pre-process API call arguments, post-process API call results and catch market level errors. Still there is function \code{\link{market.api.query}} that do not require any dictionary and can operate on any currency pair. Granularity of api dictionary data is \code{c("market", "base", "quote", "action")}. This dictionary can be edited/extended by user for new markets, currency pairs and actions.\cr Currently supported markets, currency pairs, actions use: \code{api_dict()[!is.na(base), .(market, currency_pair = paste0(base,quote))][,unique(.SD)]}
 #' @details Default dictionary post-process function returns list or data.table. The data.table is returned in case of (always) one row response from API (ticker, place_limit_order, etc.). The list is returned in case of (possible) multiple rows response from API (trades, wallet, etc.).
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
-#' @section Interface IN/OUT exceptions:
+#' @section Interface in/out exceptions:
 #' \itemize{
 #' \item Only 3 letters currency codes are supported (USD, GBP, BTC, etc.), others (e.g. DOGE) were not tested and might not work.
 #' \item bitstamp private api calls requires additional param \code{client_id}, see bitstamp api docs in references.
 #' \item hitbtc \code{cancel_order} action requires extended \code{req}, see examples below. See repo \code{hitbtc-api} issue #3.
-#' \item hitbtc \code{trades} method for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
+#' \item hitbtc \code{trades} action for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
+#' \item hitbtc \code{wallet} action will return balance of the hitbtc trading subaccount, see examples below for hitbtc payment (main account) balance query. Also see \code{?wallet_manager} examples for hitbtc main balance in wallet manager.
 #' \item following markets - kraken, bitmarket, hitbtc - supports \code{tid} (aka \code{since}) parameter to trades action. See examples for full history trades downloading.
 #' }
 #' @references API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}
@@ -28,6 +29,10 @@
 #'            side = "sell") # issue open: https://github.com/hitbtc-com/hitbtc-api/issues/3
 #' cancel_order <- market.api.process(market = 'hitbtc', action = 'cancel_order',
 #'                                    req = req, key = '', secret = '')
+#' 
+#' # hitbtc payment (main account) balance
+#' r <- market.api.query(market="hitbtc", url="https://api.hitbtc.com/api/1/payment/balance",
+#'                       key="", secret="")
 #' 
 #' # historical data FAST: bitcoincharts full archive
 #' browseURL("http://api.bitcoincharts.com/v1/csv/")

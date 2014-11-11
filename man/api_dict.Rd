@@ -15,13 +15,14 @@ Default dictionary post-process function returns list or data.table. The data.ta
 \note{
 Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 }
-\section{Interface IN/OUT exceptions}{
+\section{Interface in/out exceptions}{
 
 \itemize{
 \item Only 3 letters currency codes are supported (USD, GBP, BTC, etc.), others (e.g. DOGE) were not tested and might not work.
 \item bitstamp private api calls requires additional param \code{client_id}, see bitstamp api docs in references.
 \item hitbtc \code{cancel_order} action requires extended \code{req}, see examples below. See repo \code{hitbtc-api} issue #3.
-\item hitbtc \code{trades} method for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
+\item hitbtc \code{trades} action for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
+\item hitbtc \code{wallet} action will return balance of the hitbtc trading subaccount, see examples below for hitbtc payment (main account) balance query. Also see \code{?wallet_manager} examples for hitbtc main balance in wallet manager.
 \item following markets - kraken, bitmarket, hitbtc - supports \code{tid} (aka \code{since}) parameter to trades action. See examples for full history trades downloading.
 }
 }
@@ -36,6 +37,10 @@ req = list(oid = "",
            side = "sell") # issue open: https://github.com/hitbtc-com/hitbtc-api/issues/3
 cancel_order <- market.api.process(market = 'hitbtc', action = 'cancel_order',
                                    req = req, key = '', secret = '')
+
+# hitbtc payment (main account) balance
+r <- market.api.query(market="hitbtc", url="https://api.hitbtc.com/api/1/payment/balance",
+                      key="", secret="")
 
 # historical data FAST: bitcoincharts full archive
 browseURL("http://api.bitcoincharts.com/v1/csv/")

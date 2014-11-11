@@ -141,6 +141,20 @@ wallet_dt <- wallet_manager(market.sources,
                             rate_priority = c('bitstamp','kraken','hitbtc','bitmarket','btce')
                             archive_write = TRUE)
 exchange_rates_dt <- readRDS("exchange_rate_archive.rds")
+
+# track hitbtc main account balance using dynamically created manual source element
+manual.sources <- list(
+  "john smith" = tryCatch(
+    expr = {
+      r <- market.api.query(market="hitbtc", url="https://api.hitbtc.com/api/1/payment/balance",
+                            key="", secret="")
+      list(location="hitbtc", location_type="market",
+           currency=r[["balance"]][["currency_code"]], amount=r[["balance"]][["balance"]])
+    },
+    error = function(e) list(location="hitbtc", location_type="market",
+                             currency=NA_character_, amount=NA_real_)
+  )
+)
 }
 }
 \references{

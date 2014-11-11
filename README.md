@@ -7,7 +7,6 @@ See [introduction vignette](http://cran.r-project.org/web/packages/Rbitcoin/vign
 **Current version**: 0.9.3.9 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
 
 Biggest changes are:
-* introduction vignette
 * built-in antiddos
 * hitbtc market support
 * toBTC/fromBTC funs
