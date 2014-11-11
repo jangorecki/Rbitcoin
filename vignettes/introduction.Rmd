@@ -106,7 +106,7 @@ cancel_order <- market.api.process(market, action = "cancel_order",
 
 To avoid ban on API interface caused by a sequence of API calls, the `market.api.process` (and any other function which query over web) will perform antiddos procedure behind the scene (to customize see `?antiddos`).  
 Because of the `market.api.process` function do post-process and pre-process of API calls to common structure across markets, the function is limited to defined markets and currency pairs in the dictionary (`?api.dict`). User can extend built-in dictionary for new markets (`?query.dict`) or new currency pairs or new API methods (`?api.dict`).  
-In case if user wants to use currency_pair/method not defined in the dictionary it is possible using `market.api.query` function, this function can handle any currency pair and any method but it requires appropriate format of method arguments and it will not post-process API response to common structure.  
+In case if user wants to use currency pair or method not defined in the dictionary it is possible using `market.api.query` function which can handle any currency pair and any method but it requires appropriate format of method arguments and it will not post-process API response to common structure.  
 Built-in dictionary supports following market and currency pairs
 ```{r api.dict}
 api.dict <- getOption("Rbitcoin.api.dict")
@@ -140,7 +140,7 @@ If you need to query any other data from blockchain API you can use `blockchain.
 
 ### Wallet Manager
 
-There is wise advice to do not store assets in a single location. This function might be direct tool to manage your assets distributed across different locations.  
+There is wise advice to do not store assets in a single location. This function assists in the management of assets distributed across different locations.  
 Wallet manager is quite complex function to track your cryptocurrency balances (and it's values at a time) on different markets/accounts/addresses.  
 By default function do not archive it's results, this must be setup using `archive_write=TRUE` args but user should be aware that sensitive data (balance and its sources **but not api keys**) will be archived locally in working directory as `wallet_archive.rds` file. Archive will allow `rbtc.plot` to plot historical assets balance over time. Historical balances might be also important for user's further analysis.  
 Below is the example of sources definition and wallet manager execution.
@@ -171,7 +171,7 @@ wallet_dt <- wallet_manager(
   blockchain.sources = blockchain.sources,
   manual.sources = manual.sources,
   value_currency = 'USD', # your target currency
-  rate_priority = c('bitstamp','kraken','btce','bitmarket','hitbtc'), # value rates source priority
+  rate_priority = c('bitstamp','kraken','hitbtc','btce','bitmarket'), # value rates source priority
   archive_write = TRUE # by default FALSE, read ?wallet_manager
 )
 ```

@@ -129,7 +129,7 @@ rbtc.plot.wallet_manager.value <- function(x, mask, verbose=0){
     ][,{
       plot(x = as.POSIXct(wallet_id, origin='1970-01-01', tz='UTC'),
            y = value, type = 'l', col = 1, xlab="", ylab="",
-           main = paste('total'))
+           main = paste0("total value: ",round(value[length(value)],2)," ",value_currency[1],if(mask) " ratio"))
       legend_("topleft", legend = "value", fill = 1)
       invisible(NULL)
     }]
@@ -235,7 +235,7 @@ rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
       row.names = "value"
       dt <- x[,list(value=sum(value)),by="currency"][, setattr(as.list(value), 'names', currency)]
       col <- "grey"
-      main = paste('total')
+      main = paste0("total value: ",x[,round(sum(value),2)]," ",value_currency[1],if(mask) " ratio")
     } # exception: NULL ~ currency
     else{
       dt <- dcast.data.table(x, j_formula, fun.aggregate = sum)
@@ -256,9 +256,7 @@ rbtc.plot.wallet_manager.recent <- function(x, mask, verbose=0){
   par(mfrow=c(1,1),mar=c(5.1,4.1,2.1,2.1), oma=rep(0,4))
   par(new=TRUE)
   x[,{
-    title(main = paste(paste(c("Recent wallet currency value in",value_currency[1],if(mask) "ratio"), collapse=" "),
-                       paste0("Total value: ",round(sum(value),2)," ",value_currency[1],if(mask) " ratio"),
-                       sep="\n"),
+    title(main = paste(paste(c("Recent wallet currency value in",value_currency[1],if(mask) "ratio"), collapse=" ")),
           sub = as.character(as.POSIXct(max(wallet_id), origin='1970-01-01', tz='UTC'), format = '%Y-%m-%d %H:%M:%S %Z'),
           cex.sub = 0.7)
   }] # main and sub
