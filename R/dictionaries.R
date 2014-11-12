@@ -6,14 +6,25 @@
 #' @description By default provided to \code{getOption("Rbitcoin.api.dict")}. This function returns built-in Rbitcoin data set contains API dictionary for \code{\link{market.api.process}} function to perform pre-process API call arguments, post-process API call results and catch market level errors. Still there is function \code{\link{market.api.query}} that do not require any dictionary and can operate on any currency pair. Granularity of api dictionary data is \code{c("market", "base", "quote", "action")}. This dictionary can be edited/extended by user for new markets, currency pairs and actions.\cr Currently supported markets, currency pairs, actions use: \code{api_dict()[!is.na(base), .(market, currency_pair = paste0(base,quote))][,unique(.SD)]}
 #' @details Default dictionary post-process function returns list or data.table. The data.table is returned in case of (always) one row response from API (ticker, place_limit_order, etc.). The list is returned in case of (possible) multiple rows response from API (trades, wallet, etc.).
 #' @note Do not use \code{api.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
-#' @section Interface in/out exceptions:
+#' @section API dictionary actions:
 #' \itemize{
-#' \item Only 3 letters currency codes are supported (USD, GBP, BTC, etc.), others (e.g. DOGE) were not tested and might not work.
+#' \item \code{ticker}
+#' \item \code{trades} - recent trades, if \code{tid} provided then batch of trades data since particular \code{tid}
+#' \item \code{order_book}
+#' \item \code{wallet} - total balance
+#' \item \code{place_limit_order}
+#' \item \code{open_orders}
+#' \item \code{cancel_order}
+#' }
+#' @section API dictionary exceptions:
+#' \itemize{
 #' \item bitstamp private api calls requires additional param \code{client_id}, see bitstamp api docs in references.
+#' \item Only 3 letters currency codes are supported as input (USD, GBP, BTC, etc.), longer (e.g. DOGE) were not tested and might not work.
+#' \item btce \code{wallet} will not provide total wallet balance if exists open orders, it will raise warning in such case, returned wallet will reflect the non-blocked assets.
 #' \item hitbtc \code{cancel_order} action requires extended \code{req}, see examples below. See repo \code{hitbtc-api} issue #3.
 #' \item hitbtc \code{trades} action for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
 #' \item hitbtc \code{wallet} action will return balance of the hitbtc trading subaccount, see examples below for hitbtc payment (main account) balance query. Also see \code{?wallet_manager} examples for hitbtc main balance in wallet manager.
-#' \item following markets - kraken, bitmarket, hitbtc - supports \code{tid} (aka \code{since}) parameter to trades action. See examples for full history trades downloading.
+#' \item bitstamp and btce does not support \code{tid} (aka \code{since}) parameter to \code{trades} action. It is not possible to fetch all the historical trades from API. See examples for alternative and also a regular API solution (kraken, hitbtc, bitmarket).
 #' }
 #' @references API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}
 #' @export
@@ -43,13 +54,15 @@
 #'              tid = NA_character_, type = NA_character_)
 #'        ][,c("V1","V2","V3"):=NULL][]
 #' 
-#' # historical data SLOW: loop using `tid` param - works only on kraken, hitbtc, bitmarket
-#' batch_size <- 1000 # kraken 1000, hitbtc 1000, bitmarket 500
+#' # historical data SLOW: loop using `tid` param - works only on kraken, hitbtc, bitmarket!
+#' market="kraken"
+#' currency_pair=c("BTC","LTC")
+#' csv.file = paste(market,paste(currency_pair,collapse=""),"trades.csv",sep="_")
+#' batch_size = 1000 # kraken 1000, hitbtc 1000, bitmarket 500
 #' last_tid <- 0 # from the beginning
-#' trades <- data.table()
 #' repeat{
 #'   trades_batch = tryCatch(
-#'     market.api.process(market="kraken",currency_pair=c("BTC","LTC"), action="trades",
+#'     market.api.process(market=market,currency_pair=currency_pair, action="trades",
 #'                        req=list(tid = last_tid))[["trades"]],
 #'     error = function(e){
 #'       message(e[["message"]])
@@ -59,13 +72,14 @@
 #'   if(is.null(trades_batch)) next # error, skip
 #'   if(nrow(trades_batch)==0) break # last batch empty
 #'   last_tid <- trades_batch[length(tid),tid]
-#'   trades <- rbindlist(list(trades, trades_batch))
-#'   cat("nrow(trades): ",nrow(trades),"\n",sep="")
+#'   write.table(trades_batch[,date:=as.integer(date)], csv.file, sep=",", row.names=FALSE,
+#'               col.names=!file.exists(csv.file),
+#'               append=file.exists(csv.file))
+#'   cat(as.character(Sys.time(),"%Y-%m-%d %H-%M-%S"),": inserted ",nrow(trades_batch),
+#'       " rows to ",csv.file," file, last inserted tid is ",last_tid,"\n",sep="")
 #'   if(nrow(trades_batch) < batch_size) break # last batch
 #' }
-#' saveRDS(trades,"trades_full_history.rds") # backup
-#' # also it do not scale well
-#' # instead of rbindlist use write.csv(append=TRUE) or dbWriteTable(append=TRUE)
+#' trades <- fread(csv.file)[,date:=as.POSIXct(date,origin="1970-01-01",tz="UTC")]
 #' print(trades)
 #' }
 api_dict <- function(){

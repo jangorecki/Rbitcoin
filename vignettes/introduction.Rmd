@@ -59,7 +59,7 @@ trades[["trades"]][,tail(.SD,10)] # print only last 10 trades
 rbtc.plot(trades)
 ```
 
-3. a. So far good but we want to confirm the *order book* is depth enough to fulfill our order
+3. a. We want to confirm the *order book* is depth enough to fulfill our order
 ```{r order_book_api, fig.width = 7, fig.height = 5}
 order_book <- market.api.process(market,currency_pair,"order_book")
 rbtc.plot(order_book)
