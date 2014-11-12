@@ -22,6 +22,7 @@
   options(Rbitcoin.antiddos.sec = 10)
   options(Rbitcoin.antiddos.fun = antiddos_fun)
   options(Rbitcoin.antiddos.verbose = 0)
+  options(Rbitcoin.cancel_order.order_not_found = NULL)
   # plot related
   options(Rbitcoin.plot.mask = FALSE)
   options(Rbitcoin.plot.limit_pct = Inf)

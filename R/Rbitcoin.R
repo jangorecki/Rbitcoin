@@ -60,6 +60,7 @@
 #' options(Rbitcoin.antiddos.sec = 10) # ?antiddos
 #' options(Rbitcoin.antiddos.fun = antiddos_fun) # ?antiddos
 #' options(Rbitcoin.antiddos.verbose = 0) # ?antiddos
+#' options(Rbitcoin.cancel_order.order_not_found = NULL) # ?api.dict
 #' options(Rbitcoin.json.debug = FALSE) # ?market.api.query
 #' options(Rbitcoin.plot.mask = FALSE) # ?rbtc.plot
 #' options(Rbitcoin.plot.limit_pct = Inf) # ?rbtc.plot
@@ -78,4 +79,4 @@ NULL
 
 # CRAN check NOTE prevention ----------------------------------------------
 
-if(getRversion() >= "2.15.1") utils::globalVariables(c('action','amount','amount_in_orders','ask','base','bid','col_','currency','currency_pair','currency_type','final_balance','J','legend_','location','location_type','market','price','priority','rowid','type','value','value_currency','value_init','value_mask','value_rate','wallet_id','amount.x','amount.y','id','rate','oid','cum_amount','tid','query','NA_group','auth','new_address','new_auth','.','label'))
+if(getRversion() >= "2.15.1") utils::globalVariables(c('action','amount','amount_in_orders','ask','base','bid','col_','currency','currency_pair','currency_type','final_balance','J','legend_','location','location_type','market','price','priority','rowid','type','value','value_currency','value_init','value_mask','value_rate','wallet_id','amount.x','amount.y','id','rate','oid','cum_amount','tid','query','NA_group','auth','new_address','new_auth','.','label','lot','volume','side','currency_code','cash','reserved','clientOrderId','quantity','symbol','orderPrice','quantityLeaves','amount_lot'))

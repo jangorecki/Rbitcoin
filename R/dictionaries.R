@@ -14,17 +14,18 @@
 #' \item \code{wallet} - total balance
 #' \item \code{place_limit_order}
 #' \item \code{open_orders}
-#' \item \code{cancel_order}
+#' \item \code{cancel_order} - return 1 row DT on success, if order not found it will suppress error and return 0 row DT, behavior can be changed by \code{getOptions("Rbitcoin.cancel_order.order_not_found")} to: \code{NULL (silent-default), "warning", "error"}.
 #' }
 #' @section API dictionary exceptions:
 #' \itemize{
 #' \item bitstamp private api calls requires additional param \code{client_id}, see bitstamp api docs in references.
 #' \item Only 3 letters currency codes are supported as input (USD, GBP, BTC, etc.), longer (e.g. DOGE) were not tested and might not work.
 #' \item btce \code{wallet} will not provide total wallet balance if exists open orders, it will raise warning in such case, returned wallet will reflect the non-blocked assets.
+#' \item btce \code{cancel_order} market error with message \code{"bad status"} will be suppressed (by default) as it reflects 'order not found' exception. It is unknown if there are more \code{cancel_order} errors with such message.
 #' \item hitbtc \code{cancel_order} action requires extended \code{req}, see examples below. See repo \code{hitbtc-api} issue #3.
 #' \item hitbtc \code{trades} action for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
 #' \item hitbtc \code{wallet} action will return balance of the hitbtc trading subaccount, see examples below for hitbtc payment (main account) balance query. Also see \code{?wallet_manager} examples for hitbtc main balance in wallet manager.
-#' \item bitstamp and btce does not support \code{tid} (aka \code{since}) parameter to \code{trades} action. It is not possible to fetch all the historical trades from API. See examples for alternative and also a regular API solution (kraken, hitbtc, bitmarket).
+#' \item bitstamp and btce does not support \code{tid} (aka \code{since}) parameter to \code{trades} action. It is not possible to fetch full historical trades from API. See examples for alternative and also a regular API solution (kraken, hitbtc, bitmarket).
 #' }
 #' @references API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}
 #' @export

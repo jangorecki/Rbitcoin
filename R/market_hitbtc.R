@@ -97,29 +97,6 @@ hitbtc_api_dict <- function(){
                  else x
                }))
   }
-  hitbtc_api_dict_order_book <- function(market = "hitbtc", base, quote, action = "order_book"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'orderbook', url = paste0("https://api.hitbtc.com/api/1/public/",paste(c(base,quote),collapse=""),"/orderbook"),
-               pre_process = c(function(x){
-                 url_add = "?format_price=number&format_amount=number&format_amount_unit=currency"
-                 assign('url', paste0(get('url',envir = parent.frame(1)),url_add),envir = parent.frame(1))
-                 x
-               }),
-               post_process = c(function(x){
-                 list(market = market, base = base, quote = quote, 
-                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                      asks = setnames(as.data.table(x[["asks"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)],
-                      bids = setnames(as.data.table(x[["bids"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)])
-               }),
-               catch_market_error = c(function(x){
-                 if(identical(c("code","message"),names(x))){
-                   stop(paste0('hitbtc order_book: market error: ',paste(x,collapse=": ")),call.=FALSE)
-                 }
-                 if(is.null(x[['asks']]) & is.null(x[['bids']])) stop(paste0("hitbtc order_book error not handled by market: key field is NULL"),call.=FALSE)
-                 else x
-               }))
-  }
   hitbtc_api_dict_trades <- function(market = "hitbtc", base, quote, action = "trades"){
     data.table(market = market, base = base, quote = quote, action = action,
                method = 'trades', url = paste0("https://api.hitbtc.com/api/1/public/",paste(c(base,quote),collapse=""),"/trades"),
@@ -156,6 +133,29 @@ hitbtc_api_dict <- function(){
                  else x
                }))
   }
+  hitbtc_api_dict_order_book <- function(market = "hitbtc", base, quote, action = "order_book"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'orderbook', url = paste0("https://api.hitbtc.com/api/1/public/",paste(c(base,quote),collapse=""),"/orderbook"),
+               pre_process = c(function(x){
+                 url_add = "?format_price=number&format_amount=number&format_amount_unit=currency"
+                 assign('url', paste0(get('url',envir = parent.frame(1)),url_add),envir = parent.frame(1))
+                 x
+               }),
+               post_process = c(function(x){
+                 list(market = market, base = base, quote = quote, 
+                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                      asks = setnames(as.data.table(x[["asks"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)],
+                      bids = setnames(as.data.table(x[["bids"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)])
+               }),
+               catch_market_error = c(function(x){
+                 if(identical(c("code","message"),names(x))){
+                   stop(paste0('hitbtc order_book: market error: ',paste(x,collapse=": ")),call.=FALSE)
+                 }
+                 if(is.null(x[['asks']]) & is.null(x[['bids']])) stop(paste0("hitbtc order_book error not handled by market: key field is NULL"),call.=FALSE)
+                 else x
+               }))
+  }
   hitbtc_api_dict_wallet <- function(market = "hitbtc", base = NA_character_, quote = NA_character_, action = "wallet"){
     data.table(market = market, base = base, quote = quote, action = action,
                method = 'balance', url = 'https://api.hitbtc.com/api/1/trading/balance',
@@ -169,41 +169,6 @@ hitbtc_api_dict <- function(){
                    stop(paste0('hitbtc wallet: market error: ',paste(x,collapse=": ")),call.=FALSE)
                  }
                  if(is.null(x)) stop(paste0('hitbtc wallet error not handled by market: key field is NULL'),call.=FALSE)
-                 else x
-               }))
-  }
-  hitbtc_api_dict_open_orders <- function(market = "hitbtc", base = NA_character_, quote = NA_character_, action = "open_orders"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'orders/active', url = 'https://api.hitbtc.com/api/1/trading/orders/active',
-               pre_process = c(function(x) x),
-               post_process = c(function(x){
-                 if(length(x[["orders"]])==0){
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        open_orders = data.table(base = as.character(NULL), 
-                                                 quote = as.character(NULL), 
-                                                 oid = as.character(NULL), 
-                                                 type = as.character(NULL), 
-                                                 price = as.numeric(NULL), 
-                                                 amount = as.numeric(NULL)))
-                 }
-                 else{
-                   oo_lot <- setDT(x[["orders"]])[,list(base=toupper(substr(symbol,1,3)),quote=toupper(substr(symbol,4,6)), oid=clientOrderId, type=side, 
-                                                        price=orderPrice, 
-                                                        amount_lot=quantityLeaves),
-                                                  keyby=symbol]
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        open_orders = hitbtc_lot_dict(oo_lot)[, list(base,quote,oid,price,amount=amount_lot*lot)])
-                 }
-               }),
-               catch_market_error = c(function(x){
-                 if(identical(c("code","message"),names(x))){
-                   stop(paste0('hitbtc open_orders: market error: ',paste(x,collapse=": ")),call.=FALSE)
-                 }
-                 if(is.null(x)) stop(paste0('hitbtc open_orders error not handled by market: key field is NULL'),call.=FALSE)
                  else x
                }))
   }
@@ -239,6 +204,41 @@ hitbtc_api_dict <- function(){
                  else x
                }))
   }
+  hitbtc_api_dict_open_orders <- function(market = "hitbtc", base = NA_character_, quote = NA_character_, action = "open_orders"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'orders/active', url = 'https://api.hitbtc.com/api/1/trading/orders/active',
+               pre_process = c(function(x) x),
+               post_process = c(function(x){
+                 if(length(x[["orders"]])==0){
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                        open_orders = data.table(base = as.character(NULL), 
+                                                 quote = as.character(NULL), 
+                                                 oid = as.character(NULL), 
+                                                 type = as.character(NULL), 
+                                                 price = as.numeric(NULL), 
+                                                 amount = as.numeric(NULL)))
+                 }
+                 else{
+                   oo_lot <- setDT(x[["orders"]])[,list(base=toupper(substr(symbol,1,3)),quote=toupper(substr(symbol,4,6)), oid=clientOrderId, type=side, 
+                                                        price=orderPrice, 
+                                                        amount_lot=quantityLeaves),
+                                                  keyby=symbol]
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                        open_orders = hitbtc_lot_dict(oo_lot)[, list(base,quote,oid,type,price,amount=amount_lot*lot)])
+                 }
+               }),
+               catch_market_error = c(function(x){
+                 if(identical(c("code","message"),names(x))){
+                   stop(paste0('hitbtc open_orders: market error: ',paste(x,collapse=": ")),call.=FALSE)
+                 }
+                 if(is.null(x)) stop(paste0('hitbtc open_orders error not handled by market: key field is NULL'),call.=FALSE)
+                 else x
+               }))
+  }
   hitbtc_api_dict_cancel_order <- function(market = "hitbtc", base = NA_character_, quote = NA_character_, action = "cancel_order"){
     data.table(market = market, base = base, quote = quote, action = action,
                method = 'trading/cancel_order', url = 'https://api.hitbtc.com/api/1/trading/cancel_order',
@@ -255,20 +255,32 @@ hitbtc_api_dict <- function(){
                  }
                }),
                post_process = c(function(x){
+                 if('CancelReject' %in% names(x) && any(x[['CancelReject']][['rejectReasonCode']]=="orderNotFound")) return(data.table(market = character(), base = character(), quote = character(),
+                                                                                                                                       timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC')[-1],
+                                                                                                                                       market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC')[-1], 
+                                                                                                                                       oid = character()))
                  setDT(x[["ExecutionReport"]])[,list(market = market, base=toupper(substr(symbol,1,3)),quote=toupper(substr(symbol,4,6)),
                                                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
                                                      market_timestamp = as.POSIXct(timestamp*1e-3, origin = '1970-01-01', tz = 'UTC'), 
                                                      oid = as.character(clientOrderId))]
                }),
                catch_market_error = c(function(x){
-                 if(is.null(x)) stop(paste0('hitbtc cancel_order error not handled by market: key field is NULL'),call.=FALSE)
-                 else if(!is.null(x[["CancelReject"]])){
-                   stop(paste0('hitbtc cancel_order: market error: cancel order rejected, reject reason: ',x$CancelReject$rejectReasonCode),call.=FALSE)
+                 if('CancelReject' %in% names(x)){
+                   if(x[['CancelReject']][['rejectReasonCode']]=="orderNotFound"){
+                     if(is.null(getOption("Rbitcoin.cancel_order.order_not_found"))) return(x) # will silently postprocessed to 0 row DT
+                     if(getOption("Rbitcoin.cancel_order.order_not_found")=="warning"){
+                       warning("hitbtc cancel_order was not performed, requested order not found",call. = FALSE)
+                       return(x)
+                     }
+                     if(getOption("Rbitcoin.cancel_order.order_not_found")=="error"){
+                       stop(paste0('hitbtc cancel_order was not performed: ',x[['CancelReject']][['rejectReasonCode']]),call.=FALSE)
+                     }
+                   }
+                   stop(paste0('hitbtc cancel_order: market error: ',x[['CancelReject']][['rejectReasonCode']]),call.=FALSE)
                  }
-                 else if(identical(c("code","message"),names(x))){
-                   stop(paste0('hitbtc cancel_order: market error: ',paste(x,collapse=": ")),call.=FALSE)
-                 }
-                 else x
+
+                 if(is.null(x[["ExecutionReport"]])) stop(paste0("hitbtc cancel_order error not handled by market: 'ExecutionReport' NULL"),call.=FALSE)
+                 x
                }))
   }
   

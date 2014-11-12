@@ -33,6 +33,7 @@ Rbitcoin 0.9.3.9 (in dev)
   * open_orders, wallet, cancel_order no longer require currency_pair arg
   * wallet - fee field removed from result
   * wallet, open_orders - result nested in a list
+  * cancel_order exception 'order not found' behavior unified, default silent 0 row DT
 * verbose will now result only one status message per function call
 * minor fixes for changes in data.table 1.9.4
 * documentation improvement

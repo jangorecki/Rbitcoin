@@ -60,6 +60,7 @@ options(Rbitcoin.antiddos = TRUE) # ?antiddos
 options(Rbitcoin.antiddos.sec = 10) # ?antiddos
 options(Rbitcoin.antiddos.fun = antiddos_fun) # ?antiddos
 options(Rbitcoin.antiddos.verbose = 0) # ?antiddos
+options(Rbitcoin.cancel_order.order_not_found = NULL) # ?api.dict
 options(Rbitcoin.json.debug = FALSE) # ?market.api.query
 options(Rbitcoin.plot.mask = FALSE) # ?rbtc.plot
 options(Rbitcoin.plot.limit_pct = Inf) # ?rbtc.plot

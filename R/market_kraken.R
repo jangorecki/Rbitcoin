@@ -72,86 +72,11 @@ kraken_api_dict <- function(){
                   paste0("X",kraken_xbt_code(currency)),
                   ifelse(currency %in% ct.dict[["fiat"]],
                          paste0("Z",kraken_xbt_code(currency)),
-                         stop(paste0("Expected currency: ",currency," do not exists in currency type dictionary, see getOption('Rbitcoin.ct.dict'), read ?ct.dict")))))
+                         stop(paste0("Expected currency: ",currency," does not exists in currency type dictionary, see getOption('Rbitcoin.ct.dict'), read ?ct.dict")))))
   }
   
   # define global kraken
-  kraken_api_dict_wallet <- function(market = "kraken", base = NA_character_, quote = NA_character_, action = "wallet"){
-    data.table(market = market, base = base, quote = quote, action = action, 
-               method = 'Balance', url = 'https://api.kraken.com/0/private/Balance',
-               pre_process = c(function(x) x),
-               post_process = c(function(x){
-                 if(length(x[['result']]) == 0){
-                   list(market = market, 
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        wallet = data.table(currency = character(), amount = numeric()))
-                 }
-                 else {
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
-                        wallet = data.table(currency = kraken_xbt_code(substring(names(x[['result']]), 2, 4)),
-                                            amount = as.numeric(x[['result']])))
-                 }
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0(market,' wallet: market error: ',x[['error']]),call.=FALSE)
-                 else if(is.null(x[['result']])) stop(paste0(market," wallet: error not handled by market: x[['result']] is NULL object"),call.=FALSE)
-                 else x
-               }))
-  }
-  kraken_api_dict_open_orders <- function(market = "kraken", base = NA_character_, quote = NA_character_, action = "open_orders"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'OpenOrders', url = 'https://api.kraken.com/0/private/OpenOrders',
-               pre_process = c(function(x) x),
-               post_process = c(function(x){
-                 if(length(x[['result']][['open']]) == 0){
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        open_orders = data.table(base = as.character(NULL), quote = as.character(NULL), oid = as.character(NULL), type = as.character(NULL), price = as.numeric(NULL), amount = as.numeric(NULL)))
-                 }
-                 else {
-                   orders <- mapply(FUN = function(x, header_oid) data.table(base = kraken_xbt_code(toupper(substr(x[['descr']][['pair']],1,3))),
-                                                                             quote = kraken_xbt_code(toupper(substr(x[['descr']][['pair']],4,6))),
-                                                                             oid = header_oid,
-                                                                             type = as.character(x[['descr']][['type']]),
-                                                                             price = as.numeric(x[['descr']][['price']]),
-                                                                             amount = as.numeric(x[['vol']])),
-                                    x[['result']][['open']],
-                                    names(x[['result']][['open']]),
-                                    SIMPLIFY = FALSE)
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        open_orders = rbindlist(orders))
-                 }
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('kraken open_orders: market error: ',x[['error']]),call.=FALSE)
-                 else if(is.null(x[['result']])) stop(paste0("kraken open_orders: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
-                 else x
-               }))
-  }
-  kraken_api_dict_cancel_order <- function(market = "kraken", base = NA_character_, quote = NA_character_, action = "cancel_order"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'CancelOrder', url = 'https://api.kraken.com/0/private/CancelOrder',
-               pre_process = c(function(x) list(txid = x[['oid']])),
-               post_process = c(function(x){
-                 dt <- data.table(mmarket = market, base = base, quote = quote,
-                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                            market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
-                            oid = NA_character_)
-                 if(!(x[['result']][['count']] > 0)) dt <- dt[0]
-                 dt
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('kraken cancel_order: market error: ',x[['error']]),call.=FALSE)
-                 else if(is.null(x[['result']][['count']])) stop(paste0("kraken cancel_order: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
-                 else x
-               }))
-  }
+
   kraken_api_dict_ticker <- function(market = "kraken", base, quote, action = "ticker"){
     pair = paste0(ct_prefix(base),ct_prefix(quote))
     data.table(market = market, base = base, quote = quote, action = action, 
@@ -168,74 +93,6 @@ kraken_api_dict <- function(){
                catch_market_error = c(function(x){
                  if(length(x[['error']]) > 0) stop(paste0(market,' ticker: market error: ',x[['error']]),call.=FALSE)
                  else if(is.null(x[['result']])) stop(paste0(market," ticker: error not handled by market: `x[['result']]` is NULL object"),call.=FALSE)
-                 else x
-               }))
-  }
-  kraken_api_dict_order_book <- function(market = "kraken", base, quote, action = "order_book"){
-    pair = paste0(ct_prefix(base),ct_prefix(quote))
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'Depth', url = paste0('https://api.kraken.com/0/public/Depth?pair=',pair),
-               pre_process = c(function(x) x),
-               post_process = c(function(x){
-                 if(length(x[['result']][[pair]][['asks']]) == 0){ #exception when no new trades since last visit
-                   asks <- data.table(
-                     price = numeric(), 
-                     amount = numeric()
-                   )
-                 }
-                 else{
-                   asks <- as.data.table(x[["result"]][[pair]][["asks"]][,1:2])
-                   setnames(asks,c("price","amount"))
-                   asks[,`:=`(price = as.numeric(price),
-                              amount = as.numeric(amount))]
-                 }
-                 if(length(x[['result']][[pair]][['bids']]) == 0){ #exception when no new trades since last visit
-                   asks <- data.table(
-                     price = numeric(), 
-                     amount = numeric()
-                   )
-                 }
-                 else{
-                   bids <- as.data.table(x[["result"]][[pair]][["bids"]][,1:2])
-                   setnames(bids,c("price","amount"))
-                   bids[,`:=`(price = as.numeric(price),
-                              amount = as.numeric(amount))]
-                 }
-                 list(market = market, base = base, quote = quote,
-                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                      asks = asks[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)],
-                      bids = bids[,`:=`(value = price * amount,cum_amount= cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)])
-                 }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('kraken wallet: market error: ',x[['error']]),call.=FALSE)
-                 else if(is.null(x[['result']])) stop(paste0("kraken wallet: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
-                 else x
-               }))
-  }
-  kraken_api_dict_place_limit_order <- function(market = "kraken", base, quote, action = "place_limit_order"){
-    pair = paste0(ct_prefix(base),ct_prefix(quote))
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'AddOrder', url = 'https://api.kraken.com/0/private/AddOrder',
-               pre_process = c(function(x){
-                 list(pair = pair, 
-                      type = x[['type']],
-                      ordertype = 'limit',
-                      price = trunc(x[['price']]*1e5)/1e5, 
-                      volume = trunc(x[['amount']]*1e8)/1e8)
-               }),
-               post_process = c(function(x){
-                 data.table(market = market, base = base, quote = quote,
-                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                            market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
-                            oid = x[['result']][['txid']],
-                            type = as.character(NA),
-                            price = as.numeric(NA),
-                            amount = as.numeric(NA))
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('kraken place limit order: market error: ',x[['error']]),call.=FALSE)
-                 else if(is.null(x[['result']])) stop(paste0("kraken place limit order: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
                  else x
                }))
   }
@@ -285,7 +142,166 @@ kraken_api_dict <- function(){
                  else if(is.null(x[['result']][[pair]])) stop(paste0("kraken trades: error not handled by market: x[['result']][[pair]] a NULL object"),call.=FALSE)
                  else x
                }))
-  }  
+  }
+  kraken_api_dict_order_book <- function(market = "kraken", base, quote, action = "order_book"){
+    pair = paste0(ct_prefix(base),ct_prefix(quote))
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'Depth', url = paste0('https://api.kraken.com/0/public/Depth?pair=',pair),
+               pre_process = c(function(x) x),
+               post_process = c(function(x){
+                 if(length(x[['result']][[pair]][['asks']]) == 0){ #exception when no new trades since last visit
+                   asks <- data.table(
+                     price = numeric(), 
+                     amount = numeric()
+                   )
+                 }
+                 else{
+                   asks <- as.data.table(x[["result"]][[pair]][["asks"]][,1:2])
+                   setnames(asks,c("price","amount"))
+                   asks[,`:=`(price = as.numeric(price),
+                              amount = as.numeric(amount))]
+                 }
+                 if(length(x[['result']][[pair]][['bids']]) == 0){ #exception when no new trades since last visit
+                   asks <- data.table(
+                     price = numeric(), 
+                     amount = numeric()
+                   )
+                 }
+                 else{
+                   bids <- as.data.table(x[["result"]][[pair]][["bids"]][,1:2])
+                   setnames(bids,c("price","amount"))
+                   bids[,`:=`(price = as.numeric(price),
+                              amount = as.numeric(amount))]
+                 }
+                 list(market = market, base = base, quote = quote,
+                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                      asks = asks[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)],
+                      bids = bids[,`:=`(value = price * amount,cum_amount= cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)])
+                 }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0('kraken wallet: market error: ',x[['error']]),call.=FALSE)
+                 else if(is.null(x[['result']])) stop(paste0("kraken wallet: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
+                 else x
+               }))
+  }
+  kraken_api_dict_wallet <- function(market = "kraken", base = NA_character_, quote = NA_character_, action = "wallet"){
+    data.table(market = market, base = base, quote = quote, action = action, 
+               method = 'Balance', url = 'https://api.kraken.com/0/private/Balance',
+               pre_process = c(function(x) x),
+               post_process = c(function(x){
+                 if(length(x[['result']]) == 0){
+                   list(market = market, 
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                        wallet = data.table(currency = character(), amount = numeric()))
+                 }
+                 else {
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
+                        wallet = data.table(currency = kraken_xbt_code(substring(names(x[['result']]), 2, 4)),
+                                            amount = as.numeric(x[['result']])))
+                 }
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0(market,' wallet: market error: ',x[['error']]),call.=FALSE)
+                 else if(is.null(x[['result']])) stop(paste0(market," wallet: error not handled by market: x[['result']] is NULL object"),call.=FALSE)
+                 else x
+               }))
+  }
+  kraken_api_dict_place_limit_order <- function(market = "kraken", base, quote, action = "place_limit_order"){
+    pair = paste0(ct_prefix(base),ct_prefix(quote))
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'AddOrder', url = 'https://api.kraken.com/0/private/AddOrder',
+               pre_process = c(function(x){
+                 list(pair = pair, 
+                      type = x[['type']],
+                      ordertype = 'limit',
+                      price = trunc(x[['price']]*1e5)/1e5, 
+                      volume = trunc(x[['amount']]*1e8)/1e8)
+               }),
+               post_process = c(function(x){
+                 data.table(market = market, base = base, quote = quote,
+                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                            market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
+                            oid = x[['result']][['txid']],
+                            type = as.character(NA),
+                            price = as.numeric(NA),
+                            amount = as.numeric(NA))
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0('kraken place limit order: market error: ',x[['error']]),call.=FALSE)
+                 else if(is.null(x[['result']])) stop(paste0("kraken place limit order: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
+                 else x
+               }))
+  }
+  kraken_api_dict_open_orders <- function(market = "kraken", base = NA_character_, quote = NA_character_, action = "open_orders"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'OpenOrders', url = 'https://api.kraken.com/0/private/OpenOrders',
+               pre_process = c(function(x) x),
+               post_process = c(function(x){
+                 if(length(x[['result']][['open']]) == 0){
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                        open_orders = data.table(base = as.character(NULL), quote = as.character(NULL), oid = as.character(NULL), type = as.character(NULL), price = as.numeric(NULL), amount = as.numeric(NULL)))
+                 }
+                 else {
+                   orders <- mapply(FUN = function(x, header_oid) data.table(base = kraken_xbt_code(toupper(substr(x[['descr']][['pair']],1,3))),
+                                                                             quote = kraken_xbt_code(toupper(substr(x[['descr']][['pair']],4,6))),
+                                                                             oid = header_oid,
+                                                                             type = as.character(x[['descr']][['type']]),
+                                                                             price = as.numeric(x[['descr']][['price']]),
+                                                                             amount = as.numeric(x[['vol']])),
+                                    x[['result']][['open']],
+                                    names(x[['result']][['open']]),
+                                    SIMPLIFY = FALSE)
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                        open_orders = rbindlist(orders))
+                 }
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0('kraken open_orders: market error: ',x[['error']]),call.=FALSE)
+                 else if(is.null(x[['result']])) stop(paste0("kraken open_orders: error not handled by market: x[['result']] a NULL object"),call.=FALSE)
+                 else x
+               }))
+  }
+  kraken_api_dict_cancel_order <- function(market = "kraken", base = NA_character_, quote = NA_character_, action = "cancel_order"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'CancelOrder', url = 'https://api.kraken.com/0/private/CancelOrder',
+               pre_process = c(function(x) list(txid = x[['oid']])),
+               post_process = c(function(x){
+                 dt <- data.table(market = market, base = base, quote = quote,
+                                  timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                                  market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
+                                  oid = NA_character_)
+                 if(length(x[['error']]) > 0 && x[['error']]=="EOrder:Unknown order"){
+                   return(dt[0])
+                 }
+                 if(!(x[['result']][['count']] > 0)) return(dt[0])
+                 else dt
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0){
+                   if(x[['error']]=="EOrder:Unknown order"){
+                     if(is.null(getOption("Rbitcoin.cancel_order.order_not_found"))) return(x) # will silently postprocessed to 0 row DT
+                     if(getOption("Rbitcoin.cancel_order.order_not_found")=="warning"){
+                       warning("kraken cancel_order was not performed, requested order not found",call. = FALSE)
+                       return(x)
+                     }
+                     if(getOption("Rbitcoin.cancel_order.order_not_found")=="error"){
+                       stop(paste0('kraken cancel_order was not performed: ',x[['error']]),call.=FALSE)
+                     }
+                   }
+                   stop(paste0('kraken cancel_order: market error: ',x[['error']]),call.=FALSE)
+                 }
+                 else if(is.null(x[['result']][['count']])) stop(paste0("kraken cancel_order: error not handled by market: missing result$count object"),call.=FALSE)
+                 else x
+               }))
+  }
   
   # generate dictionary
   api.dict.list <- list()

@@ -50,81 +50,6 @@ market.api.query.bitmarket <- function(url, key, secret, req = list(),
 bitmarket_api_dict <- function(){
   
   # define global bitmarket
-  bitmarket_api_dict_wallet <- function(market = "bitmarket", base = NA_character_, quote = NA_character_, action = "wallet"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'info', url = 'https://www.bitmarket.pl/api2/',
-               pre_process = c(function(x) {x[['method']] <- 'info'; x}),
-               post_process = c(function(x){
-                 av <- x[['data']][['balances']][['available']]
-                 bl <- x[['data']][['balances']][['blocked']]
-                 av_dt <- data.table(currency = names(av), amount = unname(unlist(av)), key = 'currency')
-                 bl_dt <- data.table(currency = names(bl), amount = unname(unlist(bl)), key = 'currency')
-                 total_dt <- merge(av_dt,bl_dt, by ='currency', all = TRUE)[,list(amount = sum(amount.x,amount.y,na.rm=TRUE)), by=currency]
-                 list(market = market,
-                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
-                      wallet = total_dt)
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('bitmarket wallet market error: ',x[['errorMsg']]),call.=FALSE)
-                 else if(is.null(x[['data']])) stop(paste0("bitmarket wallet error not handled by market: key field is NULL"),call.=FALSE)
-                 else x
-               }))
-  }
-  bitmarket_api_dict_open_orders <- function(market = "bitmarket", base = NA_character_, quote = NA_character_, action = "open_orders"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'orders', url = 'https://www.bitmarket.pl/api2/',
-               pre_process = c(function(x) {x[['method']] <- 'orders'; x}),
-               post_process = c(function(x){
-                 dt <- rbindlist(lapply(x[['data']], function(currency_pair){
-                   rbindlist(list(
-                     as.data.table(currency_pair[['sell']]),
-                     as.data.table(currency_pair[['buy']])
-                   ))
-                 }))
-                 if(nrow(dt) > 0){
-                   setnames(dt,'market','currency_pair') # proper name for BTCPLN
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        open_orders = dt[,`:=`(base = toupper(substr(currency_pair,1,3)),
-                                               quote = toupper(substr(currency_pair,4,6)),
-                                               oid = as.character(id),
-                                               type = type,
-                                               price = as.numeric(rate),
-                                               amount = as.numeric(amount))
-                                         ][,list(base, quote, oid, type, price, amount)])
-                 }
-                 else if(nrow(dt) == 0){
-                   list(market = market,
-                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'), 
-                        market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                        open_orders = data.table(base = character(), quote = character(), 
-                                                 oid = character(), type = character(), price = numeric(), amount = numeric()))
-                 }
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('bitmarket open_orders market error: ',x[['errorMsg']]),call.=FALSE)
-                 else if(is.null(x[['data']])) stop(paste0("bitmarket open_orders error not handled by market: key field is NULL"),call.=FALSE)
-                 else x
-               }))
-  }
-  bitmarket_api_dict_cancel_order <- function(market = "bitmarket", base = NA_character_, quote = NA_character_, action = "cancel_order"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'cancel', url = 'https://www.bitmarket.pl/api2/',
-               pre_process = c(function(x) list(method = 'cancel', id = x[['oid']])),
-               post_process = c(function(x){
-                 data.table(market = market, base = NA_character_, quote = NA_character_,
-                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                            market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
-                            oid = NA_character_)
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('bitmarket cancel_order market error: ',x[['errorMsg']]),call.=FALSE)
-                 else if(is.null(x[['data']])) stop(paste0("bitmarket cancel_order error not handled by market: key field is NULL"),call.=FALSE)
-                 else x
-               }))
-  }
   bitmarket_api_dict_ticker <- function(market = "bitmarket", base, quote, action = "ticker"){
     data.table(market = market, base = base, quote = quote, action = action,
                method = 'ticker', url = paste0('https://www.bitmarket.pl/json/',paste(c(base,quote),collapse=""),'/ticker.json'),
@@ -141,47 +66,6 @@ bitmarket_api_dict <- function(){
                }),
                catch_market_error = c(function(x){
                  if(is.null(x[['last']])) stop(paste0("bitmarket ticker error not handled by market: key field is NULL"),call.=FALSE)
-                 else x
-               }))
-  }
-  bitmarket_api_dict_order_book <- function(market = "bitmarket", base, quote, action = "order_book"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'orderbook', url = paste0('https://www.bitmarket.pl/json/',paste(c(base,quote),collapse=""),'/orderbook.json'),
-               pre_process = c(function(x) x),
-               post_process = c(function(x){
-                 list(market = market, base = base, quote = quote, 
-                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
-                      asks = setnames(as.data.table(x[["asks"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)],
-                      bids = setnames(as.data.table(x[["bids"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)])
-               }),
-               catch_market_error = c(function(x){
-                 if(is.null(x[['asks']]) & is.null(x[['bids']])) stop(paste0("bitmarket order_book error not handled by market: key field is NULL"),call.=FALSE)
-                 else x
-               }))
-  }
-  bitmarket_api_dict_place_limit_order <- function(market = "bitmarket", base, quote, action = "place_limit_order"){
-    data.table(market = market, base = base, quote = quote, action = action,
-               method = 'trade', url = 'https://www.bitmarket.pl/api2/',
-               pre_process = c(function(x){
-                 list(method = 'trade',
-                      market = paste(c(base,quote),collapse=""),
-                      type = x[['type']], 
-                      amount = trunc(x[['amount']]*1e6)/1e6,
-                      rate = trunc(x[['price']]*1e4)/1e4)
-               }),
-               post_process = c(function(x){
-                 data.table(market = market, base = base, quote = quote,
-                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                            market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'), 
-                            oid = NA_character_,
-                            type = NA_character_,
-                            price = NA_real_,
-                            amount = NA_real_)
-               }),
-               catch_market_error = c(function(x){
-                 if(length(x[['error']]) > 0) stop(paste0('bitmarket place_limit_order market error: ',x[['errorMsg']]),call.=FALSE)
-                 else if(is.null(x[['data']])) stop(paste0("bitmarket place_limit_order error not handled by market: key field is NULL"),call.=FALSE)
                  else x
                }))
   }
@@ -217,6 +101,138 @@ bitmarket_api_dict <- function(){
                  else x
                }))
   }  
+  bitmarket_api_dict_order_book <- function(market = "bitmarket", base, quote, action = "order_book"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'orderbook', url = paste0('https://www.bitmarket.pl/json/',paste(c(base,quote),collapse=""),'/orderbook.json'),
+               pre_process = c(function(x) x),
+               post_process = c(function(x){
+                 list(market = market, base = base, quote = quote, 
+                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                      market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC'),
+                      asks = setnames(as.data.table(x[["asks"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)],
+                      bids = setnames(as.data.table(x[["bids"]]),c("price","amount"))[,`:=`(value = price * amount,cum_amount = cumsum(amount))][,`:=`(cum_value = cumsum(value),avg_price = cumsum(value) / cum_amount)])
+               }),
+               catch_market_error = c(function(x){
+                 if(is.null(x[['asks']]) & is.null(x[['bids']])) stop(paste0("bitmarket order_book error not handled by market: key field is NULL"),call.=FALSE)
+                 else x
+               }))
+  }
+  bitmarket_api_dict_wallet <- function(market = "bitmarket", base = NA_character_, quote = NA_character_, action = "wallet"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'info', url = 'https://www.bitmarket.pl/api2/',
+               pre_process = c(function(x) {x[['method']] <- 'info'; x}),
+               post_process = c(function(x){
+                 av <- x[['data']][['balances']][['available']]
+                 bl <- x[['data']][['balances']][['blocked']]
+                 av_dt <- data.table(currency = names(av), amount = unname(unlist(av)), key = 'currency')
+                 bl_dt <- data.table(currency = names(bl), amount = unname(unlist(bl)), key = 'currency')
+                 total_dt <- merge(av_dt,bl_dt, by ='currency', all = TRUE)[,list(amount = sum(amount.x,amount.y,na.rm=TRUE)), by=currency]
+                 list(market = market,
+                      timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                      market_timestamp = as.POSIXct(x[['time']], origin = '1970-01-01', tz = 'UTC'), 
+                      wallet = total_dt)
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0('bitmarket wallet market error: ',x[['errorMsg']]),call.=FALSE)
+                 else if(is.null(x[['data']])) stop(paste0("bitmarket wallet error not handled by market: key field is NULL"),call.=FALSE)
+                 else x
+               }))
+  }
+  bitmarket_api_dict_place_limit_order <- function(market = "bitmarket", base, quote, action = "place_limit_order"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'trade', url = 'https://www.bitmarket.pl/api2/',
+               pre_process = c(function(x){
+                 list(method = 'trade',
+                      market = paste(c(base,quote),collapse=""),
+                      type = x[['type']], 
+                      amount = trunc(x[['amount']]*1e6)/1e6,
+                      rate = trunc(x[['price']]*1e4)/1e4)
+               }),
+               post_process = c(function(x){
+                 data.table(market = market, base = base, quote = quote,
+                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                            market_timestamp = as.POSIXct(x[['time']], origin = '1970-01-01', tz = 'UTC'), 
+                            oid = NA_character_,
+                            type = NA_character_,
+                            price = NA_real_,
+                            amount = NA_real_)
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0('bitmarket place_limit_order market error: ',x[['errorMsg']]),call.=FALSE)
+                 else if(is.null(x[['data']])) stop(paste0("bitmarket place_limit_order error not handled by market: key field is NULL"),call.=FALSE)
+                 else x
+               }))
+  }
+  bitmarket_api_dict_open_orders <- function(market = "bitmarket", base = NA_character_, quote = NA_character_, action = "open_orders"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'orders', url = 'https://www.bitmarket.pl/api2/',
+               pre_process = c(function(x) {x[['method']] <- 'orders'; x}),
+               post_process = c(function(x){
+                 dt <- rbindlist(lapply(x[['data']], function(currency_pair){
+                   rbindlist(list(
+                     as.data.table(currency_pair[['sell']]),
+                     as.data.table(currency_pair[['buy']])
+                   ))
+                 }))
+                 if(nrow(dt) > 0){
+                   setnames(dt,'market','currency_pair') # proper name for BTCPLN
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                        market_timestamp = as.POSIXct(x[['time']], origin = '1970-01-01', tz = 'UTC'),
+                        open_orders = dt[,`:=`(base = toupper(substr(currency_pair,1,3)),
+                                               quote = toupper(substr(currency_pair,4,6)),
+                                               oid = as.character(id),
+                                               type = type,
+                                               price = as.numeric(rate),
+                                               amount = as.numeric(amount))
+                                         ][,list(base, quote, oid, type, price, amount)])
+                 }
+                 else if(nrow(dt) == 0){
+                   list(market = market,
+                        timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'), 
+                        market_timestamp = as.POSIXct(x[['time']], origin = '1970-01-01', tz = 'UTC'),
+                        open_orders = data.table(base = character(), quote = character(), 
+                                                 oid = character(), type = character(), price = numeric(), amount = numeric()))
+                 }
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0) stop(paste0('bitmarket open_orders market error: ',x[['errorMsg']]),call.=FALSE)
+                 else if(is.null(x[['data']])) stop(paste0("bitmarket open_orders error not handled by market: key field is NULL"),call.=FALSE)
+                 else x
+               }))
+  }
+  bitmarket_api_dict_cancel_order <- function(market = "bitmarket", base = NA_character_, quote = NA_character_, action = "cancel_order"){
+    data.table(market = market, base = base, quote = quote, action = action,
+               method = 'cancel', url = 'https://www.bitmarket.pl/api2/',
+               pre_process = c(function(x) list(method = 'cancel', id = x[['oid']])),
+               post_process = c(function(x){
+                 if(length(x[['error']]) > 0 && x[['error']]==406) return(data.table(market = character(), base = character(), quote = character(),
+                                                                                     timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC')[-1],
+                                                                                     market_timestamp = as.POSIXct(NA, origin = '1970-01-01', tz = 'UTC')[-1], 
+                                                                                     oid = character()))
+                 data.table(market = market, base = NA_character_, quote = NA_character_,
+                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
+                            market_timestamp = as.POSIXct(x[['time']], origin = '1970-01-01', tz = 'UTC'), 
+                            oid = NA_character_)
+               }),
+               catch_market_error = c(function(x){
+                 if(length(x[['error']]) > 0){
+                   if(x[['error']]==406){
+                     if(is.null(getOption("Rbitcoin.cancel_order.order_not_found"))) return(x) # will silently postprocessed to 0 row DT
+                     if(getOption("Rbitcoin.cancel_order.order_not_found")=="warning"){
+                       warning("bitmarket cancel_order was not performed, requested order not found",call. = FALSE)
+                       return(x)
+                     }
+                     if(getOption("Rbitcoin.cancel_order.order_not_found")=="error"){
+                       stop(paste0('bitmarket cancel_order was not performed: ',x[['error']],': ',x[['errorMsg']]),call.=FALSE)
+                     }
+                   }
+                   stop(paste0('bitmarket cancel_order market error: ',x[['error']],': ',x[['errorMsg']]),call.=FALSE)
+                 }
+                 if(is.null(x[['data']])) stop(paste0("bitmarket cancel_order error not handled by market: key element 'data' is NULL"),call.=FALSE)
+                 x
+               }))
+  }
   
   # generate dictionary
   api.dict.list <- list()
@@ -242,6 +258,12 @@ bitmarket_api_dict <- function(){
   api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_place_limit_order(base = base, quote = quote)
   
   base = 'LTC'; quote = 'PLN'
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_ticker(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_trades(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_order_book(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_place_limit_order(base = base, quote = quote)
+  
+  base = 'LTC'; quote = 'BTC'
   api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_ticker(base = base, quote = quote)
   api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_trades(base = base, quote = quote)
   api.dict.list[[length(api.dict.list)+1]] <- bitmarket_api_dict_order_book(base = base, quote = quote)
