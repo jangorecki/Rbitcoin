@@ -121,7 +121,7 @@ hitbtc_api_dict <- function(){
                           xx <- setDT(x[["trades"]])
                           if(!"side" %in% names(xx)) xx[,side:=NA_character_] # hitbtc bug: https://github.com/hitbtc-com/hitbtc-api/issues/4
                           xx[,`:=`(date = as.POSIXct(date*1e-3, origin='1970-01-01', tz='UTC'), price=as.numeric(price), amount=as.numeric(amount), tid = as.character(tid),
-                                   type = side)][type=="buy",type:="bid"][type=="sell",type:="ask"][,list(date,price,amount,tid,type)][length(date):0]
+                                   type = side)][type=="buy",type:="bid"][type=="sell",type:="ask"][,list(date,price,amount,tid,type)]
                         }
                       })
                }),
