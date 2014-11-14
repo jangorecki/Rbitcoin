@@ -105,7 +105,7 @@ hitbtc_api_dict <- function(){
                    url_add = "/recent?max_results=1000&format_item=object&side=true"
                  } # recent trades
                  else {
-                   url_add = paste0("?from=",x[['tid']],"&by=trade_id&sort=asc&start_index=0&max_results=1000&format_item=object&format_price=number&format_amount=number&format_amount_unit=currency&format_tid=string&format_timestamp=millisecond&format_wrap=true&side=true")
+                   url_add = paste0("?from=",x[['tid']],"&by=trade_id&sort=desc&start_index=0&max_results=1000&format_item=object&format_price=number&format_amount=number&format_amount_unit=currency&format_tid=string&format_timestamp=millisecond&format_wrap=true&side=true")
                    x[['tid']] <- NULL
                  } # since tid
                  assign('url', paste0(get('url',envir = parent.frame(1)),url_add),envir = parent.frame(1))
@@ -121,7 +121,7 @@ hitbtc_api_dict <- function(){
                           xx <- setDT(x[["trades"]])
                           if(!"side" %in% names(xx)) xx[,side:=NA_character_] # hitbtc bug: https://github.com/hitbtc-com/hitbtc-api/issues/4
                           xx[,`:=`(date = as.POSIXct(date*1e-3, origin='1970-01-01', tz='UTC'), price=as.numeric(price), amount=as.numeric(amount), tid = as.character(tid),
-                                   type = side)][type=="buy",type:="bid"][type=="sell",type:="ask"][,list(date,price,amount,tid,type)]
+                                   type = side)][type=="buy",type:="bid"][type=="sell",type:="ask"][,list(date,price,amount,tid,type)][length(date):0]
                         }
                       })
                }),
