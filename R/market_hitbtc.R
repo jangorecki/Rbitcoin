@@ -85,7 +85,7 @@ hitbtc_api_dict <- function(){
                  )[,lapply(.SD, as.numeric)
                    ][,list(market = market, base = base, quote = quote,
                            timestamp = as.POSIXct(Sys.time(), origin = '1970-01-01', tz = 'UTC'),
-                           market_timestamp = timestamp*1e-3,
+                           market_timestamp = as.POSIXct(timestamp*1e-3, origin = '1970-01-01', tz = 'UTC'),
                            last, vwap = NA_real_, volume, ask, bid)
                      ]
                }),
