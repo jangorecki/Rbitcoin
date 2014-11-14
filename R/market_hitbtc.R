@@ -105,7 +105,7 @@ hitbtc_api_dict <- function(){
                    url_add = "/recent?max_results=1000&format_item=object&side=true"
                  } # recent trades
                  else {
-                   url_add = paste0("?from=",x[['tid']],"&by=trade_id&sort=desc&start_index=0&max_results=1000&format_item=object&format_price=number&format_amount=number&format_amount_unit=currency&format_tid=string&format_timestamp=millisecond&format_wrap=true&side=true")
+                   url_add = paste0("?from=",x[['tid']],"&by=trade_id&sort=asc&start_index=0&max_results=1000&format_item=object&format_price=number&format_amount=number&format_amount_unit=currency&format_tid=string&format_timestamp=millisecond&format_wrap=true&side=true")
                    x[['tid']] <- NULL
                  } # since tid
                  assign('url', paste0(get('url',envir = parent.frame(1)),url_add),envir = parent.frame(1))
@@ -118,10 +118,18 @@ hitbtc_api_dict <- function(){
                       trades = {
                         if(length(x[["trades"]])==0) data.table(date = as.POSIXct(NA,origin='1970-01-01',tz='UTC')[-1], price = numeric(), amount = numeric(), tid = character(), type = character())
                         else{
-                          xx <- setDT(x[["trades"]])
+                          xx = setDT(x[["trades"]])
+                          # api issue: https://github.com/hitbtc-com/hitbtc-api/issues/6
+                          if(nrow(xx) >= 2){ # check ordering
+                            tid12 = xx[1:2,as.numeric(tid)]
+                            iorder = if(tid12[1] < tid12[2]) 1:nrow(xx) else if(tid12[1] > tid12[2]) nrow(xx):1 else stop("hitbtc trades postprocess, review API workaround in market_hitbtc for issue https://github.com/hitbtc-com/hitbtc-api/issues/6")
+                          }
+                          else if(nrow(xx) < 2){ # check ordering
+                            iorder = nrow(xx)
+                          }
                           if(!"side" %in% names(xx)) xx[,side:=NA_character_] # hitbtc bug: https://github.com/hitbtc-com/hitbtc-api/issues/4
                           xx[,`:=`(date = as.POSIXct(date*1e-3, origin='1970-01-01', tz='UTC'), price=as.numeric(price), amount=as.numeric(amount), tid = as.character(tid),
-                                   type = side)][type=="buy",type:="bid"][type=="sell",type:="ask"][,list(date,price,amount,tid,type)][length(date):0]
+                                   type = side)][type=="buy",type:="bid"][type=="sell",type:="ask"][,list(date,price,amount,tid,type)][iorder]
                         }
                       })
                }),
