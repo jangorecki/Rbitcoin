@@ -251,12 +251,12 @@ hitbtc_api_dict <- function(){
     data.table(market = market, base = base, quote = quote, action = action,
                method = 'trading/cancel_order', url = 'https://api.hitbtc.com/api/1/trading/cancel_order',
                pre_process = c(function(x){
-                 if(all(c("symbol","side") %in% names(x))){
+                 if(all(c("symbol","side","oid") %in% names(x))){
                    # workaround for https://github.com/hitbtc-com/hitbtc-api/issues/3
                    list(clientOrderId = x[['oid']],
                         cancelRequestClientOrderId = as.character(as.integer(Sys.time())),
                         symbol = x[['symbol']],
-                        side = x[['side']]) # temporary workaround
+                        side = x[['side']])
                  }
                  else{
                    list(clientOrderId = x[['oid']], cancelRequestClientOrderId = as.character(as.integer(Sys.time())))
