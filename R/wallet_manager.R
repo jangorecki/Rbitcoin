@@ -370,7 +370,7 @@ wallet_value <- function(wallet_dt,
                        ][order(currency_pair,priority)
                          ][,head(.SD,1),keyby=c('currency_pair'),.SDcols=c('market','base','quote')
                            ]
-  }
+  } # currency_pair is sorted here
     
   currency_to_rate <- {
     wallet_dt[,unique(data.table(currency, currency_type))]
@@ -384,7 +384,7 @@ wallet_value <- function(wallet_dt,
                                ]
   }
   
-  to_transfer_pair <- {
+  to_transfer_pair <- if(!all(currency_to_rate$currency %in% direct_pair$base)){ # only if there are some indirect lefts
     direct_to_indirect <- direct_pair[is.na(quote) & !is.na(currency_type)]
     if(nrow(direct_to_indirect) > 0){
       ct_vec <- ct_dt[,currency_type]
@@ -409,15 +409,19 @@ wallet_value <- function(wallet_dt,
       res <- data.table(currency_pair = character(), currency = character(), currency_type = character(), market = character(), base = character(), quote = character())
     }
     res
+  } else if(all(currency_to_rate$currency %in% direct_pair$base)){ # if all direct available then skill
+    data.table(currency_pair = character(), currency = character(), currency_type = character(), market = character(), base = character(), quote = character())
   }
   
-  transfer_pair <- {
+  transfer_pair <- if(!all(currency_to_rate$currency %in% direct_pair$base)){ # only if there are some indirect lefts
     priority.ticker.api.dict[currency_pair==paste(sort(transfer_currency_pair),collapse=''),
                              list(currency_pair, currency = transfer_currency_pair[[ifelse(value_currency_type=='fiat','crypto','fiat')]], currency_type = ifelse(value_currency_type=='fiat','crypto','fiat'), market, base, quote)
                              ]
+  } else if(all(currency_to_rate$currency %in% direct_pair$base)){ # if all direct available then skill
+    data.table(currency_pair = character(), currency = character(), currency_type = character(), market = character(), base = character(), quote = character())
   }
   
-  from_transfer_pair <- {
+  from_transfer_pair <- if(!all(currency_to_rate$currency %in% direct_pair$base)){ # only if there are some indirect lefts
     if(value_currency_type == 'fiat'){
       res <- data.table(currency_pair = paste(sort(c(value_currency,transfer_currency_pair[['fiat']])),collapse=''),
                         currency = transfer_currency_pair[['fiat']],
@@ -433,6 +437,8 @@ wallet_value <- function(wallet_dt,
       res <- priority.ticker.api.dict[dt, list(currency_pair, currency, currency_type, market, base, quote)]
     }
     res
+  } else if(all(currency_to_rate$currency %in% direct_pair$base)){ # if all direct available then skill
+    data.table(currency_pair = character(), currency = character(), currency_type = character(), market = character(), base = character(), quote = character())
   }
   
   all_pair <- rbindlist(list(
