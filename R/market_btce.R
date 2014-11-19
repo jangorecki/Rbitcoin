@@ -10,7 +10,7 @@
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc. See note.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
-#' @return Character string a response from market's API call.
+#' @return Character string a response from markets API call.
 #' @note Market specific btce \code{method} param should be provided in \code{req} object.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://btc-e.com/api/documentation}

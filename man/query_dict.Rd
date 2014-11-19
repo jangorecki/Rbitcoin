@@ -2,7 +2,7 @@
 \name{query_dict}
 \alias{query.dict}
 \alias{query_dict}
-\title{Market's API query function dictionary}
+\title{Market API query function dictionary}
 \usage{
 query_dict()
 }

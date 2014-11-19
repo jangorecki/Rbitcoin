@@ -42,7 +42,7 @@ market.api.process(market, currency_pair, action, req = list(), ...,
 \value{
 Unless \code{skip_post_process==TRUE} the returned value depends on the \code{action} param but does not depend on \code{market} anymore.
 It returns a list or data.table.
-It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you might use \code{skip_post_process=TRUE}.
+It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by markets API you might use \code{skip_post_process=TRUE}.
 All actions will return API call response but also metadata about API call itself, in a common structure across different markets.
 Follow Rbitcoin introduction vignette or examples.
 }

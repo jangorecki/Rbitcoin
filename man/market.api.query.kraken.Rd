@@ -18,7 +18,7 @@ market.api.query.kraken(url, key, secret, req = list(),
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \value{
-Character string a response from market's API call.
+Character string a response from markets API call.
 }
 \description{
 Send request to kraken market API.

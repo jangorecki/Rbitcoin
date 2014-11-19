@@ -12,7 +12,7 @@
 Utilities related to Bitcoin and other cryptocurrencies. Core functionalities are:
 \itemize{
 \item \code{fromBTC}, \code{toBTC} - fast conversion based on blockchain.info rates.
-\item \code{market.api.query} - launch query on market's API. Both public and private API calls supported. All methods and all currency pairs supported.
+\item \code{market.api.query} - launch query on markets API. Both public and private API calls supported. All methods and all currency pairs supported.
 \item \code{market.api.process} - launch query in a common way (for all markets), receive results in a common structure (for all markets). It will perform pre-process of API request, post-process of API results, and catch market error. Requires API dictionary definition, for built-in dictionary see \code{\link{api.dict}}.
 \item \code{blockchain.api.query} - launch query on blockchain.info API json interface.
 \item \code{blockchain.api.process} - launch query and postprocess results.
@@ -24,7 +24,7 @@ You need to note that imported \strong{digest} package docs states: \emph{Please
 It is advised to maintain your API keys security level as tight as possible, if you do not need withdraw api method be sure to disable it for api keys.\cr
 SSL will be used by default. It can be customized using \code{options("RCurlOptions")}, see examples or read \strong{RCurl} docs.\cr
 In case of SSL error try update certificate CA file (\code{cacert.pem} in \code{cainfo = system.file("CurlSSL","cacert.pem",package="RCurl")}), see references for CA file source. Alternatively you can always disable SSL.\cr
-At the time of writing the most recent market's API version were used:
+At the time of writing the most recent markets API version were used:
 \itemize{
 \item kraken v0
 \item bitstamp v2 (public) / ? (private)

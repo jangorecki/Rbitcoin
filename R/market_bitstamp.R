@@ -11,7 +11,7 @@
 #' @param secret character API secret used in private API calls.
 #' @param req list of object passed to API: price and amount of opening order, id of cancelling order, etc.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
-#' @return Character string a response from market's API call. Cancel order is an exception here, as bitstamp will not return json format for that method, it is additionally processed by toJSON.
+#' @return Character string a response from markets API call. Cancel order is an exception here, as bitstamp will not return json format for that method, it is additionally processed by toJSON.
 #' @seealso \code{\link{market.api.query}}
 #' @references \url{https://www.bitstamp.net/api/}
 #' @keywords internal

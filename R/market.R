@@ -31,7 +31,7 @@
 #' @return
 #' Unless \code{skip_post_process==TRUE} the returned value depends on the \code{action} param but does not depend on \code{market} anymore.
 #' It returns a list or data.table.
-#' It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by market's API you might use \code{skip_post_process=TRUE}.
+#' It will also result truncation of most (not common across the markets) attributes returned. If you need the full set of data returned by markets API you might use \code{skip_post_process=TRUE}.
 #' All actions will return API call response but also metadata about API call itself, in a common structure across different markets.
 #' Follow Rbitcoin introduction vignette or examples.
 #' @note The api dictionary was not fully tested, if you find any bugs please report. Use only api dictionaries from trusted source or review them before using!

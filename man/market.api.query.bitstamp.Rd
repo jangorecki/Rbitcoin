@@ -20,7 +20,7 @@ market.api.query.bitstamp(url, client_id, key, secret, req = list(),
 \item{verbose}{integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.}
 }
 \value{
-Character string a response from market's API call. Cancel order is an exception here, as bitstamp will not return json format for that method, it is additionally processed by toJSON.
+Character string a response from markets API call. Cancel order is an exception here, as bitstamp will not return json format for that method, it is additionally processed by toJSON.
 }
 \description{
 Send request to bitstamp market API.
