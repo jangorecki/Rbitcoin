@@ -19,7 +19,7 @@ Do not use \code{api.dict} from untrusted source or read whole it's code to ensu
 
 \itemize{
 \item \code{ticker}
-\item \code{trades} - recent trades, if \code{tid} provided then batch of trades data since particular \code{tid}
+\item \code{trades} - recent trades, if \code{tid} provided then batch of trades data since particular \code{tid}.
 \item \code{order_book}
 \item \code{wallet} - total balance
 \item \code{place_limit_order}
@@ -71,7 +71,7 @@ market="kraken"
 currency_pair=c("BTC","LTC")
 csv.file = paste(market,paste(currency_pair,collapse=""),"trades.csv",sep="_")
 batch_size = 1000 # kraken 1000, hitbtc 1000, bitmarket 500
-last_tid <- 0 # from the beginning
+last_tid = 0 # from the beginning
 repeat{
   trades_batch = tryCatch(
     market.api.process(market=market,currency_pair=currency_pair, action="trades",
@@ -91,8 +91,11 @@ repeat{
       " rows to ",csv.file," file, last inserted tid is ",last_tid,"\\n",sep="")
   if(nrow(trades_batch) < batch_size) break # last batch
 }
-trades <- fread(csv.file)[,date:=as.POSIXct(date,origin="1970-01-01",tz="UTC")]
+trades = fread(csv.file)[,date:=as.POSIXct(date,origin="1970-01-01",tz="UTC")]
 print(trades)
+
+# convert trades to xts
+trades.xts = trades[,list(date,price,amount)][,xts(.SD[,-1,with=FALSE], order.by=date)]
 }
 }
 \references{
