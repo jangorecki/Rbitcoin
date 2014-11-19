@@ -25,7 +25,7 @@ market.api.query(market, url, ..., antiddos = getOption("Rbitcoin.antiddos",
 \item{\dots}{objects to be passed to api: \code{key}, \code{secret}, \code{req}, \code{client_id} (used on bitstamp).}
 }
 \value{
-R object created by \code{fromJSON} decoded response from market's API call.
+R object created by \code{fromJSON} decoded response from markets API call.
 }
 \description{
 Route a request to particular market function according to dictionary \code{query.dict}.
