@@ -1,6 +1,6 @@
 # Rbitcoin
 
-Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, btce, bitmarket). Both public and private API calls. Other utils related to cryptocurrencies.
+Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, btce, hitbtc, bitmarket). Both public and private API calls. Other utils related to cryptocurrencies.
 
 See [introduction vignette](http://cran.r-project.org/web/packages/Rbitcoin/vignettes/introduction.html) and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.
 
