@@ -79,11 +79,11 @@ market.api.process(market = 'kraken', action = 'wallet', key = '', secret = '')
 # get wallet from all markets and combine
 wallet_all <- rbindlist(list(
   market.api.process(market = 'bitstamp', action = 'wallet',
-                     client_id = '', key = '', secret = ''),
+                     client_id = '', key = '', secret = '')[['wallet']],
   market.api.process(market = 'btce', action = 'wallet',
-                     method = '', key = '', secret = ''),
+                     method = '', key = '', secret = '')[['wallet']],
   market.api.process(market = 'kraken', action = 'wallet',
-                     key = '', secret = '')
+                     key = '', secret = '')[['wallet']]
 ))
 print(wallet_all)
 

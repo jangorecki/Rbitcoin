@@ -1,4 +1,4 @@
-Rbitcoin 0.9.3.9 (in dev)
+Rbitcoin 0.9.3.9.1 (in dev)
 ==============
 * vignette: vignette("introduction", package="Rbitcoin")
 * added hitbtc market support
@@ -26,6 +26,7 @@ Rbitcoin 0.9.3.9 (in dev)
   * one rbtc.plot() function for all Rbitcoin objects instead Rbitcoin.plot
   * removed extra arguments to save plot to file, now you need to use png(), svg(), etc.
   * improved wallet manager plot, added recent wallet plot
+  * still support passing arguments to base plot, e.g. col='blue'
 * api.dict:
   * default api.dict moved from RData to api_dict function
   * api.dict constructor functions in per market R source file

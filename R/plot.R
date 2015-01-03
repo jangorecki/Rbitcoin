@@ -54,7 +54,7 @@ rbtc.plot <- function(x, ...,
   switch(action,
          'order_book' = rbtc.plot.order_book(x, ..., verbose = verbose - 1),
          'trades' = rbtc.plot.trades(x, ..., verbose = verbose - 1),
-         'wallet_manager' = rbtc.plot.wallet_manager(wallet_dt= x, ..., verbose = verbose - 1))
+         'wallet_manager' = rbtc.plot.wallet_manager(wallet_dt = x, ..., verbose = verbose - 1))
   if(verbose > 0) cat(as.character(Sys.time()),': rbtc.plot: plotting finished','\n',sep='')
   invisible(NULL)
 }
@@ -63,6 +63,7 @@ rbtc.plot <- function(x, ...,
 
 #' @title Plot trades data
 #' @param x list, a result from \code{market.api.process(action="trades")}.
+#' @param \dots additional params to be passed to particular plot function.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @seealso \code{\link{market.api.process}}, \code{\link{rbtc.plot}}
 #' @export
@@ -71,12 +72,13 @@ rbtc.plot <- function(x, ...,
 #' trades <- market.api.process('kraken',c('BTC','EUR'),'trades')
 #' rbtc.plot(trades)
 #' }
-rbtc.plot.trades <- function(x,
+rbtc.plot.trades <- function(x, ...,
                              verbose = getOption("Rbitcoin.verbose",0)){
   plot(x = x[['trades']][['date']], y = x[['trades']][['price']],
        type = 'l', xlab = 'time', ylab = 'price',
        main = paste(x[['market']],paste0(x[['base']],x[['quote']]),'trades',sep=' '),
-       sub = as.character(x[['timestamp']], format = '%Y-%m-%d %H:%M:%S %Z'))
+       sub = as.character(x[['timestamp']], format = '%Y-%m-%d %H:%M:%S %Z'),
+       ...)
   mtext(side=1, line=-1, text="plot by Rbitcoin", adj=0, outer=TRUE, col = "darkgrey", cex = 0.7)
   grid()
   if(verbose > 0) cat(as.character(Sys.time()),': rbtc.plot.trades: performing plot','\n',sep='')
@@ -87,6 +89,7 @@ rbtc.plot.trades <- function(x,
 
 #' @title Plot order book data
 #' @param x list, a result from \code{market.api.process(action="order_book")}.
+#' @param \dots additional params to be passed to particular plot function.
 #' @param limit_pct numeric, percentage of limit from middle price. It acts like a zoom-in to the middle of order book plot.
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @seealso \code{\link{market.api.process}}, \code{\link{rbtc.plot}}
@@ -97,7 +100,7 @@ rbtc.plot.trades <- function(x,
 #' rbtc.plot(order_book)
 #' rbtc.plot(order_book, limit_pct = 0.5)
 #' }
-rbtc.plot.order_book <- function(x, 
+rbtc.plot.order_book <- function(x, ...,
                                  limit_pct = getOption("Rbitcoin.plot.limit_pct",Inf),
                                  verbose = getOption("Rbitcoin.verbose",0)){
   if(is.finite(limit_pct)){
@@ -111,7 +114,8 @@ rbtc.plot.order_book <- function(x,
   plot(x = v_price, y = v_amount,
        type = 'n', xlab = 'price', ylab = 'cum amount',
        main = paste(x[['market']],paste0(x[['base']],x[['quote']]),'order book',sep=' '),
-       sub = as.character(x[['timestamp']], format = '%Y-%m-%d %H:%M:%S %Z'))
+       sub = as.character(x[['timestamp']], format = '%Y-%m-%d %H:%M:%S %Z'),
+       ...)
   lines(x = x[['asks']][['price']], y = x[['asks']][['cum_amount']])
   lines(x = x[['bids']][['price']], y = x[['bids']][['cum_amount']])
   mtext(side=1, line=-1, text="plot by Rbitcoin", adj=0, outer=TRUE, col = "darkgrey", cex = 0.7)
