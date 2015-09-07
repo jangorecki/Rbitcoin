@@ -122,7 +122,7 @@ kraken_api_dict <- function(){
                    )
                  }
                  else{
-                   trades <- as.data.table(x[["result"]][[pair]][,1:4])
+                   trades <- as.data.table(x[["result"]][[pair]][,1:4,drop=FALSE])
                    setnames(trades,c("price","amount","date","type"))
                    trades[,`:=`(date = as.POSIXct(as.numeric(date),origin='1970-01-01',tz='UTC'),
                                 price = as.numeric(price),
