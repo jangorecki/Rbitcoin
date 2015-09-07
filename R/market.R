@@ -120,9 +120,19 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
   # catch market error
   res <- api.dict.local$catch_market_error[[1]](res)
   # post-process res from market
-  res <- api.dict.local$post_process[[1]](res)
+  post_process.debug = getOption("Rbitcoin.post_process.debug",FALSE)
+  if(post_process.debug){
+    ppres <- tryCatch(api.dict.local$post_process[[1]](res),
+             error = function(e){
+               saveRDS(res, paste0("Rbitcoin_post_process_debug_",market,"_",action,"_",as.character(Sys.time(),"%Y%m%d%H%M%S"),".rds"))
+               stop(e[["message"]], call. = FALSE)
+             })
+  }
+  else{
+    ppres <- api.dict.local$post_process[[1]](res)
+  }
   if(verbose > 0) cat(as.character(Sys.time()),': market.api.process: api call processed finished for ',market,' ',action,'\n',sep='')
-  return(res)
+  return(ppres)
 }
 
 # market.api.query -----------------------------------------------------

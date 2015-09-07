@@ -4,7 +4,7 @@ Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, b
 
 See [introduction vignette](http://cran.r-project.org/web/packages/Rbitcoin/vignettes/introduction.html) and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.
 
-**Current version**: 0.9.3.9 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
+**Current version**: 0.9.4 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
 
 Biggest changes are:
 * built-in antiddos
@@ -18,16 +18,14 @@ Biggest changes are:
 ```R
 # Rbitcoin 0.9.2 from CRAN
 install.packages("Rbitcoin")
-# Rbitcoin 0.9.3 from github
-devtools::install_github("jangorecki/Rbitcoin", build_vignettes=TRUE) # vignettes optional, takes a minute
-devtools::install_github("jangorecki/Rbitcoin") # no vignettes, much faster
+# Rbitcoin 0.9.4 from github
+install.packages("Rbitcoin", repos = "https://jangorecki.github.io/drat")
 ```
 
 ## Usage
 
 ```R
 library(Rbitcoin)
-vignette("introduction", package="Rbitcoin")
 ?btc
 ```
 

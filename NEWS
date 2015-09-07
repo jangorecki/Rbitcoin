@@ -1,10 +1,11 @@
-Rbitcoin 0.9.3.9.1 (in dev)
+Rbitcoin 0.9.4
 ==============
 * vignette: vignette("introduction", package="Rbitcoin")
 * added hitbtc market support
 * added toBTC/fromBTC functions for easier conversion
 * more examples in ?api.dict
 * dependency migrated from RJSONIO to jsonlite
+* added 'Rbitcoin.post_process.debug' option
 * market.api.process:
   * built-in antiddos, by default active, set to 10s
   * removed args: on.market.error, on.error
