@@ -344,5 +344,11 @@ kraken_api_dict <- function(){
   api.dict.list[[length(api.dict.list)+1]] <- kraken_api_dict_order_book(base = base, quote = quote)
   api.dict.list[[length(api.dict.list)+1]] <- kraken_api_dict_place_limit_order(base = base, quote = quote)
   
+  base = 'ETH'; quote = 'EUR'
+  api.dict.list[[length(api.dict.list)+1]] <- kraken_api_dict_ticker(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- kraken_api_dict_trades(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- kraken_api_dict_order_book(base = base, quote = quote)
+  api.dict.list[[length(api.dict.list)+1]] <- kraken_api_dict_place_limit_order(base = base, quote = quote)
+  
   unique(setkeyv(rbindlist(api.dict.list),c("market","base","quote","action")))
 }

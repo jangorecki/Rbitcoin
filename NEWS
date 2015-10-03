@@ -1,3 +1,7 @@
+Rbitcoin 0.9.5.1
+==============
+* added ETHEUR pair for kraken dictionary
+
 Rbitcoin 0.9.5
 ==============
 * added BTCGBP and ETHBTC pairs for kraken dictionary
