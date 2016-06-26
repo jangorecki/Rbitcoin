@@ -91,7 +91,7 @@ bitmarket_api_dict <- function(){
                                                     type = character())
                         else as.data.table(x)[,`:=`(date = as.POSIXct(date, origin='1970-01-01', tz='UTC'),
                                                     tid = as.character(tid),
-                                                    type = NA_character_)
+                                                    type = as.character(type))
                                               ][,list(date,price,amount,tid,type)
                                                 ][nrow(x):0]
                       })
