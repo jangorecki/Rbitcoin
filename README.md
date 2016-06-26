@@ -5,7 +5,7 @@ Utilities related to Bitcoin. Unified API interface for exchange markets (bitsta
 ## Installation
 
 ```R
-install.packages("Rbitcoin", repos="https://jangorecki.gitlab.io/Rbitcoin")
+install.packages("Rbitcoin", repos=c("https://jangorecki.gitlab.io/Rbitcoin","https://cran.rstudio.com"))
 ```
 
 ## Usage

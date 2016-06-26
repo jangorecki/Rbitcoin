@@ -8,7 +8,7 @@ pages:
     # run check
     - R CMD check $(ls -1t *.tar.gz | head -n 1) --no-manual --as-cran
     # produce artifacts
-    - Rscript -e 'drat::insertArtifacts(repodir="public", repo.url="https://jangorecki.gitlab.io/Rbitcoin")'
+    - Rscript -e 'drat::insertArtifacts(repo.url="https://jangorecki.gitlab.io/Rbitcoin", repo.cran=TRUE)'
   only:
     - master
   artifacts:
