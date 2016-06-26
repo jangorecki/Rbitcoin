@@ -40,7 +40,7 @@
 }
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage("You are using Rbitcoin 0.9.5.2, in case of migrating from CRAN release 0.9.2 see NEWS file for potentially breaking changes.")
+  packageStartupMessage("You are using Rbitcoin 0.9.6, in case of migrating from CRAN release 0.9.2 see NEWS file for potentially breaking changes.")
 }
 
 # default antiddos_fun cache
