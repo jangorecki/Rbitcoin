@@ -1,25 +1,11 @@
-# Rbitcoin
+# Rbitcoin [![Build Status](https://gitlab.com/jangorecki/Rbitcoin/badges/master/build.svg)](https://gitlab.com/jangorecki/Rbitcoin/builds)
 
-Utilities related to Bitcoin. Unified markets API interface (bitstamp, kraken, btce, hitbtc, bitmarket). Both public and private API calls. Other utils related to cryptocurrencies.
-
-See [introduction vignette](http://cran.r-project.org/web/packages/Rbitcoin/vignettes/introduction.html) and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.
-
-**Current version**: 0.9.5 [NEWS](https://github.com/jangorecki/Rbitcoin/blob/master/NEWS)
-
-Biggest changes are:
-* built-in antiddos
-* hitbtc market support
-* toBTC/fromBTC funs
-* improved wallet manager and its plot
-* simplified new market integration
+Utilities related to Bitcoin. Unified API interface for exchange markets (bitstamp, kraken, btce, bitmarket, hitbtc).
 
 ## Installation
 
 ```R
-# Rbitcoin 0.9.2 from CRAN
-install.packages("Rbitcoin")
-# Rbitcoin 0.9.5 from github
-install.packages("Rbitcoin", repos = "https://jangorecki.github.io/drat")
+install.packages("Rbitcoin", repos="https://jangorecki.gitlab.io/Rbitcoin")
 ```
 
 ## Usage
@@ -29,10 +15,4 @@ library(Rbitcoin)
 ?btc
 ```
 
-## License
-
-[MIT license](http://opensource.org/licenses/MIT)
-
-## Contact
-
-`J.Gorecki@wit.edu.pl`
+See [introduction vignette](http://jangorecki.gitlab.io/Rbitcoin/library/Rbitcoin/doc/introduction.html) and [shinyBTC](https://github.com/jangorecki/shinyBTC) a simple GUI for Rbitcoin.

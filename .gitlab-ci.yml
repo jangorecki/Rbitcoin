@@ -1,0 +1,16 @@
+pages:
+  image: docker.io/jangorecki/r-pkg
+  script:
+    # install deps
+    - Rscript -e 'install.packages(c("data.table","RCurl","digest","jsonlite"))'
+    # build pkg
+    - R CMD build .
+    # run check
+    - R CMD check $(ls -1t *.tar.gz | head -n 1) --no-manual --as-cran
+    # produce artifacts
+    - Rscript -e 'drat::insertArtifacts(repodir="public", repo.url="https://jangorecki.gitlab.io/Rbitcoin")'
+  only:
+    - master
+  artifacts:
+    paths:
+      - public

@@ -57,8 +57,6 @@ hitbtc_api_dict <- function(){
   # define global hitbtc technical
   hitbtc_lot_dict <- function(i){
     # lot.dict.generator - use for update lot.dict
-    #lot.dict.new <- setkeyv(setDT(fromJSON("https://api.hitbtc.com/api/1/public/symbols")[["symbols"]]),"symbol")[,c("step","lot","takeLiquidityRate","provideLiquidityRate") := lapply(.SD, as.numeric), .SDcols=c("step","lot","takeLiquidityRate","provideLiquidityRate")][]
-    #if(identical(lot.dict,lot.dict.new)) message("no need update lot.dict") else dput(x = lot.dict.new)
     lot.dict = data.table(
       symbol = c("BCNBTC", "BTCEUR", "BTCUSD", "DOGEBTC", "EURGBP", "EURUSD", "FCNBTC", "GBPUSD", "LTCBTC", "LTCEUR", "LTCUSD", "NXTBTC", "QCNBTC", "XDNBTC", "XMRBTC"),
       step = c(0.000000001, 0.01, 0.01, 0.000000001, 0.0001, 0.0001, 0.000001, 0.0001, 0.00001, 0.001, 0.001, 0.00000001, 0.000001, 0.000000001, 0.000001),

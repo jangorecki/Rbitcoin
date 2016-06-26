@@ -1,10 +1,5 @@
 .onLoad <- function(libname, pkgname){
-  
-  ## Dependencies options
-  
-  # data.table bug: https://github.com/Rdatatable/data.table/issues/858
-  options(datatable.auto.index=FALSE)
-  
+
   # turn off sci notation of numbers, important for market API calls
   options(scipen=100)
   
@@ -45,7 +40,7 @@
 }
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage("You are using Rbitcoin 0.9.4, be aware of the changes coming in this version. Do not auto update your production environment without testing. For details see NEWS file. This message will be removed in 0.9.5+.")
+  packageStartupMessage("You are using Rbitcoin 0.9.5.2, in case of migrating from CRAN release 0.9.2 see NEWS file for potentially breaking changes.")
 }
 
 # default antiddos_fun cache

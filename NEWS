@@ -1,11 +1,12 @@
-Rbitcoin 0.9.5.1
-==============
-* added ETHEUR pair for kraken dictionary
-
-Rbitcoin 0.9.5
+Rbitcoin 0.9.6
 ==============
 * added BTCGBP and ETHBTC pairs for kraken dictionary
 * updated dependency version required
+* added ETHEUR pair for kraken dictionary
+* bitmarket now supports trade type in trades method
+* switch upstream to GitLab and setup GitLab CI
+* lots of fixes for CRAN notes
+* added imports from core R pkgs: utils, stats, graphics, grDevices
 
 
 Rbitcoin 0.9.4

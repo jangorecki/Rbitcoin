@@ -7,7 +7,7 @@
 \alias{bitcoin}
 \alias{btc}
 \alias{rbtc}
-\title{R & bitcoin integration}
+\title{R & Bitcoin integration}
 \description{
 Utilities related to Bitcoin and other cryptocurrencies. Core functionalities are:
 \itemize{
@@ -34,9 +34,6 @@ At the time of writing the most recent markets API version were used:
 }
 
 For package-level options see examples below.
-
-If you find this package useful or you made profit from using it please consider donation to Rbitcoin: \url{bitcoin:15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi}.\cr
-Part of the received donations will likely be transferred to \strong{Rbitcoin} dependencies if and when they will setup BTC donation address: \strong{data.table}, \strong{RCurl}, \strong{jsonlite}, \strong{digest}, \strong{R Foundation}.
 
 There is also simple GUI app for \strong{Rbitcoin} package \strong{shinyBTC}: \url{https://github.com/jangorecki/shinyBTC}
 }
@@ -71,13 +68,10 @@ options(Rbitcoin.wallet_manager.archive_path = "wallet_archive.rds") # ?wallet_m
 options(Rbitcoin.query.dict = query_dict()) # ?query.dict
 options(Rbitcoin.api.dict = api_dict()) # ?api.dict
 options(Rbitcoin.ct.dict = ct_dict()) # ?ct.dict
-
-# data.table 1.9.4 bug #858, will be removed 1.9.6+
-options(datatable.auto.index=FALSE)
 }
 }
 \references{
-Issues report: \url{https://github.com/jangorecki/Rbitcoin/issues}\cr Example SSL CA file source: \url{http://curl.haxx.se/docs/caextract.html}
+Example SSL CA file source: \url{http://curl.haxx.se/docs/caextract.html}
 }
 \seealso{
 \code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{antiddos}}, \code{\link{fromBTC}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}

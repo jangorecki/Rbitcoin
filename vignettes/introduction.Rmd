@@ -130,8 +130,6 @@ Query blockchain.info API
 # some first wallets btc address details
 addr <- blockchain.api.process('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
 str(addr)
-# Rbitcoin donations btc address total received
-blockchain.api.process('15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi')[["total_received"]]
 # some transaction details
 tx <- blockchain.api.process('e5c4de1c70cb6d60db53410e871e9cab6a0ba75404360bf4cda1b993e58d45f8')
 str(tx, max.level=1)
@@ -221,29 +219,4 @@ rbtc.plot(wallet_dt)
 dev.off()
 ```
 
-Notice the graphs in this html are in *svg* format so are well zoomable.
-
-## Rbitcoin notes
-
-If you find this package useful or you made profit from using it please consider donation to Rbitcoin [15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi](https://blockchain.info/address/15Mb2QcgF3XDMeVn6M7oCG6CQLw4mkedDi).  
-Part of the received donations will likely be transferred to **Rbitcoin** dependencies if and when they will setup BTC donation address.
-
-#### Dependencies used
-
- * [data.table](http://cran.r-project.org/web/packages/data.table/index.html): any data manipulation, totally replaces data.frames
- * [RCurl](http://cran.r-project.org/web/packages/RCurl/index.html): connect to the market API interface over https
- * [digest](http://cran.r-project.org/web/packages/digest/index.html): authorize on market API private api calls
- * [jsonlite](http://cran.r-project.org/web/packages/jsonlite/index.html): decode market API response json string to R objects
- * [R](http://www.r-project.org/): R Core
-
-#### Contribution
-
-[Rbitcoin github](https://github.com/jangorecki/Rbitcoin):  
-
- * report issues
- * make feature request
- * make pull request
- 
-## License
-
-[MIT license](http://opensource.org/licenses/MIT)
+Notice the graphs in this html are in *svg* format so are well zoom-able.
