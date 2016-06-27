@@ -25,13 +25,14 @@
 #' \item btce v3 (public) / v1 (private)
 #' \item bitmarket v2
 #' \item hitbtc v1
+#' \item btcchina v1?
 #' }
 #' 
 #' For package-level options see examples below.
 #' 
 #' There is also simple GUI app for \strong{Rbitcoin} package \strong{shinyBTC}: \url{https://github.com/jangorecki/shinyBTC}
 #' 
-#' @seealso \code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{antiddos}}, \code{\link{fromBTC}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}
+#' @seealso \code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{fromBTC}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}
 #' @references Example SSL CA file source: \url{http://curl.haxx.se/docs/caextract.html}
 #' @docType package
 #' @import RCurl digest jsonlite data.table

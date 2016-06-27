@@ -19,15 +19,16 @@
 #' @section API dictionary exceptions:
 #' \itemize{
 #' \item bitstamp private api calls requires additional param \code{client_id}, see bitstamp api docs in references.
-#' \item Only 3 letters currency codes are supported as input (USD, GBP, BTC, etc.), longer (e.g. DOGE) were not tested and might not work.
+#' \item Only 3 letters currency codes are supported as input (USD, GBP, BTC, etc.).
 #' \item btce \code{wallet} will not provide total wallet balance if exists open orders, it will raise warning in such case, returned wallet will reflect the non-blocked assets.
 #' \item btce \code{cancel_order} market error with message \code{"bad status"} will be suppressed (by default) as it reflects 'order not found' exception. It is unknown if there are more \code{cancel_order} errors with such message.
 #' \item hitbtc \code{cancel_order} action requires extended \code{req}, see examples below. See repo \code{hitbtc-api} issue #3.
 #' \item hitbtc \code{trades} action for recent trades (no \code{tid} param) will include content of returned \code{type} field, but in case of method for trades since \code{tid} param then its field is empty. Open issue in repo \code{hitbtc-com/hitbtc-api} issue #4.
 #' \item hitbtc \code{wallet} action will return balance of the hitbtc trading subaccount, see examples below for hitbtc payment (main account) balance query. Also see \code{?wallet_manager} examples for hitbtc main balance in wallet manager.
-#' \item bitstamp and btce does not support \code{tid} (aka \code{since}) parameter to \code{trades} action. It is not possible to fetch full historical trades from API. See examples for alternative and also a regular API solution (kraken, hitbtc, bitmarket).
+#' \item bitstamp and btce does not support \code{tid} (aka \code{since}) parameter to \code{trades} action. It is not possible to fetch full historical trades from API. See examples for alternative and also a regular API solution (kraken, hitbtc, bitmarket, btcchina).
+#' \item btcchina \code{cancel_order} action optionally requires extended \code{req} for \code{market="LTCCNY"} etc., the default is \code{"LTCCNY"}.
 #' }
-#' @references API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}
+#' @references API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}, \url{https://www.btcc.com/apidocs}
 #' @export
 #' @aliases api.dict
 #' @examples
@@ -55,11 +56,11 @@
 #'              tid = NA_character_, type = NA_character_)
 #'        ][,c("V1","V2","V3"):=NULL][]
 #' 
-#' # historical data SLOW: loop using `tid` param - works only on kraken, hitbtc, bitmarket!
+#' # historical data SLOW: loop using `tid` param - works only on kraken, hitbtc, bitmarket, btcchina!
 #' market="kraken"
 #' currency_pair=c("BTC","LTC")
 #' csv.file = paste(market,paste(currency_pair,collapse=""),"trades.csv",sep="_")
-#' batch_size = 1000 # kraken 1000, hitbtc 1000, bitmarket 500
+#' batch_size = 1000 # kraken 1000, hitbtc 1000, bitmarket 500, btcchina 1000
 #' last_tid = 0 # from the beginning
 #' repeat{
 #'   trades_batch = tryCatch(
@@ -92,7 +93,8 @@ api_dict <- function(){
     bitstamp_api_dict(),
     btce_api_dict(),
     bitmarket_api_dict(),
-    hitbtc_api_dict()
+    hitbtc_api_dict(),
+    btcchina_api_dict()
     )
   api.dict <- rbindlist(api.dict.list)
   setkeyv(api.dict,c("market","base","quote","action"))
@@ -109,6 +111,7 @@ api_dict <- function(){
 #' \item \code{btce}
 #' \item \code{bitmarket}
 #' \item \code{hitbtc}
+#' \item \code{btcchina}
 #' }
 #' @note Do not use \code{query.dict} from untrusted source or read whole it's code to ensure it is safe! The api dictionary was not fully tested, please follow the examples, if you find any bugs please report.
 #' @export
@@ -123,7 +126,8 @@ query_dict <- function(){
     data.table(market = "bitstamp", query = c(market.api.query.bitstamp)),
     data.table(market = "btce", query = c(market.api.query.btce)),
     data.table(market = "bitmarket", query = c(market.api.query.bitmarket)),
-    data.table(market = "hitbtc", query = c(market.api.query.hitbtc))
+    data.table(market = "hitbtc", query = c(market.api.query.hitbtc)),
+    data.table(market = "btcchina", query = c(market.api.query.btcchina))
   )
   query.dict <- rbindlist(query.dict.list)
   setkeyv(query.dict,"market")

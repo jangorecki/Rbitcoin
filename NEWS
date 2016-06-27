@@ -1,3 +1,8 @@
+Rbitcoin 0.9.7
+==============
+* added btcchina market market interface and methods dictionary
+
+
 Rbitcoin 0.9.6
 ==============
 * added BTCGBP and ETHBTC pairs for kraken dictionary

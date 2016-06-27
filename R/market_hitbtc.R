@@ -103,8 +103,9 @@ hitbtc_api_dict <- function(){
                    url_add = "/recent?max_results=1000&format_item=object&side=true"
                  } # recent trades
                  else {
+                   # this is required due to: https://github.com/hitbtc-com/hitbtc-api/issues/6
                    url_add = paste0("?from=",x[['tid']],"&by=trade_id&sort=asc&start_index=0&max_results=1000&format_item=object&format_price=number&format_amount=number&format_amount_unit=currency&format_tid=string&format_timestamp=millisecond&format_wrap=true&side=true")
-                   x[['tid']] <- NULL
+                   x['tid'] <- NULL
                  } # since tid
                  assign('url', paste0(get('url',envir = parent.frame(1)),url_add),envir = parent.frame(1))
                  x

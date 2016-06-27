@@ -43,6 +43,8 @@ market.api.query(market = 'bitmarket',
                  url = 'https://www.bitmarket.pl/json/LTCPLN/ticker.json')
 market.api.query(market = 'hitbtc',
                  url = 'https://api.hitbtc.com/api/1/public/BTCUSD/ticker')
+market.api.query(market = 'btcchina',
+                 url = 'https://data.btcchina.com/data/ticker?market=btccny')
 # wallet
 market.api.query(market = 'bitstamp',
                  url = 'https://www.bitstamp.net/api/balance/',
@@ -61,6 +63,9 @@ market.api.query(market = 'bitmarket',
                  key = '', secret = '')
 market.api.query(market = 'hitbtc',
                  url = "https://api.hitbtc.com/api/1/trading/balance",
+                 key = '', secret = '')
+market.api.query(url = 'https://api.btcc.com/api_trade_v1.php',
+                 req = list(method = 'getAccountInfo'),
                  key = '', secret = '')
 # order book
 market.api.query(market = 'kraken',
@@ -87,9 +92,6 @@ market.api.query(market = 'kraken',
 market.api.query(market = 'kraken',
                  url = 'https://api.kraken.com/0/public/Trades?pair=XXBTZEUR')
 }
-}
-\references{
-API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}
 }
 \seealso{
 \code{\link{market.api.process}}, \code{\link{antiddos}}, \code{\link{query.dict}}

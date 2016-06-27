@@ -14,6 +14,7 @@ By default provided to \code{getOption("Rbitcoin.query.dict")}. This function re
 \item \code{btce}
 \item \code{bitmarket}
 \item \code{hitbtc}
+\item \code{btcchina}
 }
 }
 \note{

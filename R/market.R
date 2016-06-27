@@ -150,7 +150,6 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
 #' @param verbose integer. Rbitcoin processing messages, print to console if \code{verbose > 0}, each subfunction reduce \code{verbose} by 1. If missing then \code{getOption("Rbitcoin.verbose",0)} is used.
 #' @return R object created by \code{fromJSON} decoded response from markets API call.
 #' @seealso \code{\link{market.api.process}}, \code{\link{antiddos}}, \code{\link{query.dict}}
-#' @references API documentation: \url{https://www.bitstamp.net/api/}, \url{https://btc-e.com/api/documentation}, \url{https://www.kraken.com/help/api}, \url{https://www.bitmarket.pl/docs.php?file=api_private.html}, \url{https://github.com/hitbtc-com/hitbtc-api}
 #' @export
 #' @examples
 #' \dontrun{
@@ -165,6 +164,8 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
 #'                  url = 'https://www.bitmarket.pl/json/LTCPLN/ticker.json')
 #' market.api.query(market = 'hitbtc',
 #'                  url = 'https://api.hitbtc.com/api/1/public/BTCUSD/ticker')
+#' market.api.query(market = 'btcchina',
+#'                  url = 'https://data.btcchina.com/data/ticker?market=btccny')
 #' # wallet
 #' market.api.query(market = 'bitstamp', 
 #'                  url = 'https://www.bitstamp.net/api/balance/', 
@@ -183,6 +184,9 @@ market.api.process <- function(market, currency_pair, action, req = list(), ...,
 #'                  key = '', secret = '')
 #' market.api.query(market = 'hitbtc',
 #'                  url = "https://api.hitbtc.com/api/1/trading/balance",
+#'                  key = '', secret = '')
+#' market.api.query(url = 'https://api.btcc.com/api_trade_v1.php',
+#'                  req = list(method = 'getAccountInfo'),
 #'                  key = '', secret = '')
 #' # order book
 #' market.api.query(market = 'kraken', 

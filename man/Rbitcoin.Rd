@@ -31,6 +31,7 @@ At the time of writing the most recent markets API version were used:
 \item btce v3 (public) / v1 (private)
 \item bitmarket v2
 \item hitbtc v1
+\item btcchina v1?
 }
 
 For package-level options see examples below.
@@ -74,6 +75,6 @@ options(Rbitcoin.ct.dict = ct_dict()) # ?ct.dict
 Example SSL CA file source: \url{http://curl.haxx.se/docs/caextract.html}
 }
 \seealso{
-\code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{antiddos}}, \code{\link{fromBTC}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}
+\code{\link{market.api.process}}, \code{\link{blockchain.api.process}}, \code{\link{fromBTC}}, \code{\link{wallet_manager}}, \code{\link{rbtc.plot}}, \code{\link{api.dict}}
 }
 

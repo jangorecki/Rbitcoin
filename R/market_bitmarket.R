@@ -75,7 +75,7 @@ bitmarket_api_dict <- function(){
                pre_process = c(function(x){
                  if(!is.null(x[['tid']])){
                    assign('url', paste0(get('url',envir = parent.frame(1)),'?since=',as.character(x[['tid']])),envir = parent.frame(1))
-                   x[['tid']] <- NULL
+                   x['tid'] <- NULL
                  }
                  x
                }),
